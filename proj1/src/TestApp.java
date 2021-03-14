@@ -5,6 +5,7 @@ import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Scanner;
 
 
 // java Client <host_name> <remote_object_name> <oper> <opnd>*
@@ -54,22 +55,21 @@ public class TestApp {
 
     }
 
-    private void processRequest(SubProtocol protocol){
+    private void processRequest(SubProtocol protocol,File file){
         try {
             switch (protocol) {
-                case STATE -> stub.state();
-                case BACKUP -> stub.backup();
-                case DELETE -> stub.delete();
-                case RECLAIM -> stub.reclaim();
-                case RESTORE -> stub.restore();
+                case STATE -> stub.state(file);
+                case BACKUP -> stub.backup(file);
+                case DELETE -> stub.delete(file);
+                case RECLAIM -> stub.reclaim(file);
+                case RESTORE -> stub.restore(file);
             }
         }
         catch (RemoteException e) {
             e.printStackTrace();
         }
-
-
     }
+
 
     private void connectRmi(){
         try {
@@ -81,14 +81,19 @@ public class TestApp {
             e.printStackTrace();
         }
     }
+    private File getFile(){
+        File file = new File(this.path);
+        if(file.exists() && file.canRead()) return file;
+        else return null;
+    }
 
     public static void main(String[] args) throws IOException {
         TestApp testApp = new TestApp();
         testApp.parseArguments(args);
         testApp.connectRmi();
-        System.out.println("after connection");
-        testApp.processRequest(testApp.subProtocol);
-        System.out.println("end");
+        File file = testApp.getFile();
+        if(file != null) testApp.processRequest(testApp.subProtocol,file);
+        else System.out.println("Error getting file");
 
     }
 }

@@ -1,3 +1,5 @@
+import utils.FileHandler;
+
 import java.io.*;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -5,6 +7,8 @@ import java.util.HashMap;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
+import java.util.Scanner;
 
 //java Server <remote_object_name>
 public class Server implements RemoteObject {
@@ -31,30 +35,34 @@ public class Server implements RemoteObject {
     }
 
     @Override
-    public String backup() throws RemoteException {
-        System.out.println("Backup");
-        return null;
+    public String backup(File file) throws RemoteException {
+        FileHandler fileHandler = new FileHandler(file);
+        List<File> files = fileHandler.splitFile();
+        for (File f:files) {
+            System.out.println(f.length());
+        }
+        return "";
     }
 
     @Override
-    public String restore() throws RemoteException {
+    public String restore(File file) throws RemoteException {
         System.out.println("Restore");
         return null;
     }
 
     @Override
-    public String delete() throws RemoteException {
+    public String delete(File file) throws RemoteException {
         System.out.println("Delete");
         return null;
     }
 
     @Override
-    public String state() throws RemoteException {
+    public String state(File file) throws RemoteException {
         System.out.println("State");
         return null;
     }
     @Override
-    public String reclaim() throws RemoteException {
+    public String reclaim(File file) throws RemoteException {
         System.out.println("Reclaim");
         return null;
     }
