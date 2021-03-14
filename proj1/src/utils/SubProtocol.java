@@ -1,4 +1,6 @@
-enum SubProtocol {
+package utils;
+
+public enum SubProtocol {
     BACKUP,
     RESTORE,
     DELETE,

@@ -1,2 +1,4 @@
 javac -cp . Server.java TestApp.java
-java -cp . TestApp localhost ola register  www.google.com 173.194.216.104
+#If you choose to use RMI in the communication between the test application and the peer,
+# you should use as access point the name of the remote object providing the "testing" service.
+java -cp . TestApp access BACKUP test1.pdf 3
