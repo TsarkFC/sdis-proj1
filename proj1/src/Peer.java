@@ -9,7 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 //java Server <remote_object_name>
-public class Server implements RemoteObject {
+public class Peer implements RemoteObject {
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -19,7 +19,7 @@ public class Server implements RemoteObject {
 
         String remoteObjName = args[0];
         try {
-            Server obj = new Server();
+            Peer obj = new Peer();
             RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(obj, 0);
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
@@ -45,6 +45,7 @@ public class Server implements RemoteObject {
             }
 
         }
+
 
 
         //Send message
