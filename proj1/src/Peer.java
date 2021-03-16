@@ -2,16 +2,14 @@ import utils.FileHandler;
 
 import java.io.*;
 import java.rmi.RemoteException;
-import java.util.HashMap;
 
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.Scanner;
 
 //java Server <remote_object_name>
-public class Server implements RemoteObject {
+public class Peer implements RemoteObject {
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -21,7 +19,7 @@ public class Server implements RemoteObject {
 
         String remoteObjName = args[0];
         try {
-            Server obj = new Server();
+            Peer obj = new Peer();
             RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(obj, 0);
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
@@ -38,6 +36,7 @@ public class Server implements RemoteObject {
     public String backup(File file) throws RemoteException {
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
+
 
 
         //Send message

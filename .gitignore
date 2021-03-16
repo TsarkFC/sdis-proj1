@@ -1,4 +1,4 @@
 .idea/
 proj1.iml
 sdis-proj.iml
-
+*.class

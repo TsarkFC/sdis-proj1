@@ -1,5 +1,5 @@
 export CLASSPATH=
 fuser -k 1099/tcp
 rmiregistry &
-javac -cp . Server.java
-java -cp . Server access
+javac -cp . Peer.java
+java -cp . Peer access
