@@ -46,6 +46,10 @@ public class TestApp {
                 return;
             }
             this.replicationDegree = Integer.parseInt(args[this.REPLICATION_DEGREE_IDX]);
+            if(this.replicationDegree>9){
+                System.out.println("Replication degree must be one digit!");
+                return;
+            }
         }else {
             System.out.println("Only BACKUP has 4 arguments!");
             System.out.println("Usage: <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
@@ -59,7 +63,7 @@ public class TestApp {
         try {
             switch (protocol) {
                 case STATE -> stub.state(file);
-                case BACKUP -> stub.backup(file);
+                case BACKUP -> stub.backup(file,replicationDegree);
                 case DELETE -> stub.delete(file);
                 case RECLAIM -> stub.reclaim(file);
                 case RESTORE -> stub.restore(file);

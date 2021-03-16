@@ -2,13 +2,11 @@ import utils.FileHandler;
 
 import java.io.*;
 import java.rmi.RemoteException;
-import java.util.HashMap;
 
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.Scanner;
 
 //java Server <remote_object_name>
 public class Server implements RemoteObject {
@@ -35,9 +33,18 @@ public class Server implements RemoteObject {
     }
 
     @Override
-    public String backup(File file) throws RemoteException {
+    public String backup(File file,int repDegree) throws RemoteException {
+
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
+        for (int i = 0; i < chunks.size(); i++) {
+            String fileId = fileHandler.createFileId();
+            int chunkNo = i;
+            for (int j = 0; j < repDegree; j++) {
+
+            }
+
+        }
 
 
         //Send message
