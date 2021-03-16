@@ -37,10 +37,12 @@ public class Server implements RemoteObject {
     @Override
     public String backup(File file) throws RemoteException {
         FileHandler fileHandler = new FileHandler(file);
-        List<File> files = fileHandler.splitFile();
-        for (File f:files) {
-            System.out.println(f.length());
-        }
+        List<byte[]> chunks = fileHandler.splitFile();
+
+
+        //Send message
+
+
         return "";
     }
 

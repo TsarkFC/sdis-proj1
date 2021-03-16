@@ -1,7 +1,10 @@
 package utils;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,25 +31,42 @@ public class FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return newFile;
 
     }
 
 
+    public String createFileId(){
+        //Is not thread safe
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        String id = file.getName() +file.lastModified() +file.length();
+        byte[] encodedhash = digest.digest(
+                id.getBytes(StandardCharsets.UTF_8));
+        return new String(encodedhash);
+    }
 
-    public List<File> splitFile()  {
-        List<File> chunks = new ArrayList<>();
+
+
+    public List<byte[]> splitFile()  {
+        List<byte[]> chunks = new ArrayList<>();
         String name = file.getName();
         int counter = 0;
         try {
             FileInputStream inputStream = new FileInputStream(file);
+            System.out.println("File size: " + file.length());
             byte[] chunk = new byte[CHUNK_SIZE];
             int chunkLen = 0;
             while ((chunkLen = inputStream.read(chunk)) != -1) {
                 counter++;
-                File chunkFile =createFileFromBytes(chunk,name,counter);
-                chunks.add(chunkFile);
+                //System.out.println(chunkLen + "ZAS");
+                //File chunkFile =createFileFromBytes(chunk,name,counter);
+                //chunks.add(chunkFile);
+                chunks.add(chunk);
             }
         } catch (FileNotFoundException fnfE) {
             // file not found, handle case
