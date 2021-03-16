@@ -8,6 +8,9 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 //java Server <remote_object_name>
 public class Peer implements RemoteObject {
@@ -38,21 +41,19 @@ public class Peer implements RemoteObject {
 
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
+        String fileId = fileHandler.createFileId();
         for (int i = 0; i < chunks.size(); i++) {
-            String fileId = fileHandler.createFileId();
             int chunkNo = i;
             PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkNo,repDegree,chunks.get(i));
             for (int j = 0; j < repDegree; j++) {
                 //send messages
             }
-
         }
 
 
 
+
         //Send message
-
-
         return "";
     }
 
@@ -77,6 +78,13 @@ public class Peer implements RemoteObject {
     public String reclaim(File file) throws RemoteException {
         System.out.println("Reclaim");
         return null;
+    }
+
+
+    public void startMulticastThread(String mcast_addr,int mcast_port,String message){
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        Multicast multicastThread = new Multicast(mcast_port,mcast_addr,message);
+        executor.scheduleAtFixedRate(multicastThread,0,1, TimeUnit.SECONDS);
     }
 
 }
