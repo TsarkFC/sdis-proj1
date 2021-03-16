@@ -1,3 +1,4 @@
+import messages.PutChunk;
 import utils.FileHandler;
 
 import java.io.*;
@@ -40,8 +41,9 @@ public class Peer implements RemoteObject {
         for (int i = 0; i < chunks.size(); i++) {
             String fileId = fileHandler.createFileId();
             int chunkNo = i;
+            PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkNo,repDegree,chunks.get(i));
             for (int j = 0; j < repDegree; j++) {
-
+                //send messages
             }
 
         }

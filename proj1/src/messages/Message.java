@@ -13,12 +13,12 @@ abstract class Message {
     Double version;
     String messageType;
     Integer senderId;
-    Integer fileId;
+    String fileId;
     Integer chunkNo;
     Integer replicationDeg;
-    String body;
+    byte[] body;
 
-    public Message(Double version, String messageType, Integer senderId, Integer fileId, Integer chunkNo, Integer replicationDeg, String body) {
+    public Message(Double version, String messageType, Integer senderId, String fileId, Integer chunkNo, Integer replicationDeg, byte[] body) {
         this.version = version;
         this.messageType = messageType;
         this.senderId = senderId;
