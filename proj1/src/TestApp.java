@@ -97,8 +97,9 @@ public class TestApp {
         testApp.parseArguments(args);
         testApp.connectRmi();
         File file = testApp.getFile();
-        if(file != null) testApp.processRequest(testApp.subProtocol,file);
-        else System.out.println("Error getting file");
+        testApp.processRequest(testApp.subProtocol,file);
+        /*if(file != null) testApp.processRequest(testApp.subProtocol,file);
+        else System.out.println("Error getting file");*/
 
     }
 }

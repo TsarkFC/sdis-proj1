@@ -15,6 +15,10 @@ import java.util.concurrent.TimeUnit;
 //java Server <remote_object_name>
 public class Peer implements RemoteObject {
 
+    private final double protocol_version = 1.0;
+    private final int peerId = 0;
+
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Usage: java Server <remote_object_name>");
@@ -39,7 +43,16 @@ public class Peer implements RemoteObject {
     @Override
     public String backup(File file,int repDegree) throws RemoteException {
 
-        FileHandler fileHandler = new FileHandler(file);
+        System.out.println("ZAS");
+        //MC
+        //MDB
+
+        //MulticastMessage
+
+
+        //MDB Processava
+
+        /*FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
         for (int i = 0; i < chunks.size(); i++) {
@@ -48,7 +61,7 @@ public class Peer implements RemoteObject {
             for (int j = 0; j < repDegree; j++) {
                 //send messages
             }
-        }
+        }*/
 
 
 
