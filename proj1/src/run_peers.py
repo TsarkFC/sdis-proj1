@@ -17,7 +17,7 @@ def peer():
     os._exit(0)  
 
 def start():
-    subprocess.run(["fuser", "-k", "1099/tcp"], env=dict(CLASSPATH='', **os.environ))
+    subprocess.run(["fuser", "-k", "1099/tcp"])
     subprocess.run("rmiregistry &", shell=True)
     subprocess.run(["javac", "-cp", ".", "Peer.java"])
 

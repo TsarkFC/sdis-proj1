@@ -1,9 +1,13 @@
+import messages.PutChunk;
+import utils.FileHandler;
+
 import java.io.*;
 import java.rmi.RemoteException;
 
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,10 +41,14 @@ public class Peer implements RemoteObject {
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(remoteObjName, stub);
-            System.err.println("Server ready");
+            System.err.println("Initiator peer ready");
         } catch (Exception e) {
-            System.out.println("Hosting peer already associated to rmi");
+            System.out.println("Peer started");
         }
+
+        //Create the channels
+        createMDBChannel(MDB_HOSTNAME,MDB_PORT);
+
 
 
     }
@@ -51,31 +59,37 @@ public class Peer implements RemoteObject {
 
     public void startMulticastThread(String mcast_addr, int mcast_port, String message){
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        BackupChannel multicastThread = new BackupChannel(mcast_port, mcast_addr, message);
+        Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
+        //Isto aqui é mesmo preciso mandar at fixed rate como lab 2?
         executor.scheduleAtFixedRate(multicastThread,0,1, TimeUnit.SECONDS);
+    }
+
+    public static void createMDBChannel(String mcast_addr, int mcast_port){
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        BackupChannel backupChannel = new BackupChannel(mcast_port, mcast_addr);
+        //Isto aqui é mesmo preciso mandar at fixed rate como lab 2?
+        executor.schedule(backupChannel,0, TimeUnit.SECONDS);
+
     }
 
     @Override
     public String backup(File file,int repDegree) throws RemoteException {
 
-        System.out.println("ZAS");
-        //startMulticastThread(MC_HOSTNAME,MC_PORT,"oi");
+        //Initiator peer recieved backup from client
+        System.out.println("Initiator peer recieved backup from client");
         startMulticastThread(MDB_HOSTNAME,MDB_PORT,"Multicast message mdb");
-        //MC
-        //MDB
 
-        //MulticastMessage
-
-
-        //MDB Processava
-
+        //A quem e que ele deve enviar os chunks?
+        //Nao vai enviar de broadcast a toda gente
+        //É suposto escolher randomly
         /*FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
         for (int i = 0; i < chunks.size(); i++) {
             int chunkNo = i;
             PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkNo,repDegree,chunks.get(i));
-            for (int j = 0; j < repDegree; j++) {
+            String msg = backupMsg.getMsgString();
+            /*for (int j = 0; j < repDegree; j++) {
                 //send messages
             }
         }*/

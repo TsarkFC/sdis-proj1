@@ -28,6 +28,11 @@ abstract class Message {
         this.body = body;
     }
 
+    public String getMsgString(){
+        //<Version> <MessageType> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF>
+        return  String.format("%s %s %d %s %d %d %s",this.version,this.messageType,this.senderId,this.fileId,this.chunkNo,this.replicationDeg,this.body);
+    }
+
 
     public Byte[] messageBytes() {
         return new Byte[10];

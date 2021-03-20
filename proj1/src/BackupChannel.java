@@ -1,38 +1,41 @@
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 public class BackupChannel implements Runnable {
 
     private final String mcast_addr;
     private final int mcast_port;
-    private final String message;
 
-    public BackupChannel(int mcast_port, String mcast_addr, String message){
+
+    public BackupChannel(int mcast_port, String mcast_addr){
         this.mcast_addr = mcast_addr;
         this.mcast_port = mcast_port;
-        this.message = message;
-    }
-
-    public void multicast(String message) throws IOException {
 
     }
 
-    public void printMulticastMsg(){
-        System.out.println("Multicast: " +mcast_addr + " " + mcast_port );
-    }
 
     @Override
     public void run() {
-        MulticastSocket socket = null;
+
         try {
-            socket = new MulticastSocket();
-            InetAddress group = InetAddress.getByName(mcast_addr);
-            byte[] buf = message.getBytes();
-            DatagramPacket datagramPacket = new DatagramPacket(buf,buf.length,group,mcast_port);
-            socket.send(datagramPacket);
-            socket.close();
+            InetAddress mcast_addr = InetAddress.getByName(this.mcast_addr);
+            MulticastSocket mcast_socket = null;
+            mcast_socket = new MulticastSocket(mcast_port);
+            mcast_socket.joinGroup(mcast_addr);
+            byte[] rbuf = new byte[256];
+
+            DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
+            mcast_socket.receive(packet);
+
+            String rcvd = new String(packet.getData(), 0, packet.getLength());
+            System.out.println("All peers recieve MBD Msg: " +rcvd);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 }
