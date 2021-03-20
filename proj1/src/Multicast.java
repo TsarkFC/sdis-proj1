@@ -7,7 +7,7 @@ public class Multicast implements Runnable {
     private final int mcast_port;
     private final String message;
 
-    public Multicast(int mcast_port,String mcast_addr,String message){
+    public Multicast(int mcast_port, String mcast_addr, String message){
         this.mcast_addr = mcast_addr;
         this.mcast_port = mcast_port;
         this.message = message;
@@ -31,11 +31,8 @@ public class Multicast implements Runnable {
             DatagramPacket datagramPacket = new DatagramPacket(buf,buf.length,group,mcast_port);
             socket.send(datagramPacket);
             socket.close();
-        } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

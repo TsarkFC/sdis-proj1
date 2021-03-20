@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-//java Server <remote_object_name>
+//java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
 
     private final double protocol_version = 1.0;
@@ -38,6 +38,16 @@ public class Peer implements RemoteObject {
             e.printStackTrace();
         }
 
+    }
+
+    // multicast channel, the control channel (MC), that is used for control messages.
+    // All peers must subscribe the MC channel.
+    // Some subprotocols use also one of two multicast data channels, MDB and MDR, which are used to backup and restore file chunk data.
+
+    public void startMulticastMThread(String mcast_addr, int mcast_port, String message){
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
+        executor.scheduleAtFixedRate(multicastThread,0,1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -94,10 +104,6 @@ public class Peer implements RemoteObject {
     }
 
 
-    public void startMulticastThread(String mcast_addr,int mcast_port,String message){
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        Multicast multicastThread = new Multicast(mcast_port,mcast_addr,message);
-        executor.scheduleAtFixedRate(multicastThread,0,1, TimeUnit.SECONDS);
-    }
+
 
 }

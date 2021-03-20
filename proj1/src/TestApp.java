@@ -5,7 +5,6 @@ import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Scanner;
 
 
 // java Client <host_name> <remote_object_name> <oper> <opnd>*
