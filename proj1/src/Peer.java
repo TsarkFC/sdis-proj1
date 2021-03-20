@@ -1,5 +1,10 @@
+import channels.BackupChannel;
+import channels.Channel;
+import channels.ControlChannel;
 import messages.PutChunk;
 import utils.FileHandler;
+import utils.Multicast;
+import utils.ThreadHandler;
 
 import java.io.*;
 import java.rmi.RemoteException;
@@ -7,6 +12,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,14 +23,7 @@ public class Peer implements RemoteObject {
 
     private final double protocol_version = 1.0;
     private final int peerId = 0;
-    private final static  String MC_HOSTNAME="228.25.25.25";
-    private final static int  MC_PORT=4445;
 
-    private final static  String MDB_HOSTNAME="228.25.25.25";
-    private final static int  MDB_PORT=4446;
-
-    private final static  String MDC_HOSTNAME="228.25.25.25";
-    private final static int  MDC_PORT=4447;
 
 
 
@@ -41,14 +40,14 @@ public class Peer implements RemoteObject {
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(remoteObjName, stub);
+
             System.err.println("Initiator peer ready");
         } catch (Exception e) {
             System.out.println("Peer started");
         }
 
         //Create the channels
-        createMDBChannel(MDB_HOSTNAME,MDB_PORT);
-
+        createMDBChannel();
 
 
     }
@@ -57,19 +56,22 @@ public class Peer implements RemoteObject {
     // All peers must subscribe the MC channel.
     // Some subprotocols use also one of two multicast data channels, MDB and MDR, which are used to backup and restore file chunk data.
 
-    public void startMulticastThread(String mcast_addr, int mcast_port, String message){
+    public void startMulticastThread(String mcast_addr, int mcast_port, List<String> message){
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
-        //Isto aqui é mesmo preciso mandar at fixed rate como lab 2?
-        executor.scheduleAtFixedRate(multicastThread,0,1, TimeUnit.SECONDS);
+        executor.schedule(multicastThread,0, TimeUnit.SECONDS);
     }
 
-    public static void createMDBChannel(String mcast_addr, int mcast_port){
+    public static void createMDBChannel(){
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        BackupChannel backupChannel = new BackupChannel(mcast_port, mcast_addr);
-        //Isto aqui é mesmo preciso mandar at fixed rate como lab 2?
+        BackupChannel backupChannel = new BackupChannel();
         executor.schedule(backupChannel,0, TimeUnit.SECONDS);
+    }
 
+    public static void createMCChannel(){
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        ControlChannel controlChannel = new ControlChannel();
+        executor.schedule(controlChannel,0, TimeUnit.SECONDS);
     }
 
     @Override
@@ -77,22 +79,27 @@ public class Peer implements RemoteObject {
 
         //Initiator peer recieved backup from client
         System.out.println("Initiator peer recieved backup from client");
-        startMulticastThread(MDB_HOSTNAME,MDB_PORT,"Multicast message mdb");
+
+        List<String> messages = new ArrayList<>();
 
         //A quem e que ele deve enviar os chunks?
         //Nao vai enviar de broadcast a toda gente
         //É suposto escolher randomly
-        /*FileHandler fileHandler = new FileHandler(file);
+        FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
         for (int i = 0; i < chunks.size(); i++) {
             int chunkNo = i;
             PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkNo,repDegree,chunks.get(i));
             String msg = backupMsg.getMsgString();
+            messages.add(msg);
             /*for (int j = 0; j < repDegree; j++) {
                 //send messages
-            }
-        }*/
+            }*/
+        }
+        //Ele esta a enviar para todos os peers
+        ThreadHandler.startMulticastThread(Channel.getMdbHostname(),Channel.getMdbPort(),messages);
+
 
 
 

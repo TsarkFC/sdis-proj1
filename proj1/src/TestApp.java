@@ -86,19 +86,21 @@ public class TestApp {
         }
     }
     private File getFile(){
+        System.out.println(this.path);
         File file = new File(this.path);
         if(file.exists() && file.canRead()) return file;
         else return null;
     }
 
     public static void main(String[] args) throws IOException {
+
+
         TestApp testApp = new TestApp();
         testApp.parseArguments(args);
         testApp.connectRmi();
         File file = testApp.getFile();
-        testApp.processRequest(testApp.subProtocol,file);
-        /*if(file != null) testApp.processRequest(testApp.subProtocol,file);
-        else System.out.println("Error getting file");*/
+        if(file != null) testApp.processRequest(testApp.subProtocol,file);
+        else System.out.println("Error getting file");
 
     }
 }
