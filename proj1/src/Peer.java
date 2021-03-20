@@ -48,6 +48,8 @@ public class Peer implements RemoteObject {
 
         //Create the channels
         createMDBChannel();
+        //É suposto ele so estar a aparecer no initiator peer as mensagens de stored?
+        createMCChannel();
 
 
     }
