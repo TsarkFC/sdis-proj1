@@ -1,13 +1,9 @@
-import messages.PutChunk;
-import utils.FileHandler;
-
 import java.io.*;
 import java.rmi.RemoteException;
 
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +13,15 @@ public class Peer implements RemoteObject {
 
     private final double protocol_version = 1.0;
     private final int peerId = 0;
+    private final static  String MC_HOSTNAME="228.25.25.25";
+    private final static int  MC_PORT=4445;
+
+    private final static  String MDB_HOSTNAME="228.25.25.25";
+    private final static int  MDB_PORT=4446;
+
+    private final static  String MDC_HOSTNAME="228.25.25.25";
+    private final static int  MDC_PORT=4447;
+
 
 
     public static void main(String[] args) {
@@ -38,15 +43,16 @@ public class Peer implements RemoteObject {
             e.printStackTrace();
         }
 
+
     }
 
     // multicast channel, the control channel (MC), that is used for control messages.
     // All peers must subscribe the MC channel.
     // Some subprotocols use also one of two multicast data channels, MDB and MDR, which are used to backup and restore file chunk data.
 
-    public void startMulticastMThread(String mcast_addr, int mcast_port, String message){
+    public void startMulticastThread(String mcast_addr, int mcast_port, String message){
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
+        BackupChannel multicastThread = new BackupChannel(mcast_port, mcast_addr, message);
         executor.scheduleAtFixedRate(multicastThread,0,1, TimeUnit.SECONDS);
     }
 
@@ -54,6 +60,8 @@ public class Peer implements RemoteObject {
     public String backup(File file,int repDegree) throws RemoteException {
 
         System.out.println("ZAS");
+        //startMulticastThread(MC_HOSTNAME,MC_PORT,"oi");
+        startMulticastThread(MDB_HOSTNAME,MDB_PORT,"Multicast message mdb");
         //MC
         //MDB
 

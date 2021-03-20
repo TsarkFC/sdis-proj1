@@ -1,13 +1,13 @@
 import java.io.IOException;
 import java.net.*;
 
-public class Multicast implements Runnable {
+public class BackupChannel implements Runnable {
 
     private final String mcast_addr;
     private final int mcast_port;
     private final String message;
 
-    public Multicast(int mcast_port, String mcast_addr, String message){
+    public BackupChannel(int mcast_port, String mcast_addr, String message){
         this.mcast_addr = mcast_addr;
         this.mcast_port = mcast_port;
         this.message = message;
@@ -23,9 +23,9 @@ public class Multicast implements Runnable {
 
     @Override
     public void run() {
-        DatagramSocket socket = null;
+        MulticastSocket socket = null;
         try {
-            socket = new DatagramSocket();
+            socket = new MulticastSocket();
             InetAddress group = InetAddress.getByName(mcast_addr);
             byte[] buf = message.getBytes();
             DatagramPacket datagramPacket = new DatagramPacket(buf,buf.length,group,mcast_port);

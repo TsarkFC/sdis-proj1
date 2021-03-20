@@ -1,0 +1,13 @@
+Entao eiste um peermain que regista o rmi
+Esse objeto começa um peer
+O cliente pergunta a esse peer para fazer backup
+esse peer manda mensagens a todos os peers para fazerem backup
+os peers recebem esses pedidos atraves dos channels, por exemplo MDB e processa o pedido
+
+
+
+Mas como se inicializam os peers?
+Como funciona o rmi? se iniciarmos varios peermains, entao ele pede a qual dos objetos para processar o pedido do cliente?
+ao primeiro?
+
+Testar o que acontece se correr varios peers
