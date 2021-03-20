@@ -11,13 +11,19 @@ mc_addr = ("228.25.25.25", "4445")
 mdb_addr = ("228.25.25.25", "4446")
 mdr_addr = ("228.25.25.25", "4447")
 
+def peer():
+    subprocess.run(["java", "-cp", ".", "Peer", "access"])
+    #subprocess.run(["java", "Peer", "1.0", str(i), mc_addr[0], mc_addr[1], mdb_addr[0], mdb_addr[1], mdr_addr[0], mdr_addr[1]])
+    os._exit(0)  
+
 def start():
     subprocess.run(["fuser", "-k", "1099/tcp"], env=dict(CLASSPATH='', **os.environ))
-    subprocess.run(["rmiregistry"])
+    subprocess.run("rmiregistry &", shell=True)
+    subprocess.run(["javac", "-cp", ".", "Peer.java"])
 
     for i in range(peers_num):
-        subprocess.run(["javac", "-cp", ".", "Peer.java"])
-        subprocess.run(["java", "-cp", ".", "Peer", "access"])
-        #subprocess.run(["java", "Peer", "1.0", str(i), mc_addr[0], mc_addr[1], mdb_addr[0], mdb_addr[1], mdr_addr[0], mdr_addr[1]])
+        newpid = os.fork()
+        if newpid == 0:
+            peer()
 
 start()

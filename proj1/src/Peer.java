@@ -39,8 +39,7 @@ public class Peer implements RemoteObject {
             registry.bind(remoteObjName, stub);
             System.err.println("Server ready");
         } catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
-            e.printStackTrace();
+            System.out.println("Hosting peer already associated to rmi");
         }
 
 
