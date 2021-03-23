@@ -3,6 +3,7 @@ package channels;
 import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
+import utils.MulticastAddress;
 import utils.ThreadHandler;
 
 import java.io.IOException;
@@ -14,8 +15,8 @@ import java.util.List;
 
 public class BackupChannel  extends Channel  {
 
-    public BackupChannel(){
-        super(MDB_PORT,MDB_HOSTNAME);
+    public BackupChannel(MulticastAddress mdbAddr){
+        super(mdbAddr);
     }
 
     @Override
@@ -39,6 +40,6 @@ public class BackupChannel  extends Channel  {
         Stored storedMsg = new Stored(backupMsg.getVersion(), backupMsg.getSenderId(), backupMsg.getFileId(), backupMsg.getChunkNo());
         List<String> messages = new ArrayList<>();
         messages.add(storedMsg.getMsgString());
-        ThreadHandler.startMulticastThread(Channel.getMcHostname(),Channel.getMcPort(),messages);
+        ThreadHandler.startMulticastThread(getMcastAddr(), getMcastPort(), messages);
     }
 }

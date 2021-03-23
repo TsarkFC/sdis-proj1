@@ -25,21 +25,27 @@ public class PeerArgs {
         return accessPoint;
     }
 
+    public MulticastAddress getMcAddr() { return mcAddr; }
+
+    public MulticastAddress getMdbAddr() { return mdbAddr; }
+
+    public MulticastAddress getMdrAddr() { return mdrAddr; }
+
     //java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
     String version;
     Integer peerId;
     String accessPoint;
 
-    MulticastAddress MCaddr;
-    MulticastAddress MDBaddr;
-    MulticastAddress MDRaddr;
+    MulticastAddress mcAddr;
+    MulticastAddress mdbAddr;
+    MulticastAddress mdrAddr;
 
     public PeerArgs(String[] args) {
         version = args[VERSION];
         peerId = Integer.parseInt(args[PEER_ID]);
         accessPoint = args[ACCESS_POINT];
-        MCaddr = new MulticastAddress(args[MC_ADDR], Integer.parseInt(args[MC_PORT]));
-        MDBaddr = new MulticastAddress(args[MDB_ADDR], Integer.parseInt(args[MDB_PORT]));
-        MDRaddr = new MulticastAddress(args[MDR_ADDR], Integer.parseInt(args[MDR_PORT]));
+        mcAddr = new MulticastAddress(args[MC_ADDR], Integer.parseInt(args[MC_PORT]));
+        mdbAddr = new MulticastAddress(args[MDB_ADDR], Integer.parseInt(args[MDB_PORT]));
+        mdrAddr = new MulticastAddress(args[MDR_ADDR], Integer.parseInt(args[MDR_PORT]));
     }
 }
