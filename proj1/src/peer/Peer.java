@@ -1,3 +1,5 @@
+package peer;
+
 import channels.BackupChannel;
 import channels.Channel;
 import channels.ControlChannel;
@@ -18,7 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-//java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
+//java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
 
     private final double protocol_version = 1.0;
@@ -28,22 +30,23 @@ public class Peer implements RemoteObject {
 
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java Server <remote_object_name>");
+        if (args.length != 9) {
+            System.out.println("Usage: java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>");
             return;
         }
 
-        String remoteObjName = args[0];
+        PeerArgs peerArgs = new PeerArgs(args);
+        String remoteObjName = peerArgs.getAccessPoint();
+
         try {
             Peer obj = new Peer();
             RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(obj, 0);
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(remoteObjName, stub);
-
-            System.err.println("Initiator peer ready");
+            System.err.println("Peer with name: " + remoteObjName + " ready");
         } catch (Exception e) {
-            System.out.println("Peer started");
+            System.out.println("Peer name already taken");
         }
 
         //Create the channels
@@ -90,9 +93,8 @@ public class Peer implements RemoteObject {
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
-        for (int i = 0; i < chunks.size(); i++) {
-            int chunkNo = i;
-            PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkNo,repDegree,chunks.get(i));
+        for (int chunkno = 0; chunkno < chunks.size(); chunkno++) {
+            PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkno,repDegree,chunks.get(chunkno));
             String msg = backupMsg.getMsgString();
             messages.add(msg);
             /*for (int j = 0; j < repDegree; j++) {
