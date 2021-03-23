@@ -27,6 +27,9 @@ public abstract class Message {
     final int CHUNK_NO_IDX = 4;
     final int REP_DGR_IDX = 5;
     final int BODY_IDX = 6;
+    final int CR = 0xD;
+    final int LF = 0xA;
+
 
 
 
@@ -82,5 +85,12 @@ public abstract class Message {
 
     public byte[] getBody() {
         return body;
+    }
+
+    public String getCRLF(){
+        return  Integer.toHexString(CR) + Integer.toHexString(LF);
+    }
+    public String getDoubleCRLF(){
+        return getCRLF()+getCRLF();
     }
 }

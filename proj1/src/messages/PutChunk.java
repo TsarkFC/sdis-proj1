@@ -12,6 +12,6 @@ public class PutChunk extends Message{
     @Override
     public String getMsgString() {
         //<Version> <MessageType> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF>
-        return  String.format("%s %s %d %s %d %d %s",this.version,this.messageType,this.senderId,this.fileId,this.chunkNo,this.replicationDeg,this.body);
+        return  String.format("%s %s %d %s %d %d %s %s",this.version,this.messageType,this.senderId,this.fileId,this.chunkNo,this.replicationDeg,getDoubleCRLF(),this.body);
     }
 }

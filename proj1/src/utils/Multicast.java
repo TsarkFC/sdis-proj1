@@ -19,6 +19,7 @@ public class Multicast implements Runnable {
 
     @Override
     public void run() {
+        //Aqui e que ele vai decidir a que peers e que manda
         MulticastSocket socket;
         try {
             socket = new MulticastSocket();
