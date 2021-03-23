@@ -100,6 +100,10 @@ public class Peer implements RemoteObject {
             }*/
         }
         //Ele esta a enviar para todos os peers
+        //Ele aqui teria que começar a contar os segundos
+        //Podia por aqui, dentro desta funçao um
+        //Thread.sleep(1000);
+        //.notifyAll()
         ThreadHandler.startMulticastThread(Channel.getMdbHostname(),Channel.getMdbPort(),messages);
 
 

@@ -24,8 +24,18 @@ public class ControlChannel extends Channel {
     }
 
     public void parseMsg(String msgString){
-        Message msg = new Stored(msgString);
+        Stored msg = new Stored(msgString);
+        //Ele aqui tem que receber as mensagens durante 1 segundo, se o rep degree for mais pequeno
+        //Entao ele envia outra vez mensagem de putchunk
+        //Esta ativo durante 1 segundo depois de ter sido enviada o chunk,
+        //Depois continua a executar normalmente? ou pode ficar em wait?
+        //Ele teria que consguir depois desse um segundo verificar se o numero de mensagens que recebeu era sufucuentemente alto
+        //Caso nao seja, teria que repetir o processo um maximo de 5 vezes.
+
+         msg.getReplicationDeg();
         System.out.println(msg.getMessageType());
     }
+
+
 
 }
