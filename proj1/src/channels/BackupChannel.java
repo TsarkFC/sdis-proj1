@@ -3,6 +3,7 @@ package channels;
 import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
+import utils.FileHandler;
 import utils.ThreadHandler;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class BackupChannel  extends Channel  {
     @Override
     public void handle(DatagramPacket packet) {
         String rcvd = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("All peers recieve MBD Msg: " +rcvd);
+        System.out.println("\nAll peers recieve MBD Msg: " +rcvd+"\n");
         Message message = parseMsg(rcvd);
         //If parse correctly, send stored msg to MC channel
         sendConfirmationMc(message);
@@ -30,6 +31,8 @@ public class BackupChannel  extends Channel  {
     public Message parseMsg(String msgString){
         Message msg = new PutChunk(msgString);
         System.out.println(msg.getMessageType());
+        System.out.println("Backing up file in:" + FileHandler.getFilePath(msg));
+        FileHandler.saveChunk(msg);
         return msg;
     }
 

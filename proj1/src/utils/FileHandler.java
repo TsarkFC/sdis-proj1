@@ -1,8 +1,12 @@
 package utils;
+import messages.Message;
+import messages.PutChunk;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -48,6 +52,62 @@ public class FileHandler {
         byte[] encodedhash = digest.digest(
                 id.getBytes(StandardCharsets.UTF_8));
         return new String(encodedhash);
+    }
+
+    public static String getFilePath(Message message){
+        //files
+        //  sender1
+        //      file1
+        //          chunk1
+        //          chunk2
+        //      file2
+        //          chunk1
+        //          chunk2
+        //  sender2
+        String PATH = "files/";
+        String dirSenderID = PATH.concat(String.valueOf(message.getSenderId()));
+        String dirFileId =dirSenderID.concat("/" +message.getFileId()+"/");
+        //String dirChunkNo = dirFileId.concat("/"+message.getChunkNo() +"/");
+        System.out.println(dirFileId);
+        return dirFileId;
+    }
+
+    public static void saveChunk(Message message ){
+        try {
+
+            Files.createDirectories(Paths.get(getFilePath(message)));
+            File file = new File(getFilePath(message) + message.getChunkNo());
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            //TODO É Assim que e suposto guardar?
+            //TODO O body esta a null!
+            bw.write(new String(message.getBody()));
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*String PATH = getFilePath(message);
+        //String fileName = id + getTimeStamp() + ".txt";
+        File dirChunk = new File(PATH);
+        if (!dirChunk.exists()){
+            dirChunk.mkdir();
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }*/
+
+
+
+        /*File file = new File(dirSenderID + "/" + fileName);
+        try{
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(value);
+            bw.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+            System.exit(-1);
+        }*/
     }
 
 
