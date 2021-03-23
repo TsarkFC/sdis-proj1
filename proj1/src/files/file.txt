@@ -35,7 +35,7 @@ Appendix A: Interoperability
 Provides some information that you should have in mind so that your implementation is interoperable with that of other groups, especially if you implement some of enhancements to the peer-to-peer protocol described in Section 3.
 Essentially, a peer has to implement two interfaces/protocols:
 
-Peer-to-peer Protocol
+peer.Peer-to-peer Protocol
 which should be executed by the peers to provide the serverless backup service.
 The Client Interface
 which must be provided to a client of the backup service.
@@ -63,7 +63,7 @@ This interface is particularly useful for testing purposes.
 
 In Section 4 we provide more details regarding this interface.
 
-3. Peer Protocol
+3. peer.Peer Protocol
 In this section we describe the protocol that is executed by the peers to provide the backup service.
 
 The protocol used by the backup service comprises several smaller subprotocols, which are used for specific tasks, and that can be run concurrently:

@@ -1,9 +1,12 @@
+package peer;
+
 import channels.BackupChannel;
 import channels.Channel;
 import channels.ControlChannel;
 import messages.PutChunk;
 import utils.FileHandler;
 import utils.Multicast;
+import utils.MulticastAddress;
 import utils.ThreadHandler;
 
 import java.io.*;
@@ -18,40 +21,38 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-//java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
+//java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
 
     private final double protocol_version = 1.0;
     private final int peerId = 0;
-
-
-
+    private PeerArgs peerArgs;
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java Server <remote_object_name>");
+        if (args.length != 9) {
+            System.out.println("Usage: java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>");
             return;
         }
 
-        String remoteObjName = args[0];
         try {
             Peer obj = new Peer();
+            obj.peerArgs = new PeerArgs(args);
+            String remoteObjName = obj.peerArgs.getAccessPoint();
+
             RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(obj, 0);
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(remoteObjName, stub);
+            System.err.println("Peer with name: " + remoteObjName + " ready");
 
-            System.err.println("Initiator peer ready");
+            //Create the channels
+            createMDBChannel(obj.peerArgs.getMdbAddr());
+            //É suposto ele so estar a aparecer no initiator peer as mensagens de stored?
+            createMCChannel(obj.peerArgs.getMcAddr());
+            System.out.println("Created multicast channels");
         } catch (Exception e) {
-            System.out.println("Peer started");
+            System.out.println("Peer name already taken");
         }
-
-        //Create the channels
-        createMDBChannel();
-        //É suposto ele so estar a aparecer no initiator peer as mensagens de stored?
-        createMCChannel();
-
-
     }
 
     // multicast channel, the control channel (MC), that is used for control messages.
@@ -64,15 +65,15 @@ public class Peer implements RemoteObject {
         executor.schedule(multicastThread,0, TimeUnit.SECONDS);
     }
 
-    public static void createMDBChannel(){
+    public static void createMDBChannel(MulticastAddress mdbAddr){
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        BackupChannel backupChannel = new BackupChannel();
+        BackupChannel backupChannel = new BackupChannel(mdbAddr);
         executor.schedule(backupChannel,0, TimeUnit.SECONDS);
     }
 
-    public static void createMCChannel(){
+    public static void createMCChannel(MulticastAddress mcAddr){
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        ControlChannel controlChannel = new ControlChannel();
+        ControlChannel controlChannel = new ControlChannel(mcAddr);
         executor.schedule(controlChannel,0, TimeUnit.SECONDS);
     }
 
@@ -90,9 +91,8 @@ public class Peer implements RemoteObject {
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
-        for (int i = 0; i < chunks.size(); i++) {
-            int chunkNo = i;
-            PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkNo,repDegree,chunks.get(i));
+        for (int chunkno = 0; chunkno < chunks.size(); chunkno++) {
+            PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkno,repDegree,chunks.get(chunkno));
             String msg = backupMsg.getMsgString();
             messages.add(msg);
             /*for (int j = 0; j < repDegree; j++) {
@@ -104,11 +104,7 @@ public class Peer implements RemoteObject {
         //Podia por aqui, dentro desta funçao um
         //Thread.sleep(1000);
         //.notifyAll()
-        ThreadHandler.startMulticastThread(Channel.getMdbHostname(),Channel.getMdbPort(),messages);
-
-
-
-
+        ThreadHandler.startMulticastThread(peerArgs.getMdbAddr().getAddress(), peerArgs.getMdbAddr().getPort(), messages);
 
         //Send message
         return "";

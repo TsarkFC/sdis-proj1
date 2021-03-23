@@ -1,3 +1,4 @@
+import peer.RemoteObject;
 import utils.SubProtocol;
 
 import java.io.*;
@@ -47,14 +48,11 @@ public class TestApp {
             this.replicationDegree = Integer.parseInt(args[this.REPLICATION_DEGREE_IDX]);
             if(this.replicationDegree>9){
                 System.out.println("Replication degree must be one digit!");
-                return;
             }
         }else {
             System.out.println("Only BACKUP has 4 arguments!");
             System.out.println("Usage: <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
-            return;
         }
-        //this.subProtocol = this.
 
     }
 
@@ -93,8 +91,6 @@ public class TestApp {
     }
 
     public static void main(String[] args) throws IOException {
-
-
         TestApp testApp = new TestApp();
         testApp.parseArguments(args);
         testApp.connectRmi();

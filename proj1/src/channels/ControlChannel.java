@@ -3,6 +3,7 @@ package channels;
 import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
+import utils.MulticastAddress;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,8 +13,8 @@ import java.net.MulticastSocket;
 public class ControlChannel extends Channel {
 
 
-    public ControlChannel(){
-        super(Channel.MC_PORT,Channel.MC_HOSTNAME);
+    public ControlChannel(MulticastAddress mcAddr){
+        super(mcAddr);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class ControlChannel extends Channel {
         //Ele teria que consguir depois desse um segundo verificar se o numero de mensagens que recebeu era sufucuentemente alto
         //Caso nao seja, teria que repetir o processo um maximo de 5 vezes.
 
-         msg.getReplicationDeg();
+        msg.getReplicationDeg();
         System.out.println(msg.getMessageType());
     }
 
