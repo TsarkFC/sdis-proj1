@@ -41,6 +41,4 @@ public class BackupChannel  extends Channel  {
         messages.add(storedMsg.getMsgString());
         ThreadHandler.startMulticastThread(Channel.getMcHostname(),Channel.getMcPort(),messages);
     }
-
-
 }
