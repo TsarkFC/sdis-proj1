@@ -29,18 +29,14 @@ public class BackupChannel extends Channel {
         System.out.println("\nAll peers recieve MBD Msg: " +rcvd+"\n");
         Message message = parseMsg(rcvd);
         //If parse correctly, send stored msg to MC channel
-        System.out.println("GOT IT?");
         sendConfirmationMc(message);
-        System.out.println("GOT IT");
     }
 
     public Message parseMsg(String msgString) {
         Message msg = new PutChunk(msgString);
         System.out.println(msg.getMessageType());
         System.out.println("Backing up file in:" + FileHandler.getFilePath(msg));
-        System.out.println("Saving...");
         FileHandler.saveChunk(msg);
-        System.out.println("Saved");
         return msg;
     }
 

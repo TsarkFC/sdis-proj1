@@ -1,4 +1,5 @@
 package utils;
+
 import messages.Message;
 import messages.PutChunk;
 
@@ -21,7 +22,7 @@ public class FileHandler {
     }
 
 
-    public File createFileFromBytes(byte[] chunk,String name, int counter){
+    public File createFileFromBytes(byte[] chunk, String name, int counter) {
         //Substituir por SHA
         File newFile = new File(file.getParent(), name + "."
                 + String.format("%03d", counter++));
@@ -40,7 +41,7 @@ public class FileHandler {
     }
 
 
-    public String createFileId(){
+    public String createFileId() {
         //Is not thread safe
         MessageDigest digest = null;
         try {
@@ -48,13 +49,18 @@ public class FileHandler {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        String id = file.getName() +file.lastModified() +file.length();
-        byte[] encodedhash = digest.digest(
-                id.getBytes(StandardCharsets.UTF_8));
-        return new String(encodedhash);
+        String id = file.getName() + file.lastModified() + file.length();
+        byte[] encodedHash = digest.digest(id.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder sb = new StringBuilder();
+        for (byte c : encodedHash) {
+            sb.append(String.format("%02X", c));
+        }
+        System.out.println(sb.toString());
+        return sb.toString();
     }
 
-    public static String getFilePath(Message message){
+    public static String getFilePath(Message message) {
         //files
         //  sender1
         //      file1
@@ -66,13 +72,13 @@ public class FileHandler {
         //  sender2
         String PATH = "files/";
         String dirSenderID = PATH.concat(String.valueOf(message.getSenderId()));
-        String dirFileId =dirSenderID.concat("/" +message.getFileId()+"/");
+        String dirFileId = dirSenderID.concat("/" + message.getFileId() + "/");
         //String dirChunkNo = dirFileId.concat("/"+message.getChunkNo() +"/");
         System.out.println(dirFileId);
         return dirFileId;
     }
 
-    public static void saveChunk(Message message ){
+    public static void saveChunk(Message message) {
         try {
 
             Files.createDirectories(Paths.get(getFilePath(message)));
@@ -111,8 +117,7 @@ public class FileHandler {
     }
 
 
-
-    public List<byte[]> splitFile()  {
+    public List<byte[]> splitFile() {
         List<byte[]> chunks = new ArrayList<>();
         String name = file.getName();
         int counter = 0;
@@ -134,7 +139,7 @@ public class FileHandler {
 
         }
         return chunks;
-            // problem reading, handle case
+        // problem reading, handle case
         /*int counter = 1;
         List<File> files = new ArrayList<File>();
         int sizeOfChunk = FileHandler.chunkSize;

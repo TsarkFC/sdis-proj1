@@ -21,7 +21,6 @@ public abstract class Message {
     Integer chunkNo;
     Integer replicationDeg;
     byte[] body;
-    String test;
 
     final int VERSION_IDX = 0;
     final int MSG_TYPE_IDX = 1;
@@ -44,7 +43,6 @@ public abstract class Message {
     }
 
     public Message(String message) {
-        System.out.println(message);
         String[] tokens = message.split(" ");
         this.version = Double.parseDouble(tokens[VERSION_IDX]);
         this.messageType = tokens[MSG_TYPE_IDX];
