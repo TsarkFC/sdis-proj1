@@ -4,6 +4,7 @@ import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
 import utils.AddressList;
+import utils.FileHandler;
 import utils.MulticastAddress;
 import utils.ThreadHandler;
 
@@ -25,7 +26,7 @@ public class BackupChannel extends Channel {
     @Override
     public void handle(DatagramPacket packet) {
         String rcvd = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("All peers recieve MBD Msg: " + rcvd);
+        System.out.println("\nAll peers recieve MBD Msg: " +rcvd+"\n");
         Message message = parseMsg(rcvd);
         //If parse correctly, send stored msg to MC channel
         System.out.println("GOT IT?");
@@ -34,11 +35,12 @@ public class BackupChannel extends Channel {
     }
 
     public Message parseMsg(String msgString) {
-        System.out.println("test1");
         Message msg = new PutChunk(msgString);
-        System.out.println("test2");
         System.out.println(msg.getMessageType());
-        System.out.println("test3");
+        System.out.println("Backing up file in:" + FileHandler.getFilePath(msg));
+        System.out.println("Saving...");
+        FileHandler.saveChunk(msg);
+        System.out.println("Saved");
         return msg;
     }
 
