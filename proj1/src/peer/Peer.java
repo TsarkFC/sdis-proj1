@@ -4,10 +4,7 @@ import channels.BackupChannel;
 import channels.Channel;
 import channels.ControlChannel;
 import messages.PutChunk;
-import utils.FileHandler;
-import utils.Multicast;
-import utils.MulticastAddress;
-import utils.ThreadHandler;
+import utils.*;
 
 import java.io.*;
 import java.rmi.RemoteException;
@@ -46,9 +43,9 @@ public class Peer implements RemoteObject {
             System.err.println("Peer with name: " + remoteObjName + " ready");
 
             //Create the channels
-            createMDBChannel(obj.peerArgs.getMdbAddr());
+            createMDBChannel(obj.peerArgs.getAddressList());
             //É suposto ele so estar a aparecer no initiator peer as mensagens de stored?
-            createMCChannel(obj.peerArgs.getMcAddr());
+            createMCChannel(obj.peerArgs.getAddressList());
             System.out.println("Created multicast channels");
         } catch (Exception e) {
             System.out.println("Peer name already taken");
@@ -59,26 +56,26 @@ public class Peer implements RemoteObject {
     // All peers must subscribe the MC channel.
     // Some subprotocols use also one of two multicast data channels, MDB and MDR, which are used to backup and restore file chunk data.
 
-    public void startMulticastThread(String mcast_addr, int mcast_port, List<String> message){
+    public void startMulticastThread(String mcast_addr, int mcast_port, List<String> message) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
-        executor.schedule(multicastThread,0, TimeUnit.SECONDS);
+        executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
     }
 
-    public static void createMDBChannel(MulticastAddress mdbAddr){
+    public static void createMDBChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        BackupChannel backupChannel = new BackupChannel(mdbAddr);
-        executor.schedule(backupChannel,0, TimeUnit.SECONDS);
+        BackupChannel backupChannel = new BackupChannel(addressList);
+        executor.schedule(backupChannel, 0, TimeUnit.SECONDS);
     }
 
-    public static void createMCChannel(MulticastAddress mcAddr){
+    public static void createMCChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        ControlChannel controlChannel = new ControlChannel(mcAddr);
-        executor.schedule(controlChannel,0, TimeUnit.SECONDS);
+        ControlChannel controlChannel = new ControlChannel(addressList);
+        executor.schedule(controlChannel, 0, TimeUnit.SECONDS);
     }
 
     @Override
-    public String backup(File file,int repDegree) throws RemoteException {
+    public String backup(File file, int repDegree) throws RemoteException {
 
         //Initiator peer recieved backup from client
         System.out.println("Initiator peer recieved backup from client");
@@ -92,7 +89,7 @@ public class Peer implements RemoteObject {
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
         for (int chunkno = 0; chunkno < chunks.size(); chunkno++) {
-            PutChunk backupMsg = new PutChunk(1.0,0,fileId,chunkno,repDegree,chunks.get(chunkno));
+            PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkno, repDegree, chunks.get(chunkno));
             String msg = backupMsg.getMsgString();
             messages.add(msg);
             /*for (int j = 0; j < repDegree; j++) {
@@ -104,7 +101,7 @@ public class Peer implements RemoteObject {
         //Podia por aqui, dentro desta funçao um
         //Thread.sleep(1000);
         //.notifyAll()
-        ThreadHandler.startMulticastThread(peerArgs.getMdbAddr().getAddress(), peerArgs.getMdbAddr().getPort(), messages);
+        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(), peerArgs.getAddressList().getMdbAddr().getPort(), messages);
 
         //Send message
         return "";
@@ -127,13 +124,12 @@ public class Peer implements RemoteObject {
         System.out.println("State");
         return null;
     }
+
     @Override
     public String reclaim(File file) throws RemoteException {
         System.out.println("Reclaim");
         return null;
     }
-
-
 
 
 }

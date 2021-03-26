@@ -3,6 +3,7 @@ package channels;
 import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
+import utils.AddressList;
 import utils.MulticastAddress;
 
 import java.io.IOException;
@@ -13,8 +14,9 @@ import java.net.MulticastSocket;
 public class ControlChannel extends Channel {
 
 
-    public ControlChannel(MulticastAddress mcAddr){
-        super(mcAddr);
+    public ControlChannel(AddressList addressList){
+        super(addressList);
+        super.currentAddr = addressList.getMcAddr();
     }
 
     @Override

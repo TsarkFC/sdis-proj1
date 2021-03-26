@@ -1,6 +1,10 @@
 package peer;
 
+import utils.AddressList;
 import utils.MulticastAddress;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PeerArgs {
     public static final Integer VERSION = 0;
@@ -12,6 +16,12 @@ public class PeerArgs {
     public static final Integer MDB_PORT = 6;
     public static final Integer MDR_ADDR = 7;
     public static final Integer MDR_PORT = 8;
+
+    //java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
+    String version;
+    Integer peerId;
+    String accessPoint;
+    AddressList addressList;
 
     public String getVersion() {
         return version;
@@ -25,27 +35,21 @@ public class PeerArgs {
         return accessPoint;
     }
 
-    public MulticastAddress getMcAddr() { return mcAddr; }
+    public List<MulticastAddress> getAddrs() {
+        return new ArrayList<MulticastAddress>();
+    }
 
-    public MulticastAddress getMdbAddr() { return mdbAddr; }
-
-    public MulticastAddress getMdrAddr() { return mdrAddr; }
-
-    //java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
-    String version;
-    Integer peerId;
-    String accessPoint;
-
-    MulticastAddress mcAddr;
-    MulticastAddress mdbAddr;
-    MulticastAddress mdrAddr;
+    public AddressList getAddressList() {
+        return addressList;
+    }
 
     public PeerArgs(String[] args) {
         version = args[VERSION];
         peerId = Integer.parseInt(args[PEER_ID]);
         accessPoint = args[ACCESS_POINT];
-        mcAddr = new MulticastAddress(args[MC_ADDR], Integer.parseInt(args[MC_PORT]));
-        mdbAddr = new MulticastAddress(args[MDB_ADDR], Integer.parseInt(args[MDB_PORT]));
-        mdrAddr = new MulticastAddress(args[MDR_ADDR], Integer.parseInt(args[MDR_PORT]));
+        MulticastAddress mcAddr = new MulticastAddress(args[MC_ADDR], Integer.parseInt(args[MC_PORT]));
+        MulticastAddress mdbAddr = new MulticastAddress(args[MDB_ADDR], Integer.parseInt(args[MDB_PORT]));
+        MulticastAddress mdrAddr = new MulticastAddress(args[MDR_ADDR], Integer.parseInt(args[MDR_PORT]));
+        addressList = new AddressList(mcAddr, mdbAddr, mdrAddr);
     }
 }

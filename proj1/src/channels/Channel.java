@@ -1,5 +1,6 @@
 package channels;
 
+import utils.AddressList;
 import utils.MulticastAddress;
 
 import java.io.IOException;
@@ -8,16 +9,15 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 public abstract class Channel implements Runnable {
-    private final String mcastAddr;
-    private final int mcastPort;
+    protected AddressList addrList;
+    protected MulticastAddress currentAddr;
 
-    public String getMcastAddr() { return mcastAddr; }
+    public AddressList getAddrList() {
+        return addrList;
+    }
 
-    public int getMcastPort() { return mcastPort; }
-
-    public Channel(MulticastAddress mcastAddr){
-        this.mcastAddr = mcastAddr.getAddress();
-        this.mcastPort = mcastAddr.getPort();
+    public Channel(AddressList addrList){
+        this.addrList = addrList;
     }
 
     public abstract void handle(DatagramPacket packet);
@@ -25,9 +25,9 @@ public abstract class Channel implements Runnable {
     @Override
     public void run() {
         try {
-            InetAddress mcast_addr = InetAddress.getByName(this.mcastAddr);
-            MulticastSocket mcast_socket = null;
-            mcast_socket = new MulticastSocket(mcastPort);
+            InetAddress mcast_addr = InetAddress.getByName(this.currentAddr.getAddress());
+            MulticastSocket mcast_socket;
+            mcast_socket = new MulticastSocket(currentAddr.getPort());
             mcast_socket.joinGroup(mcast_addr);
 
             while(true){
