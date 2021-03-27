@@ -27,8 +27,8 @@ public class Stored implements Message {
         String[] tokens = message.split("\\s+", 7);
         //String[] tokens = message.split(" ", 7);
 
-        if (tokens[MSG_TYPE_IDX] != "PUTCHUNK") {
-            System.out.println("ERROR: building " + tokens[MSG_TYPE_IDX] + " message with PUTCHUNK constructor!");
+        if (!tokens[MSG_TYPE_IDX].equals("STORED")) {
+            System.out.println("ERROR: building " + tokens[MSG_TYPE_IDX] + " message with STORED constructor!");
         }
         this.version = Double.parseDouble(tokens[VERSION_IDX]);
         this.senderId = Integer.parseInt(tokens[SENDER_ID_IDX]);

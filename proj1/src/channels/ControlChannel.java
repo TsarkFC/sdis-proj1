@@ -1,5 +1,6 @@
 package channels;
 
+import messages.Stored;
 import peer.Peer;
 import utils.AddressList;
 
@@ -23,7 +24,7 @@ public class ControlChannel extends Channel {
 
     public void parseMsg(String msgString){
         System.out.println("Control Channel received MBD Msg: " + msgString);
-        //Stored msg = new Stored(msgString);
+        Stored msg = new Stored(msgString);
         //Guardar em memoria nao volatil a quantidade de mensagens stored que recebeu de cada chunk
 
         //Ele aqui tem que receber as mensagens durante 1 segundo, se o rep degree for mais pequeno
