@@ -43,7 +43,7 @@ public abstract class Message {
     }
 
     public Message(String message) {
-        String[] tokens = message.split(" ");
+        String[] tokens = message.split(" ", 7);
         this.version = Double.parseDouble(tokens[VERSION_IDX]);
         this.messageType = tokens[MSG_TYPE_IDX];
         this.senderId = Integer.parseInt(tokens[SENDER_ID_IDX]);
@@ -52,6 +52,7 @@ public abstract class Message {
         this.replicationDeg = Integer.parseInt(tokens[REP_DGR_IDX]);
         //TODO CONFIRMAR ISTO
         this.body = tokens[BODY_IDX].getBytes();
+        printMsg();
     }
 
     public void printMsg() {
@@ -63,6 +64,7 @@ public abstract class Message {
         System.out.println("File ID: " + this.fileId);
         System.out.println("Chunk No: " + this.chunkNo);
         System.out.println("Rep dgr: " + this.replicationDeg);
+        System.out.println("Body: " + new String(this.body));
     }
 
     public abstract String getMsgString();

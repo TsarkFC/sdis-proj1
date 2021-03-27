@@ -66,8 +66,7 @@ public class TestApp {
                 case RESTORE -> stub.restore(file);
             }
         }
-
-        catch (RemoteException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -1,10 +1,8 @@
 package utils;
 
 import messages.Message;
-import messages.PutChunk;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -62,33 +60,32 @@ public class FileHandler {
 
     public static String getFilePath(Message message) {
         //files
-        //  sender1
+        //  peer1
         //      file1
         //          chunk1
         //          chunk2
         //      file2
         //          chunk1
         //          chunk2
-        //  sender2
+        //  peer2
         String PATH = "files/";
         String dirSenderID = PATH.concat(String.valueOf(message.getSenderId()));
         String dirFileId = dirSenderID.concat("/" + message.getFileId() + "/");
-        //String dirChunkNo = dirFileId.concat("/"+message.getChunkNo() +"/");
-        System.out.println(dirFileId);
         return dirFileId;
     }
 
     public static void saveChunk(Message message) {
         try {
+            //TODO: Get current file directory
 
-            Files.createDirectories(Paths.get(getFilePath(message)));
-            File file = new File(getFilePath(message) + message.getChunkNo());
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            //TODO É Assim que e suposto guardar?
-            //TODO O body esta a null!
-            bw.write(new String(message.getBody()));
-            bw.close();
+            //File file = new File(getFilePath(message) + message.getChunkNo());
+            //FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            //BufferedWriter bw = new BufferedWriter(fw);
+            try (FileOutputStream stream = new FileOutputStream(getFilePath(message) + message.getChunkNo())) {
+                stream.write(message.getBody());
+            }
+            //bw.write(new String(message.getBody()));
+            //bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,20 +114,21 @@ public class FileHandler {
     }
 
 
-    public List<byte[]> splitFile() {
+    public List<byte[]> splitFile() throws IOException {
         List<byte[]> chunks = new ArrayList<>();
         String name = file.getName();
-        int counter = 0;
+        String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
+        System.out.println(content + "\n\n");
+
         try {
             FileInputStream inputStream = new FileInputStream(file);
             System.out.println("File size: " + file.length());
             byte[] chunk = new byte[CHUNK_SIZE];
-            int chunkLen = 0;
-            while ((chunkLen = inputStream.read(chunk)) != -1) {
-                counter++;
+            while (inputStream.read(chunk) != -1) {
                 //System.out.println(chunkLen + "ZAS");
                 //File chunkFile =createFileFromBytes(chunk,name,counter);
                 //chunks.add(chunkFile);
+                System.out.println("CHUNK:" + new String(chunk));
                 chunks.add(chunk);
             }
         } catch (FileNotFoundException fnfE) {

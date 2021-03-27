@@ -25,6 +25,7 @@ def start():
 	subprocess.run(["fuser", "-k", "1099/tcp"])
 	subprocess.run("rmiregistry &", shell=True)
 	subprocess.run('find . -type f -name "*.class" -delete', shell=True)
+	subprocess.run('rm -r filesystem', shell=True)
 	subprocess.run(["javac", "peer/Peer.java"])
 
 	for i in range(peers_num):

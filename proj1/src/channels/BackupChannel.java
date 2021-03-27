@@ -5,13 +5,9 @@ import messages.PutChunk;
 import messages.Stored;
 import utils.AddressList;
 import utils.FileHandler;
-import utils.MulticastAddress;
 import utils.ThreadHandler;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +31,7 @@ public class BackupChannel extends Channel {
     public Message parseMsg(String msgString) {
         Message msg = new PutChunk(msgString);
         System.out.println(msg.getMessageType());
-        System.out.println("Backing up file in:" + FileHandler.getFilePath(msg));
+        System.out.println("Backing up file in: " + FileHandler.getFilePath(msg));
         FileHandler.saveChunk(msg);
         return msg;
     }

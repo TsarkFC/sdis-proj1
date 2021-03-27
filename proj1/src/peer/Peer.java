@@ -1,16 +1,20 @@
 package peer;
 
 import channels.BackupChannel;
-import channels.Channel;
 import channels.ControlChannel;
 import messages.PutChunk;
-import utils.*;
+import utils.AddressList;
+import utils.FileHandler;
+import utils.Multicast;
+import utils.ThreadHandler;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
-
-import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,21 +36,21 @@ public class Peer implements RemoteObject {
         }
 
         try {
-            Peer obj = new Peer();
-            obj.peerArgs = new PeerArgs(args);
-            String remoteObjName = obj.peerArgs.getAccessPoint();
+            Peer peer = new Peer();
+            peer.peerArgs = new PeerArgs(args);
+            String remoteObjName = peer.peerArgs.getAccessPoint();
 
-            RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(obj, 0);
-            // Bind the remote object's stub in the registry
+            RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(peer, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(remoteObjName, stub);
             System.err.println("Peer with name: " + remoteObjName + " ready");
 
-            //Create the channels
-            createMDBChannel(obj.peerArgs.getAddressList());
-            //É suposto ele so estar a aparecer no initiator peer as mensagens de stored?
-            createMCChannel(obj.peerArgs.getAddressList());
+            // Create the channels
+            peer.createMDBChannel(peer.peerArgs.getAddressList());
+            peer.createMCChannel(peer.peerArgs.getAddressList());
             System.out.println("Created multicast channels");
+
+            peer.startFileSystem();
         } catch (Exception e) {
             System.out.println("Peer name already taken");
         }
@@ -62,40 +66,40 @@ public class Peer implements RemoteObject {
         executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
     }
 
-    public static void createMDBChannel(AddressList addressList) {
+    public void createMDBChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         BackupChannel backupChannel = new BackupChannel(addressList);
         executor.schedule(backupChannel, 0, TimeUnit.SECONDS);
     }
 
-    public static void createMCChannel(AddressList addressList) {
+    public void createMCChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         ControlChannel controlChannel = new ControlChannel(addressList);
         executor.schedule(controlChannel, 0, TimeUnit.SECONDS);
     }
 
+    public void startFileSystem() throws IOException {
+        Files.createDirectories(Paths.get("filesystem/" + peerArgs.getPeerId() + "/metadata/"));
+    }
+    
     @Override
-    public String backup(File file, int repDegree) throws RemoteException {
+    public String backup(File file, int repDegree) throws IOException {
 
         //Initiator peer recieved backup from client
         System.out.println("Initiator peer recieved backup from client");
 
         List<String> messages = new ArrayList<>();
 
-        //A quem e que ele deve enviar os chunks?
-        //Nao vai enviar de broadcast a toda gente
-        //É suposto escolher randomly
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
         for (int chunkno = 0; chunkno < chunks.size(); chunkno++) {
             PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkno, repDegree, chunks.get(chunkno));
             String msg = backupMsg.getMsgString();
+            System.out.println("TESTING: " + msg);
             messages.add(msg);
-            /*for (int j = 0; j < repDegree; j++) {
-                //send messages
-            }*/
         }
+
         //Ele esta a enviar para todos os peers
         //Ele aqui teria que começar a contar os segundos
         //Podia por aqui, dentro desta funçao um
