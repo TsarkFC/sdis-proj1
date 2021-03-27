@@ -1,14 +1,12 @@
 package channels;
 
-import messages.CoordMessage;
-import messages.Stored;
 import peer.Peer;
 import utils.AddressList;
 
 import java.net.DatagramPacket;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class ControlChannel extends Channel {
+    boolean isReceiving = true;
 
     public ControlChannel(AddressList addressList, Peer peer){
         super(addressList, peer);
@@ -18,16 +16,15 @@ public class ControlChannel extends Channel {
     @Override
     public void handle(DatagramPacket packet) {
         String rcvd = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("Control Channel received MBD Msg: " + rcvd);
-        parseMsg(rcvd);
+        if (isReceiving) parseMsg(rcvd);
+        else compareRepDgr();
 
     }
 
     public void parseMsg(String msgString){
+        System.out.println("Control Channel received MBD Msg: " + msgString);
         //Stored msg = new Stored(msgString);
         //Guardar em memoria nao volatil a quantidade de mensagens stored que recebeu de cada chunk
-
-
 
         //Ele aqui tem que receber as mensagens durante 1 segundo, se o rep degree for mais pequeno
         //Entao ele envia outra vez mensagem de putchunk
@@ -40,26 +37,20 @@ public class ControlChannel extends Channel {
         //Talvez começar uma thread que faça wait pelo outro?
         //Talvez para isso mais valia ter uma classe central para os dois
 
-        while (true){
-            double timeSinceBackup = peer.getTimer().getElapsedTimeInSeconds();
-            if (timeSinceBackup==-1) break;
-            if(timeSinceBackup!=-1 && timeSinceBackup > 1){
-                System.out.println("1 second has passed");
-                //if stordemsgs<= repDeg
-                //Enviar ao backup channel para enviar outra vez, a mensagem de putchunk
-                //e espera o dobro do intervalo
-                //Caso stored messafe <=repDegree  //Como conseguimos ter acesso ao rep degree? a mensagem stored ÑAO TEM O REP DEGREE
-                    //Enviar ao backup channel para enviar outra vez, a mensagem de putchunk
-                    //e espera o dobro do intervalo
-                //else ta tudo bem
-                break;
-            }
-        }
-
 
 
         //msg.getReplicationDeg();
         //System.out.println(msg.getMessageType());
+    }
+
+    public void compareRepDgr(){
+
+    }
+
+
+
+    public void closeMcChannel(){
+        System.out.println("Mc Channel stops receiving after 1 second");
     }
 
 

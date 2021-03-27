@@ -1,9 +1,8 @@
 package peer;
 
 import channels.BackupChannel;
+import channels.ChannelCoordinator;
 import channels.ControlChannel;
-import messages.CoordMessage;
-import messages.Message;
 import messages.PutChunk;
 import utils.*;
 
@@ -26,7 +25,8 @@ public class Peer implements RemoteObject {
 
     private PeerArgs peerArgs;
     private String fileSystem;
-    private Timer timer = new Timer();
+
+    private ChannelCoordinator channelCoordinator;
 
 
 
@@ -67,21 +67,26 @@ public class Peer implements RemoteObject {
 
     public void createChannels(){
         // Create the channels
-        this.createMDBChannel(this.peerArgs.getAddressList());
-        this.createMCChannel(this.peerArgs.getAddressList());
+        channelCoordinator = new ChannelCoordinator(
+                this.createMDBChannel(this.peerArgs.getAddressList()),
+                this.createMCChannel(this.peerArgs.getAddressList())
+        );
+
         System.out.println("Created multicast channels");
     }
 
-    public void createMDBChannel(AddressList addressList) {
+    public BackupChannel createMDBChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         BackupChannel backupChannel = new BackupChannel(addressList, this);
         executor.schedule(backupChannel, 0, TimeUnit.SECONDS);
+        return backupChannel;
     }
 
-    public void createMCChannel(AddressList addressList) {
+    public ControlChannel createMCChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         ControlChannel controlChannel = new ControlChannel(addressList, this);
         executor.schedule(controlChannel, 0, TimeUnit.SECONDS);
+        return controlChannel;
     }
 
     public void startFileSystem() throws IOException {
@@ -120,7 +125,7 @@ public class Peer implements RemoteObject {
         //.notifyAll()
         ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(),
                 peerArgs.getAddressList().getMdbAddr().getPort(), messages);
-        timer.reset();
+        channelCoordinator.closeMcIn1Second();
         //Send message
         return "";
     }
@@ -149,9 +154,7 @@ public class Peer implements RemoteObject {
         return null;
     }
 
-    public Timer getTimer() {
-        return timer;
-    }
+
 
 
 

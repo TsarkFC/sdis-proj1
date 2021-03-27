@@ -1,6 +1,5 @@
 package channels;
 
-import messages.CoordMessage;
 import peer.Peer;
 import utils.AddressList;
 import utils.MulticastAddress;

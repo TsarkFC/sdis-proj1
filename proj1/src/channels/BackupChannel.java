@@ -1,6 +1,5 @@
 package channels;
 
-import messages.CoordMessage;
 import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
