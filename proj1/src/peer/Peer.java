@@ -112,7 +112,7 @@ public class Peer implements RemoteObject {
         int chunkNo = 0;
         for(byte[] chunk : chunks){
             PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkNo, repDegree, chunk);
-            byte[] msg = backupMsg.getMsgBytes();
+            byte[] msg = backupMsg.getBytes();
             messages.add(msg);
             chunkNo++;
         }

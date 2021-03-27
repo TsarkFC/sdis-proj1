@@ -1,6 +1,5 @@
 package channels;
 
-import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
 import peer.Peer;
@@ -22,23 +21,20 @@ public class BackupChannel extends Channel {
     @Override
     public void handle(DatagramPacket packet) {
         String recv = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("Length \n\n\n" +packet.getLength());
-        System.out.println("Received message from MDB channel: " + recv + "\n");
-        Message message = new PutChunk(recv);
+        System.out.println("Length: " + packet.getLength());
+        System.out.println("Received message from MDB channel");
+        PutChunk message = new PutChunk(recv);
         FileHandler.saveChunk(message, peer.getFileSystem());
 
         //If parse correctly, send stored msg to MC channel
-        sendConfirmationMc(message);
+        Stored confMessage = new Stored(message.getVersion(), message.getSenderId(),
+                message.getFileId(), message.getChunkNo());
+        sendConfirmationMc(confMessage.getBytes());
     }
 
-    public void sendConfirmationMc(Message backupMsg) {
-        //TODO Alterar para ter senderId direito i guess
-        //TODO Adicionar nova classe multicast que nao receba uma lista?
-        Stored storedMsg = new Stored(backupMsg.getVersion(), backupMsg.getSenderId(), backupMsg.getFileId(), backupMsg.getChunkNo());
+    public void sendConfirmationMc(byte[] message) {
         List<byte[]> messages = new ArrayList<>();
-        messages.add(storedMsg.getMsgBytes());
+        messages.add(message);
         ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), messages);
-        //Esperar um segundo
-        //Enviar mensagem um segundo
     }
 }

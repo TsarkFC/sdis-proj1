@@ -1,6 +1,7 @@
 package utils;
 
 import messages.Message;
+import messages.PutChunk;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -66,11 +67,11 @@ public class FileHandler {
     //           chunk1
     //           chunk2
     //   peer2
-    public static String getFilePath(String peerDir, Message message) {
+    public static String getFilePath(String peerDir, PutChunk message) {
         return peerDir.concat("/" + message.getFileId() + "/");
     }
 
-    public static void saveChunk(Message message, String peerDir) {
+    public static void saveChunk(PutChunk message, String peerDir) {
         // create directory if it does not exist
         String dirPath = getFilePath(peerDir, message);
         File dir = new File(dirPath);

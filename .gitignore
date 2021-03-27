@@ -2,3 +2,5 @@
 proj1.iml
 sdis-proj.iml
 *.class
+*.out
+proj1/filesystem/*
