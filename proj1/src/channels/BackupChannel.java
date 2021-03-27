@@ -1,5 +1,6 @@
 package channels;
 
+import messages.CoordMessage;
 import messages.Message;
 import messages.PutChunk;
 import messages.Stored;
@@ -38,5 +39,7 @@ public class BackupChannel extends Channel {
         List<byte[]> messages = new ArrayList<>();
         messages.add(storedMsg.getMsgBytes());
         ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), messages);
+        //Esperar um segundo
+        //Enviar mensagem um segundo
     }
 }

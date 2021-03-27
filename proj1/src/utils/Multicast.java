@@ -27,6 +27,7 @@ public class Multicast implements Runnable {
             for (byte[] msg : messages) {
                 DatagramPacket datagramPacket = new DatagramPacket(msg, msg.length, group, mcast_port);
                 socket.send(datagramPacket);
+
             }
             socket.close();
         } catch (IOException e) {
