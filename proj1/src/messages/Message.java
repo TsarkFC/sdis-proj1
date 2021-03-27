@@ -41,14 +41,17 @@ public abstract class Message {
     }
 
     public Message(String message) {
-        String[] tokens = message.split(" ", 7);
+        String[] tokens = message.split("\\s+",7);
+        //String[] tokens = message.split(" ", 7);
         this.version = Double.parseDouble(tokens[VERSION_IDX]);
         this.messageType = tokens[MSG_TYPE_IDX];
         this.senderId = Integer.parseInt(tokens[SENDER_ID_IDX]);
         this.fileId = tokens[FILE_ID_IDX];
         this.chunkNo = Integer.parseInt(tokens[CHUNK_NO_IDX]);
         this.replicationDeg = Integer.parseInt(tokens[REP_DGR_IDX]);
-        this.body = tokens[BODY_IDX].getBytes();
+        //Verificar se esta o CRLF
+        this.body = tokens[BODY_IDX].substring(4).getBytes();
+        //this.body = tokens[BODY_IDX].getBytes();
         printMsg();
     }
 

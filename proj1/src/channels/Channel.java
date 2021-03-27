@@ -34,7 +34,7 @@ public abstract class Channel implements Runnable {
             mcast_socket.joinGroup(mcast_addr);
 
             while (true) {
-                byte[] rbuf = new byte[256];
+                byte[] rbuf = new byte[64000];
                 DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
                 mcast_socket.receive(packet);
                 handle(packet);

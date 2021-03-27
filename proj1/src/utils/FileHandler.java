@@ -88,16 +88,18 @@ public class FileHandler {
 
     public List<byte[]> splitFile() throws IOException {
         List<byte[]> chunks = new ArrayList<>();
-        String name = file.getName();
-        String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
-        System.out.println(content + "\n\n");
+        //String name = file.getName();
+        //String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
 
         try {
             FileInputStream inputStream = new FileInputStream(file);
             System.out.println("File size: " + file.length());
             byte[] chunk = new byte[CHUNK_SIZE];
+
             while (inputStream.read(chunk) != -1) {
-                chunks.add(chunk);
+                byte[] chunkClone = chunk.clone();
+                chunks.add(chunkClone);
+
             }
         } catch (FileNotFoundException fnfE) {
             // file not found, handle case

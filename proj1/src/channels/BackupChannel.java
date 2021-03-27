@@ -22,6 +22,7 @@ public class BackupChannel extends Channel {
     @Override
     public void handle(DatagramPacket packet) {
         String recv = new String(packet.getData(), 0, packet.getLength());
+        System.out.println("Length \n\n\n" +packet.getLength());
         System.out.println("Received message from MDB channel: " + recv + "\n");
         Message message = new PutChunk(recv);
         FileHandler.saveChunk(message, peer.getFileSystem());

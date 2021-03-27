@@ -23,7 +23,7 @@ def handler(signal_received, frame):
     os._exit(0)
 
 def peer(i):
-	cmd = "java peer/Peer " + protocol_version + " " + str(i) + " access" + str(i) + " " + mc_addr[0] + " " + mc_addr[1] + " " + mdb_addr[0] + " " + mdb_addr[1] + " " + mdr_addr[0] + " " + mdr_addr[1]
+	cmd = "java peer/Peer " + protocol_version + "          " + str(i) + " access" + str(i) + "      " + mc_addr[0] + " " + mc_addr[1] + " " + mdb_addr[0] + " " + mdb_addr[1] + " " + mdr_addr[0] + " " + mdr_addr[1]
 	print(cmd)
 	redirect_to = " > output/peer" + str(i) + ".out"
 	subprocess.run(cmd + redirect_to , shell=True)

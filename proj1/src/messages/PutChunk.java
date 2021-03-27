@@ -13,7 +13,7 @@ public class PutChunk extends Message {
     @Override
     public byte[] getMsgBytes() {
         //<Version> <MessageType> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF>
-        String header = String.format("%s %s %d %s %d %d %s ", this.version, this.messageType, this.senderId, this.fileId,
+        String header = String.format("%s %s %d %s %d %d %s", this.version, this.messageType, this.senderId, this.fileId,
                 this.chunkNo, this.replicationDeg, getDoubleCRLF());
         byte[] headerBytes = header.getBytes();
 

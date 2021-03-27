@@ -98,11 +98,14 @@ public class Peer implements RemoteObject {
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
 
-        for (int chunkno = 0; chunkno < chunks.size(); chunkno++) {
-            PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkno, repDegree, chunks.get(chunkno));
+        int chunkNo = 0;
+        for(byte[] chunk : chunks){
+            PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkNo, repDegree, chunk);
             byte[] msg = backupMsg.getMsgBytes();
             messages.add(msg);
+            chunkNo++;
         }
+
 
         //Ele esta a enviar para todos os peers
         //Ele aqui teria que começar a contar os segundos
