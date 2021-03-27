@@ -7,7 +7,7 @@ public class Chunk extends Message{
     }
 
     @Override
-    public String getMsgString() {
+    public byte[] getMsgBytes() {
         return null;
     }
 }

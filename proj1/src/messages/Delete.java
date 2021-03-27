@@ -7,7 +7,7 @@ public class Delete extends Message{
     }
 
     @Override
-    public String getMsgString() {
+    public byte[] getMsgBytes() {
         return null;
     }
 }

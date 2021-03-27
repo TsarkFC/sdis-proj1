@@ -8,8 +8,6 @@ I.e. the <CRLF> of the last header line is followed immediately by another <CRLF
 white spaces included, in between.
 */
 
-import java.nio.charset.StandardCharsets;
-
 // <Version> <MessageType> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF>
 //Abstract classes nao podem ter construtores entao mudei
 public abstract class Message {
@@ -50,15 +48,12 @@ public abstract class Message {
         this.fileId = tokens[FILE_ID_IDX];
         this.chunkNo = Integer.parseInt(tokens[CHUNK_NO_IDX]);
         this.replicationDeg = Integer.parseInt(tokens[REP_DGR_IDX]);
-        //TODO CONFIRMAR ISTO
         this.body = tokens[BODY_IDX].getBytes();
         printMsg();
     }
 
     public void printMsg() {
-        System.out.println();
-        System.out.println();
-        System.out.println("Version:" + this.version);
+        System.out.println("Version: " + this.version);
         System.out.println("MSG TYPE: " + this.messageType);
         System.out.println("Sender ID: " + this.senderId);
         System.out.println("File ID: " + this.fileId);
@@ -67,11 +62,7 @@ public abstract class Message {
         System.out.println("Body: " + new String(this.body));
     }
 
-    public abstract String getMsgString();
-
-    public Byte[] messageBytes() {
-        return new Byte[10];
-    }
+    public abstract byte[] getMsgBytes();
 
     public Double getVersion() {
         return version;

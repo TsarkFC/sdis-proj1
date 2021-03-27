@@ -1,12 +1,18 @@
-#python3 run_peers.py <peers_num>
+#python3 run_peers.py <peers_num> <protocol_version> <redirect>
 
 from signal import signal, SIGINT
 import subprocess, sys, os
 
 # java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 
+if len(sys.argv) != 4:
+	print("Execute: python3 run_peers.py <peers_num> (int) <protocol_version> (1.0) <redirect> (yes/no)")
+	os._exit(0)
+
 peers_num = int(sys.argv[1])
-protocol_version = "1.0"
+protocol_version = sys.argv[2]
+redirect = sys.argv[3] == "yes"
+
 service_access_point = "access"
 mc_addr = ("228.25.25.25", "4445")
 mdb_addr = ("228.25.25.25", "4446")
@@ -17,8 +23,11 @@ def handler(signal_received, frame):
     os._exit(0)
 
 def peer(i):
-    subprocess.run(["java", "peer/Peer", "1.0", str(i), "access" + str(i), mc_addr[0], mc_addr[1], mdb_addr[0], mdb_addr[1], mdr_addr[0], mdr_addr[1]])
-    os._exit(0)  
+	cmd = "java peer/Peer " + protocol_version + " " + str(i) + " access" + str(i) + " " + mc_addr[0] + " " + mc_addr[1] + " " + mdb_addr[0] + " " + mdb_addr[1] + " " + mdr_addr[0] + " " + mdr_addr[1]
+	print(cmd)
+	redirect_to = " > output/peer" + str(i) + ".out"
+	subprocess.run(cmd + redirect_to , shell=True)
+	os._exit(0)
 
 def start():
 	signal(SIGINT, handler)

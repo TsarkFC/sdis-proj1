@@ -6,14 +6,15 @@ public class Stored extends Message {
         super(version, "STORED", senderId, fileId, chunkNo, null, null);
     }
 
-    public Stored(String message){
+    public Stored(String message) {
         super(message);
     }
 
     @Override
-    public String getMsgString() {
+    public byte[] getMsgBytes() {
         //Version> STORED <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
         //TODO Adicionar CRLF
-        return  String.format("%s %s %d %s %d",this.version,this.messageType,this.senderId,this.fileId,this.chunkNo);
+        return String.format("%s %s %d %s %d",
+                this.version, this.messageType, this.senderId, this.fileId, this.chunkNo).getBytes();
     }
 }

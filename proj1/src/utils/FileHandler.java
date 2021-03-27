@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileHandler {
@@ -18,7 +19,6 @@ public class FileHandler {
     public FileHandler(File file) {
         this.file = file;
     }
-
 
     public File createFileFromBytes(byte[] chunk, String name, int counter) {
         //Substituir por SHA
@@ -37,7 +37,6 @@ public class FileHandler {
         return newFile;
 
     }
-
 
     public String createFileId() {
         //Is not thread safe
@@ -58,59 +57,32 @@ public class FileHandler {
         return sb.toString();
     }
 
-    public static String getFilePath(Message message) {
-        //files
-        //  peer1
-        //      file1
-        //          chunk1
-        //          chunk2
-        //      file2
-        //          chunk1
-        //          chunk2
-        //  peer2
-        String PATH = "files/";
-        String dirSenderID = PATH.concat(String.valueOf(message.getSenderId()));
-        String dirFileId = dirSenderID.concat("/" + message.getFileId() + "/");
-        return dirFileId;
+    // filesystem
+    //   peer1
+    //       file1
+    //           chunk1
+    //           chunk2
+    //       file2
+    //           chunk1
+    //           chunk2
+    //   peer2
+    public static String getFilePath(String peerDir, Message message) {
+        return peerDir.concat("/" + message.getFileId() + "/");
     }
 
-    public static void saveChunk(Message message) {
-        try {
-            //TODO: Get current file directory
+    public static void saveChunk(Message message, String peerDir) {
+        // create directory if it does not exist
+        String dirPath = getFilePath(peerDir, message);
+        File dir = new File(dirPath);
+        if (!dir.exists()) dir.mkdir();
 
-            //File file = new File(getFilePath(message) + message.getChunkNo());
-            //FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            //BufferedWriter bw = new BufferedWriter(fw);
-            try (FileOutputStream stream = new FileOutputStream(getFilePath(message) + message.getChunkNo())) {
-                stream.write(message.getBody());
-            }
-            //bw.write(new String(message.getBody()));
-            //bw.close();
+        // write message body to file
+        File file = new File(dirPath + message.getChunkNo());
+        try (FileOutputStream stream = new FileOutputStream(file)) {
+            stream.write(message.getBody());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*String PATH = getFilePath(message);
-        //String fileName = id + getTimeStamp() + ".txt";
-        File dirChunk = new File(PATH);
-        if (!dirChunk.exists()){
-            dirChunk.mkdir();
-            // If you require it to make the entire directory path including parents,
-            // use directory.mkdirs(); here instead.
-        }*/
-
-
-
-        /*File file = new File(dirSenderID + "/" + fileName);
-        try{
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(value);
-            bw.close();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            System.exit(-1);
-        }*/
     }
 
 
@@ -125,10 +97,6 @@ public class FileHandler {
             System.out.println("File size: " + file.length());
             byte[] chunk = new byte[CHUNK_SIZE];
             while (inputStream.read(chunk) != -1) {
-                //System.out.println(chunkLen + "ZAS");
-                //File chunkFile =createFileFromBytes(chunk,name,counter);
-                //chunks.add(chunkFile);
-                System.out.println("CHUNK:" + new String(chunk));
                 chunks.add(chunk);
             }
         } catch (FileNotFoundException fnfE) {

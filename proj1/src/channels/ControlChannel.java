@@ -1,21 +1,16 @@
 package channels;
 
-import messages.Message;
-import messages.PutChunk;
 import messages.Stored;
+import peer.Peer;
 import utils.AddressList;
-import utils.MulticastAddress;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 
 public class ControlChannel extends Channel {
 
 
-    public ControlChannel(AddressList addressList){
-        super(addressList);
+    public ControlChannel(AddressList addressList, Peer peer){
+        super(addressList, peer);
         super.currentAddr = addressList.getMcAddr();
     }
 

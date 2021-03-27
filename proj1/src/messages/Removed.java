@@ -7,7 +7,7 @@ public class Removed extends Message{
     }
 
     @Override
-    public String getMsgString() {
+    public byte[] getMsgBytes() {
         return null;
     }
 }

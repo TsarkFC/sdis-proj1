@@ -25,9 +25,8 @@ import java.util.concurrent.TimeUnit;
 //java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
 
-    private final double protocol_version = 1.0;
-    private final int peerId = 0;
     private PeerArgs peerArgs;
+    private String fileSystem;
 
     public static void main(String[] args) {
         if (args.length != 9) {
@@ -36,10 +35,13 @@ public class Peer implements RemoteObject {
         }
 
         try {
+            // Peer creation
             Peer peer = new Peer();
             peer.peerArgs = new PeerArgs(args);
-            String remoteObjName = peer.peerArgs.getAccessPoint();
+            peer.startFileSystem();
 
+            // RMI connection
+            String remoteObjName = peer.peerArgs.getAccessPoint();
             RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(peer, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(remoteObjName, stub);
@@ -49,8 +51,6 @@ public class Peer implements RemoteObject {
             peer.createMDBChannel(peer.peerArgs.getAddressList());
             peer.createMCChannel(peer.peerArgs.getAddressList());
             System.out.println("Created multicast channels");
-
-            peer.startFileSystem();
         } catch (Exception e) {
             System.out.println("Peer name already taken");
         }
@@ -60,7 +60,7 @@ public class Peer implements RemoteObject {
     // All peers must subscribe the MC channel.
     // Some subprotocols use also one of two multicast data channels, MDB and MDR, which are used to backup and restore file chunk data.
 
-    public void startMulticastThread(String mcast_addr, int mcast_port, List<String> message) {
+    public void startMulticastThread(String mcast_addr, int mcast_port, List<byte[]> message) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
         executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
@@ -68,35 +68,39 @@ public class Peer implements RemoteObject {
 
     public void createMDBChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        BackupChannel backupChannel = new BackupChannel(addressList);
+        BackupChannel backupChannel = new BackupChannel(addressList, this);
         executor.schedule(backupChannel, 0, TimeUnit.SECONDS);
     }
 
     public void createMCChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        ControlChannel controlChannel = new ControlChannel(addressList);
+        ControlChannel controlChannel = new ControlChannel(addressList, this);
         executor.schedule(controlChannel, 0, TimeUnit.SECONDS);
     }
 
     public void startFileSystem() throws IOException {
-        Files.createDirectories(Paths.get("filesystem/" + peerArgs.getPeerId() + "/metadata/"));
+        fileSystem = "filesystem/" + peerArgs.getPeerId();
+        Files.createDirectories(Paths.get(fileSystem + "/metadata/"));
     }
-    
+
+    public String getFileSystem() {
+        return fileSystem;
+    }
+
     @Override
     public String backup(File file, int repDegree) throws IOException {
 
         //Initiator peer recieved backup from client
         System.out.println("Initiator peer recieved backup from client");
 
-        List<String> messages = new ArrayList<>();
-
+        List<byte[]> messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
         String fileId = fileHandler.createFileId();
+
         for (int chunkno = 0; chunkno < chunks.size(); chunkno++) {
             PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkno, repDegree, chunks.get(chunkno));
-            String msg = backupMsg.getMsgString();
-            System.out.println("TESTING: " + msg);
+            byte[] msg = backupMsg.getMsgBytes();
             messages.add(msg);
         }
 
@@ -105,7 +109,8 @@ public class Peer implements RemoteObject {
         //Podia por aqui, dentro desta funçao um
         //Thread.sleep(1000);
         //.notifyAll()
-        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(), peerArgs.getAddressList().getMdbAddr().getPort(), messages);
+        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(),
+                peerArgs.getAddressList().getMdbAddr().getPort(), messages);
 
         //Send message
         return "";
