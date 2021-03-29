@@ -23,7 +23,7 @@ public abstract class Channel implements Runnable {
         this.peer = peer;
     }
 
-    public abstract void handle(DatagramPacket packet);
+    public abstract void handle(DatagramPacket packet) throws IOException;
 
     @Override
     public void run() {

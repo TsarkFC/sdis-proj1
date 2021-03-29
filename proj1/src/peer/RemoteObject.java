@@ -6,7 +6,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteObject extends Remote {
-    String backup(File file,int repDegree) throws IOException;
+    String backup(File file,int repDegree) throws IOException, InterruptedException;
     String restore(File file) throws RemoteException;
     String delete(File file) throws RemoteException;
     String state(File file) throws RemoteException;

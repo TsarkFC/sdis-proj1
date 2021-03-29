@@ -6,8 +6,7 @@ import channels.ControlChannel;
 import messages.PutChunk;
 import utils.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
@@ -24,11 +23,9 @@ import java.util.concurrent.TimeUnit;
 public class Peer implements RemoteObject {
 
     private PeerArgs peerArgs;
+    private PeerMetadata peerMetadata;
     private String fileSystem;
-
     private ChannelCoordinator channelCoordinator;
-
-
 
     public static void main(String[] args) {
         if (args.length != 9) {
@@ -41,6 +38,7 @@ public class Peer implements RemoteObject {
             Peer peer = new Peer();
             peer.peerArgs = new PeerArgs(args);
             peer.startFileSystem();
+            peer.readMetadata();
 
             // RMI connection
             String remoteObjName = peer.peerArgs.getAccessPoint();
@@ -65,7 +63,7 @@ public class Peer implements RemoteObject {
         executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
     }
 
-    public void createChannels(){
+    public void createChannels() {
         // Create the channels
         channelCoordinator = new ChannelCoordinator(
                 this.createMDBChannel(this.peerArgs.getAddressList()),
@@ -91,15 +89,35 @@ public class Peer implements RemoteObject {
 
     public void startFileSystem() throws IOException {
         fileSystem = "filesystem/" + peerArgs.getPeerId();
-        Files.createDirectories(Paths.get(fileSystem + "/metadata/"));
+        Files.createDirectories(Paths.get(fileSystem));
     }
 
     public String getFileSystem() {
         return fileSystem;
     }
 
+    public PeerMetadata getPeerMetadata() {
+        return peerMetadata;
+    }
+
+    public PeerArgs getPeerArgs() {
+        return peerArgs;
+    }
+
+    private void readMetadata() {
+        try {
+            ObjectInputStream is = new ObjectInputStream(new FileInputStream(peerArgs.getMetadataPath()));
+            peerMetadata = (PeerMetadata) is.readObject();
+            is.close();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("No data to read from peer " + peerArgs.getPeerId());
+            System.out.println("Creating new one...");
+            peerMetadata = new PeerMetadata(peerArgs.getMetadataPath());
+        }
+    }
+
     @Override
-    public String backup(File file, int repDegree) throws IOException {
+    public String backup(File file, int repDegree) throws IOException, InterruptedException {
 
         //Initiator peer recieved backup from client
         System.out.println("Initiator peer recieved backup from client");
@@ -110,22 +128,30 @@ public class Peer implements RemoteObject {
         String fileId = fileHandler.createFileId();
 
         int chunkNo = 0;
-        for(byte[] chunk : chunks){
+        for (byte[] chunk : chunks) {
             PutChunk backupMsg = new PutChunk(1.0, 0, fileId, chunkNo, repDegree, chunk);
             byte[] msg = backupMsg.getBytes();
             messages.add(msg);
             chunkNo++;
         }
 
-
         //Ele esta a enviar para todos os peers
         //Ele aqui teria que começar a contar os segundos
         //Podia por aqui, dentro desta funçao um
         //Thread.sleep(1000);
         //.notifyAll()
-        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(),
-                peerArgs.getAddressList().getMdbAddr().getPort(), messages);
-        channelCoordinator.closeMcIn1Second();
+        int storedExpected = chunks.size() * repDegree;
+        int limit = 5;
+        int reps = 1;
+        while (reps < limit) {
+            ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(),
+                    peerArgs.getAddressList().getMdbAddr().getPort(), messages);
+            TimeUnit.SECONDS.sleep(1);
+            if (storedExpected <= peerMetadata.getFileStoredCount(fileId))
+                break;
+            reps++;
+            //channelCoordinator.closeMcIn1Second();
+        }
         //Send message
         return "";
     }
@@ -153,9 +179,4 @@ public class Peer implements RemoteObject {
         System.out.println("Reclaim");
         return null;
     }
-
-
-
-
-
 }

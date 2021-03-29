@@ -23,18 +23,21 @@ public class BackupChannel extends Channel {
         String recv = new String(packet.getData(), 0, packet.getLength());
         System.out.println("Length: " + packet.getLength());
         System.out.println("Received message from MDB channel");
-        PutChunk message = new PutChunk(recv);
-        FileHandler.saveChunk(message, peer.getFileSystem());
+        PutChunk msg = new PutChunk(recv);
 
-        //If parse correctly, send stored msg to MC channel
-        Stored confMessage = new Stored(message.getVersion(), message.getSenderId(),
-                message.getFileId(), message.getChunkNo());
-        sendConfirmationMc(confMessage.getBytes());
+        if (msg.getSenderId() != peer.getPeerArgs().getPeerId()) {
+            FileHandler.saveChunk(msg, peer.getFileSystem());
+
+            //If parse correctly, send stored msg to MC channel
+            Stored confmsg = new Stored(msg.getVersion(), msg.getSenderId(),
+                    msg.getFileId(), msg.getChunkNo());
+            sendConfirmationMc(confmsg.getBytes());
+        }
     }
 
-    public void sendConfirmationMc(byte[] message) {
-        List<byte[]> messages = new ArrayList<>();
-        messages.add(message);
-        ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), messages);
+    public void sendConfirmationMc(byte[] msg) {
+        List<byte[]> msgs = new ArrayList<>();
+        msgs.add(msg);
+        ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), msgs);
     }
 }

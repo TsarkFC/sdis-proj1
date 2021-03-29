@@ -43,4 +43,20 @@ public class Stored implements Message {
         return String.format("%s %s %d %s %d",
                 this.version, this.messageType, this.senderId, this.fileId, this.chunkNo).getBytes();
     }
+
+    public Double getVersion() {
+        return version;
+    }
+
+    public Integer getSenderId() {
+        return senderId;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public Integer getChunkNo() {
+        return chunkNo;
+    }
 }
