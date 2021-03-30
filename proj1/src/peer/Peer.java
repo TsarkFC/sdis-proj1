@@ -3,6 +3,7 @@ package peer;
 import channels.BackupChannel;
 import channels.ChannelCoordinator;
 import channels.ControlChannel;
+import messages.Delete;
 import messages.PutChunk;
 import utils.*;
 
@@ -110,7 +111,6 @@ public class Peer implements RemoteObject {
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(peerArgs.getMetadataPath()));
             peerMetadata = (PeerMetadata) is.readObject();
             Map<String,Integer> chunksInfo = peerMetadata.getChunksInfo();
-            System.out.println("ZAS");
             for (String chunkId : chunksInfo.keySet()) {
                 System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
             }
@@ -173,6 +173,19 @@ public class Peer implements RemoteObject {
 
     @Override
     public String delete(File file) throws RemoteException {
+        //Send on the MC Channel
+        //A file may be deleted, and it should delete all the chunks of that file
+        //When the file is modified, it should also delete the old copy
+        //An implementation may send this message as many times as it is deemed necessary to ensure that all space used
+        // by chunks of the deleted file are deleted in spite of the loss of some messages.
+
+        List<byte[]> messages = new ArrayList<>();
+        FileHandler fileHandler = new FileHandler(file);
+        Delete msg = new Delete(peerArgs.getVersion(),peerArgs.getPeerId(),fileHandler.createFileId());
+        messages.add(msg.getBytes());
+        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
+                peerArgs.getAddressList().getMcAddr().getPort(), messages);
+
         System.out.println("Delete");
         return null;
     }

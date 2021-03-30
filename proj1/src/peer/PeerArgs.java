@@ -25,8 +25,8 @@ public class PeerArgs {
 
     String metadataPath;
 
-    public String getVersion() {
-        return version;
+    public Double getVersion() {
+        return Double.parseDouble(version);
     }
 
     public Integer getPeerId() {

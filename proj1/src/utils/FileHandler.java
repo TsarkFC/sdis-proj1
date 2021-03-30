@@ -1,5 +1,6 @@
 package utils;
 
+import messages.Delete;
 import messages.Message;
 import messages.PutChunk;
 
@@ -20,6 +21,7 @@ public class FileHandler {
     public FileHandler(File file) {
         this.file = file;
     }
+
 
     public File createFileFromBytes(byte[] chunk, String name, int counter) {
         //Substituir por SHA
@@ -67,7 +69,7 @@ public class FileHandler {
     //           chunk1
     //           chunk2
     //   peer2
-    public static String getFilePath(String peerDir, PutChunk message) {
+    public static String getFilePath(String peerDir, Message message) {
         return peerDir.concat("/" + message.getFileId() + "/");
     }
 
@@ -86,6 +88,29 @@ public class FileHandler {
         }
     }
 
+
+    public static void deleteFile(Delete message,String peerDir){
+        String dirPath = getFilePath(peerDir, message);
+        File folder = new File(dirPath);
+        if (!folder.exists()) System.out.println("Tried to delete directory that does not exist");
+        else {
+            if(FileHandler.deleteDirectory(folder)){
+                System.out.println("Deleted directory");
+            } else{
+                System.out.println("Error deleting directory");
+            }
+        }
+    }
+
+    static boolean  deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                FileHandler.deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
+    }
 
     public List<byte[]> splitFile() throws IOException {
         List<byte[]> chunks = new ArrayList<>();
@@ -108,37 +133,6 @@ public class FileHandler {
 
         }
         return chunks;
-        // problem reading, handle case
-        /*int counter = 1;
-        List<File> files = new ArrayList<File>();
-        int sizeOfChunk = FileHandler.chunkSize;
-        String eof = System.lineSeparator();
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String name = file.getName();
-            String line = br.readLine();
-            while (line != null) {
-                File newFile = new File(file.getParent(), name + "."
-                        + String.format("%03d", counter++));
-                try (OutputStream out = new BufferedOutputStream(new FileOutputStream(newFile))) {
-                    int fileSize = 0;
-                    while (line != null) {
-                        byte[] bytes = (line + eof).getBytes(Charset.defaultCharset());
-                        if (fileSize + bytes.length > sizeOfChunk)
-                            break;
-                        out.write(bytes);
-                        fileSize += bytes.length;
-                        line = br.readLine();
-                    }
-                }
-                files.add(newFile);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return files;*/
-
     }
 
 }

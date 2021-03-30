@@ -6,6 +6,9 @@ public class Delete extends Message {
     public Delete(Double version, Integer senderId, String fileId) {
         super(version,senderId,fileId);
     }
+    public Delete(String msg){
+        super(msg);
+    }
 
     @Override
     public String getMsgType() {
