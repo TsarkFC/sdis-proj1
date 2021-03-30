@@ -87,6 +87,7 @@ public class TestApp {
                 if (this.replicationDegree > 9) {
                     System.out.println("Replication degree must be one digit!");
                 }
+                this.path = args[this.PATH_IDX];
                 break;
             }
             case RESTORE:{
