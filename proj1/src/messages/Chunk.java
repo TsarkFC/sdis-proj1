@@ -1,12 +1,8 @@
 package messages;
 
 // <Version> CHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
-//TODO Sera que ele devia extender? apesar de nao ser uma mensagem?
+
 public class Chunk extends MsgWithChunk {
-    /*private Double version;
-    private Integer senderId;
-    private String fileId;
-    private Integer chunkNo;*/
     private byte[] body;
 
     public Chunk(Double version, Integer senderId, String fileId, Integer chunkNo, byte[] body) {
@@ -16,21 +12,23 @@ public class Chunk extends MsgWithChunk {
 
     @Override
     public String getMsgType() {
-        return null;
+        return "CHUNK";
     }
 
     @Override
     protected String getChildString() {
-        return null;
+        //TODO ADD MsgBody class
+        return String.format("%s",getDoubleCRLF());
     }
 
     @Override
     public int getNumberArguments() {
-        return 0;
+        return 6;
     }
 
     @Override
     public byte[] getBytes() {
+        //Vai ser igual ao putchunk
         return null;
     }
 }

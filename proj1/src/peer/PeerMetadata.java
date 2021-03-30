@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PeerMetadata implements Serializable {
+
     /**
      * Information about chunks saved by the peer.
      * String key identifies the chunk (<fileId>-<chunkNo>)
@@ -48,5 +49,12 @@ public class PeerMetadata implements Serializable {
         ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(path));
         os.writeObject(this);
         os.close();
+    }
+    public Map<String, Integer> getChunksInfo() {
+        return chunksInfo;
+    }
+
+    public String getPath() {
+        return path;
     }
 }

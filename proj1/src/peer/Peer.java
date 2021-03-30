@@ -15,6 +15,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -108,11 +109,17 @@ public class Peer implements RemoteObject {
         try {
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(peerArgs.getMetadataPath()));
             peerMetadata = (PeerMetadata) is.readObject();
+            Map<String,Integer> chunksInfo = peerMetadata.getChunksInfo();
+            System.out.println("ZAS");
+            for (String chunkId : chunksInfo.keySet()) {
+                System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
+            }
             is.close();
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("No data to read from peer " + peerArgs.getPeerId());
             System.out.println("Creating new one...");
             peerMetadata = new PeerMetadata(peerArgs.getMetadataPath());
+
         }
     }
 
@@ -143,10 +150,12 @@ public class Peer implements RemoteObject {
         int storedExpected = chunks.size() * repDegree;
         int limit = 5;
         int reps = 1;
+        int timeWait =1;
         while (reps < limit) {
             ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(),
                     peerArgs.getAddressList().getMdbAddr().getPort(), messages);
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(timeWait);
+            timeWait *= 2;
             if (storedExpected <= peerMetadata.getFileStoredCount(fileId))
                 break;
             reps++;
