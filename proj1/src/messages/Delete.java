@@ -1,19 +1,29 @@
 package messages;
 
 // <Version> DELETE <SenderId> <FileId> <CRLF><CRLF>
-public class Delete implements Message {
-    private Double version;
-    private Integer senderId;
-    private String fileId;
+public class Delete extends Message {
 
     public Delete(Double version, Integer senderId, String fileId) {
-        this.version = version;
-        this.senderId = senderId;
-        this.fileId = fileId;
+        super(version,senderId,fileId);
+    }
+
+    @Override
+    public String getMsgType() {
+        return "DELETE";
+    }
+
+    @Override
+    protected String getExtraString() {
+        return getDoubleCRLF();
+    }
+
+    @Override
+    public int getNumberArguments() {
+        return 5;
     }
 
     @Override
     public byte[] getBytes() {
-        return null;
+        return getMsgString().getBytes();
     }
 }
