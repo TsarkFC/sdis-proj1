@@ -1,9 +1,11 @@
 package channels;
 
 import messages.Delete;
+import messages.GetChunk;
 import messages.Message;
 import messages.Stored;
 import peer.Peer;
+import protocol.RestoreProtocol;
 import utils.AddressList;
 import utils.FileHandler;
 
@@ -11,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.concurrent.TimeUnit;
+
+import static utils.FileHandler.restoreChunk;
 
 public class ControlChannel extends Channel {
 
@@ -30,6 +34,7 @@ public class ControlChannel extends Channel {
         String msgType = Message.getTypeStatic(msgString);
         if(msgType.equals("STORED")) handleBackup(msgString);
         else if(msgType.equals("DELETE")) handleDelete(msgString);
+        else if(msgType.equals("GETCHUNK")) handleRestore(msgString);
         else System.out.println("\nERROR NOT PARSING THAT MESSAGE " +  msgType);
 
     }
@@ -45,6 +50,12 @@ public class ControlChannel extends Channel {
         Delete msg = new Delete(msgString);
         FileHandler.deleteFile(msg,peer.getFileSystem());
         //Delete from metadata and from file
+    }
+
+    public void handleRestore(String msgString){
+        System.out.println("Control Channel received Restore Msg: " + msgString);
+        GetChunk msg = new GetChunk(msgString);
+        RestoreProtocol.handleGetChunk(msg,peer);
     }
 
     public void closeMcChannel(){

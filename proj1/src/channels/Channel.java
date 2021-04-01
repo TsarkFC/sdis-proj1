@@ -22,7 +22,6 @@ public abstract class Channel implements Runnable {
         this.addrList = addrList;
         this.peer = peer;
     }
-
     public abstract void handle(DatagramPacket packet) throws IOException;
 
     @Override
@@ -44,6 +43,4 @@ public abstract class Channel implements Runnable {
             e.printStackTrace();
         }
     }
-
-
 }

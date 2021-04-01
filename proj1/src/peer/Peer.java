@@ -3,8 +3,12 @@ package peer;
 import channels.BackupChannel;
 import channels.ChannelCoordinator;
 import channels.ControlChannel;
+import channels.RestoreChannel;
 import messages.Delete;
+import messages.GetChunk;
 import messages.PutChunk;
+import protocol.DeleteProtocol;
+import protocol.RestoreProtocol;
 import utils.*;
 
 import java.io.*;
@@ -34,7 +38,6 @@ public class Peer implements RemoteObject {
             System.out.println("Usage: java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>");
             return;
         }
-
         try {
             // Peer creation
             Peer peer = new Peer();
@@ -66,28 +69,10 @@ public class Peer implements RemoteObject {
     }
 
     public void createChannels() {
-        // Create the channels
-        channelCoordinator = new ChannelCoordinator(
-                this.createMDBChannel(this.peerArgs.getAddressList()),
-                this.createMCChannel(this.peerArgs.getAddressList())
-        );
-
-        System.out.println("Created multicast channels");
+        channelCoordinator = new ChannelCoordinator(this);
     }
 
-    public BackupChannel createMDBChannel(AddressList addressList) {
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        BackupChannel backupChannel = new BackupChannel(addressList, this);
-        executor.schedule(backupChannel, 0, TimeUnit.SECONDS);
-        return backupChannel;
-    }
 
-    public ControlChannel createMCChannel(AddressList addressList) {
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        ControlChannel controlChannel = new ControlChannel(addressList, this);
-        executor.schedule(controlChannel, 0, TimeUnit.SECONDS);
-        return controlChannel;
-    }
 
     public void startFileSystem() throws IOException {
         fileSystem = "filesystem/" + peerArgs.getPeerId();
@@ -166,27 +151,17 @@ public class Peer implements RemoteObject {
     }
 
     @Override
-    public String restore(File file) throws RemoteException {
-        System.out.println("Restore");
+    public String restore(File file) throws IOException {
+        System.out.println("Initiator peer received Restore");
+        RestoreProtocol restoreProtocol = new RestoreProtocol(file,this);
+        restoreProtocol.initialize();
         return null;
     }
 
     @Override
     public String delete(File file) throws RemoteException {
-        //Send on the MC Channel
-        //A file may be deleted, and it should delete all the chunks of that file
-        //When the file is modified, it should also delete the old copy
-        //An implementation may send this message as many times as it is deemed necessary to ensure that all space used
-        // by chunks of the deleted file are deleted in spite of the loss of some messages.
-
-        List<byte[]> messages = new ArrayList<>();
-        FileHandler fileHandler = new FileHandler(file);
-        Delete msg = new Delete(peerArgs.getVersion(),peerArgs.getPeerId(),fileHandler.createFileId());
-        messages.add(msg.getBytes());
-        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
-                peerArgs.getAddressList().getMcAddr().getPort(), messages);
-
-        System.out.println("Delete");
+        DeleteProtocol deleteProtocol = new DeleteProtocol(file,this);
+        deleteProtocol.initialize();
         return null;
     }
 

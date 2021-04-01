@@ -4,10 +4,15 @@ package messages;
 
 public class Chunk extends MsgWithChunk {
     private byte[] body;
+    private static int BODY_IDX = 5;
 
     public Chunk(Double version, Integer senderId, String fileId, Integer chunkNo, byte[] body) {
         super(version,senderId,fileId,chunkNo);
         this.body = body;
+    }
+    public Chunk(String msg){
+        super(msg);
+        this.body = tokens[BODY_IDX].substring(4).getBytes();
     }
 
     @Override

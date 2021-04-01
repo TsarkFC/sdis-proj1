@@ -1,12 +1,14 @@
 package utils;
 
 import messages.Delete;
+import messages.GetChunk;
 import messages.Message;
 import messages.PutChunk;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -100,6 +102,24 @@ public class FileHandler {
                 System.out.println("Error deleting directory");
             }
         }
+    }
+
+    public static byte[] restoreChunk(GetChunk message, String peerDir){
+        String dirPath = getFilePath(peerDir, message);
+        Path path = Paths.get(dirPath + message.getChunkNo());
+        if (!Files.exists(path)){
+            System.out.println("Tried to restore chunk that does not exist");
+            return null;
+        }
+        File file = new File(dirPath + message.getChunkNo());
+        try {
+            byte[] fileContent = Files.readAllBytes(file.toPath());
+            return fileContent;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 
     static boolean  deleteDirectory(File directoryToBeDeleted) {

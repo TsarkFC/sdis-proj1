@@ -6,6 +6,9 @@ public class GetChunk extends MsgWithChunk {
     public GetChunk(Double version, Integer senderId, String fileId, Integer chunkNo) {
         super(version, senderId, fileId, chunkNo);
     }
+    public GetChunk(String msg){
+        super(msg);
+    }
 
     @Override
     public String getMsgType() {
