@@ -90,6 +90,84 @@ public class FileHandler {
         }
     }
 
+    public static byte[] restoreChunk(GetChunk message, String peerDir){
+        String dirPath = getFilePath(peerDir, message);
+        Path path = Paths.get(dirPath + message.getChunkNo());
+        if (!Files.exists(path)){
+            return null;
+        }
+        File file = new File(dirPath + message.getChunkNo());
+        try {
+            byte[] fileContent = Files.readAllBytes(file.toPath());
+            return fileContent;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /*public static byte[] restoreChunk(GetChunk message, String peerDir){
+        String dirPath = getFilePath(peerDir, message);
+        Path path = Paths.get(dirPath + message.getChunkNo());
+        if (!Files.exists(path)){
+            return null;
+        }
+        //File file = new File(dirPath + message.getChunkNo());
+        try (FileInputStream fis = new FileInputStream(dirPath + message.getChunkNo())) {
+            byte[] buf = new byte[64000];
+            fis.read(buf);
+            return buf;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }*/
+
+
+    /*public static byte[] restoreChunk(GetChunk message, String peerDir){
+        String dirPath = getFilePath(peerDir, message);
+        Path path = Paths.get(dirPath + message.getChunkNo());
+        if (!Files.exists(path)){
+            return null;
+        }
+        File file = new File(dirPath + message.getChunkNo());
+        FileInputStream fin = null;
+        try {
+            // create FileInputStream object
+            fin = new FileInputStream(file);
+
+            byte fileContent[] = new byte[(int)file.length()];
+
+            // Reads up to certain bytes of data from this input stream into an array of bytes.
+            fin.read(fileContent);
+            return fileContent;
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found" + e);
+        }
+        catch (IOException ioe) {
+            System.out.println("Exception while reading file " + ioe);
+        }
+        finally {
+            // close the streams using close method
+            try {
+                if (fin != null) {
+                    fin.close();
+                }
+            }
+            catch (IOException ioe) {
+                System.out.println("Error while closing stream: " + ioe);
+            }
+        }
+
+        return null;
+
+    }*/
+
 
     public static void deleteFile(Delete message,String peerDir){
         String dirPath = getFilePath(peerDir, message);
@@ -104,23 +182,7 @@ public class FileHandler {
         }
     }
 
-    public static byte[] restoreChunk(GetChunk message, String peerDir){
-        String dirPath = getFilePath(peerDir, message);
-        Path path = Paths.get(dirPath + message.getChunkNo());
-        if (!Files.exists(path)){
-            System.out.println("Tried to restore chunk that does not exist");
-            return null;
-        }
-        File file = new File(dirPath + message.getChunkNo());
-        try {
-            byte[] fileContent = Files.readAllBytes(file.toPath());
-            return fileContent;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
 
-    }
 
     static boolean  deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();

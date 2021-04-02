@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RestoreProtocol extends Protocol{
+    private static final String NO_CHUNK_MSG ="NO_CHUNK";
     public RestoreProtocol(File file, Peer peer) {
         super(file, peer);
     }
-
     @Override
     public void initialize() {
         List<byte[]> messages = new ArrayList<>();
@@ -43,15 +43,28 @@ public class RestoreProtocol extends Protocol{
 
     public static void handleGetChunk(GetChunk msg,Peer peerStatic){
         byte[] chunk = FileHandler.restoreChunk(msg,peerStatic.getFileSystem());
+        List<byte[]> msgs = new ArrayList<>();
+
         if (chunk!=null){
             //Send chunk body
-            Chunk chunkMsg = new Chunk(msg.getVersion(), msg.getSenderId(),msg.getFileId() , msg.getChunkNo(), chunk);
-            List<byte[]> msgs = new ArrayList<>();
+            Chunk chunkMsg = new Chunk(msg.getVersion(), peerStatic.getPeerArgs().getPeerId(),msg.getFileId() , msg.getChunkNo(), chunk);
             msgs.add(chunkMsg.getBytes());
-            AddressList addrList = peerStatic.getPeerArgs().getAddressList();
-            ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
-        }
+            System.out.println("BYTES :" + chunkMsg.getBytes());
+            System.out.println("Recovered chunk from: " +peerStatic.getPeerArgs().getPeerId());
 
+        }else{
+            //TODO Ele se nao adicionarmos nada a lista ele da erro e nao chega ao restore
+            msgs.add(NO_CHUNK_MSG.getBytes());
+            System.out.println("Tried to restore chunk that does not exist " +peerStatic.getPeerArgs().getPeerId());
+        }
+        AddressList addrList = peerStatic.getPeerArgs().getAddressList();
+        ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
+    }
+
+    public static void handleChunkMsg(String rcvd){
+        if (rcvd == NO_CHUNK_MSG) return;
+        Chunk chunkMsg = new Chunk(rcvd);
+        System.out.println("Received in Restore Channel Chunk " + chunkMsg.getChunkNo());
     }
 
 }
