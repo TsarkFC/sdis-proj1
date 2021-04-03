@@ -48,8 +48,9 @@ public class ControlChannel extends Channel {
     public void handleDelete(String msgString){
         System.out.println("Control Channel received Delete Msg: " + msgString);
         Delete msg = new Delete(msgString);
-        FileHandler.deleteFile(msg,peer.getFileSystem());
-        //Delete from metadata and from file
+        List<Integer> storedChunkNumbers = FileHandler.getChunkNoStored(msg.getFileId(),peer.getFileSystem());
+        FileHandler.deleteFile(msg.getFileId(),peer.getFileSystem());
+        peer.getPeerMetadata().deleteChunksFile(storedChunkNumbers,msg.getFileId());
     }
 
     public void handleRestore(String msgString){

@@ -46,7 +46,9 @@ public class Peer implements RemoteObject {
             Peer peer = new Peer();
             peer.peerArgs = new PeerArgs(args);
             peer.startFileSystem();
-            peer.readMetadata();
+            PeerMetadata metadata = new PeerMetadata(peer.getPeerArgs().getMetadataPath());
+            peer.setPeerMetadata(metadata.readMetadata());
+
 
             // RMI connection
             String remoteObjName = peer.peerArgs.getAccessPoint();
@@ -86,31 +88,15 @@ public class Peer implements RemoteObject {
         return fileSystem;
     }
     public Protocol getProtocol() {return protocol;}
-
     public PeerMetadata getPeerMetadata() {
         return peerMetadata;
     }
+    public void setPeerMetadata(PeerMetadata peerMetadata) { this.peerMetadata = peerMetadata;}
 
     public PeerArgs getPeerArgs() {
         return peerArgs;
     }
 
-    private void readMetadata() {
-        try {
-            ObjectInputStream is = new ObjectInputStream(new FileInputStream(peerArgs.getMetadataPath()));
-            peerMetadata = (PeerMetadata) is.readObject();
-            Map<String,Integer> chunksInfo = peerMetadata.getChunksInfo();
-            for (String chunkId : chunksInfo.keySet()) {
-                System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
-            }
-            is.close();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No data to read from peer " + peerArgs.getPeerId());
-            System.out.println("Creating new one...");
-            peerMetadata = new PeerMetadata(peerArgs.getMetadataPath());
-
-        }
-    }
 
     @Override
     public String backup(File file, int repDegree) throws IOException, InterruptedException {

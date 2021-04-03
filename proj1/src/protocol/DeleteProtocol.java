@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeleteProtocol extends Protocol {
-    private File file;
-    private Peer peer;
 
     public DeleteProtocol(File file, Peer peer) {
         super(file,peer);

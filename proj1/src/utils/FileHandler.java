@@ -74,6 +74,9 @@ public class FileHandler {
     public static String getFilePath(String peerDir, Message message) {
         return peerDir.concat("/" + message.getFileId() + "/");
     }
+    public static String getFilePath(String peerDir, String fileId) {
+        return peerDir.concat("/" + fileId + "/");
+    }
 
     public static void saveChunk(PutChunk message, String peerDir) {
         // create directory if it does not exist
@@ -169,8 +172,8 @@ public class FileHandler {
     }*/
 
 
-    public static void deleteFile(Delete message,String peerDir){
-        String dirPath = getFilePath(peerDir, message);
+    public static void deleteFile(String fileId,String peerDir){
+        String dirPath = getFilePath(peerDir, fileId);
         File folder = new File(dirPath);
         if (!folder.exists()) System.out.println("Tried to delete directory that does not exist");
         else {
@@ -180,6 +183,24 @@ public class FileHandler {
                 System.out.println("Error deleting directory");
             }
         }
+    }
+
+    public static List<Integer> getChunkNoStored(String fileId,String peerDir){
+        List<Integer> storedChunks = new ArrayList<>();
+        String dirPath = getFilePath(peerDir, fileId);
+        File folder = new File(dirPath);
+        if (!folder.exists()){
+            System.out.println("Tried to see stored Chunks but file folder does not exist");
+            return null;
+        }
+        File[] allContents = folder.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                storedChunks.add(Integer.parseInt(file.getName()));
+            }
+            return  storedChunks;
+        }
+        return null;
     }
 
 
