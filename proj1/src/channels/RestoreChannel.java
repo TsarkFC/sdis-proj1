@@ -18,9 +18,11 @@ public class RestoreChannel extends Channel{
 
     @Override
     public void handle(DatagramPacket packet) {
+        //Como e que sei quantos chunks tenho?
         String rcvd = new String(packet.getData(), 0, packet.getLength());
         System.out.println("Received in Restore Channel: " + rcvd);
-        RestoreProtocol.handleChunkMsg(rcvd);
+        RestoreProtocol restoreProtocol = (RestoreProtocol) peer.getProtocol();
+        restoreProtocol.handleChunkMsg(rcvd);
 
     }
 }

@@ -8,6 +8,7 @@ import messages.Delete;
 import messages.GetChunk;
 import messages.PutChunk;
 import protocol.DeleteProtocol;
+import protocol.Protocol;
 import protocol.RestoreProtocol;
 import utils.*;
 
@@ -32,6 +33,8 @@ public class Peer implements RemoteObject {
     private PeerMetadata peerMetadata;
     private String fileSystem;
     private ChannelCoordinator channelCoordinator;
+    private Protocol protocol;
+
 
     public static void main(String[] args) {
         if (args.length != 9) {
@@ -82,6 +85,7 @@ public class Peer implements RemoteObject {
     public String getFileSystem() {
         return fileSystem;
     }
+    public Protocol getProtocol() {return protocol;}
 
     public PeerMetadata getPeerMetadata() {
         return peerMetadata;
@@ -153,15 +157,15 @@ public class Peer implements RemoteObject {
     @Override
     public String restore(File file) throws IOException {
         System.out.println("Initiator peer received Restore");
-        RestoreProtocol restoreProtocol = new RestoreProtocol(file,this);
-        restoreProtocol.initialize();
+        this.protocol = new RestoreProtocol(file,this);
+        this.protocol.initialize();
         return null;
     }
 
     @Override
     public String delete(File file) throws RemoteException {
-        DeleteProtocol deleteProtocol = new DeleteProtocol(file,this);
-        deleteProtocol.initialize();
+        this.protocol = new DeleteProtocol(file,this);
+        this.protocol.initialize();
         return null;
     }
 

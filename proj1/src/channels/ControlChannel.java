@@ -56,10 +56,6 @@ public class ControlChannel extends Channel {
         System.out.println("Control Channel received Restore Msg: " + msgString);
         GetChunk msg = new GetChunk(msgString);
         RestoreProtocol.handleGetChunk(msg,peer);
-
-
-
-
     }
 
     public void closeMcChannel(){

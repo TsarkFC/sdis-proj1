@@ -11,10 +11,15 @@ import utils.ThreadHandler;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RestoreProtocol extends Protocol{
     private static final String NO_CHUNK_MSG ="NO_CHUNK";
+    private static final String SENT_CHUNK = "SENT_CHUNK";
+
+    private Map< Integer,byte[]> chunks = new HashMap();
     public RestoreProtocol(File file, Peer peer) {
         super(file, peer);
     }
@@ -46,10 +51,14 @@ public class RestoreProtocol extends Protocol{
         List<byte[]> msgs = new ArrayList<>();
 
         if (chunk!=null){
+            //TODO UNCOMMENT
             //Send chunk body
-            Chunk chunkMsg = new Chunk(msg.getVersion(), peerStatic.getPeerArgs().getPeerId(),msg.getFileId() , msg.getChunkNo(), chunk);
-            msgs.add(chunkMsg.getBytes());
-            System.out.println("BYTES :" + chunkMsg.getBytes());
+            //Chunk chunkMsg = new Chunk(msg.getVersion(), peerStatic.getPeerArgs().getPeerId(),msg.getFileId() , msg.getChunkNo(), chunk);
+            //msgs.add(chunkMsg.getBytes());
+            //System.out.println("BYTES :" + chunkMsg.getBytes());
+
+            //TODO TIRAR ISTO
+            msgs.add(SENT_CHUNK.getBytes());
             System.out.println("Recovered chunk from: " +peerStatic.getPeerArgs().getPeerId());
 
         }else{
@@ -61,10 +70,21 @@ public class RestoreProtocol extends Protocol{
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
     }
 
-    public static void handleChunkMsg(String rcvd){
+    public void handleChunkMsg(String rcvd){
         if (rcvd == NO_CHUNK_MSG) return;
-        Chunk chunkMsg = new Chunk(rcvd);
-        System.out.println("Received in Restore Channel Chunk " + chunkMsg.getChunkNo());
-    }
+        System.out.println();
+        System.out.println("\nHandling Chunk message ");
 
+        //Como tenho acesso ao numero de chunks necessários?
+        /*int fileChunkNum = 2;
+        Chunk chunkMsg = new Chunk(rcvd);
+        chunkMsg.getFileId();
+        chunks.put(chunkMsg.getChunkNo(),chunkMsg.getBody());
+        if (chunks.size() == fileChunkNum){
+            //Backup file?
+            //Stop receiving messages
+        }*/
+
+        //System.out.println("Received in Restore Channel Chunk " + chunkMsg.getChunkNo());
+    }
 }
