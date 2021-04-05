@@ -1,10 +1,10 @@
 package messages;
 
 public abstract class Message {
-    protected final int VERSION_IDX = 0;
-    protected final int MSG_TYPE_IDX = 1;
-    protected final int SENDER_ID_IDX = 2;
-    protected final int FILE_ID_IDX = 3;
+    protected static final int VERSION_IDX = 0;
+    protected static final int MSG_TYPE_IDX = 1;
+    protected static final int SENDER_ID_IDX = 2;
+    protected static final int FILE_ID_IDX = 3;
     protected final Double version;
     protected final Integer senderId;
     protected final String fileId;
@@ -69,6 +69,12 @@ public abstract class Message {
 
     public String getDoubleCRLF() {
         return getCRLF() + getCRLF();
+    }
+
+    public static String getTypeStatic(String msg){
+        String[] stringArr = msg.split("\\s+", 4);
+        return stringArr[MSG_TYPE_IDX];
+
     }
 
 }

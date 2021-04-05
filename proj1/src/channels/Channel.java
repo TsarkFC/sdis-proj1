@@ -22,21 +22,20 @@ public abstract class Channel implements Runnable {
         this.addrList = addrList;
         this.peer = peer;
     }
-
     public abstract void handle(DatagramPacket packet) throws IOException;
 
     @Override
     public void run() {
         try {
-            InetAddress mcast_addr = InetAddress.getByName(this.currentAddr.getAddress());
-            MulticastSocket mcast_socket;
-            mcast_socket = new MulticastSocket(currentAddr.getPort());
-            mcast_socket.joinGroup(mcast_addr);
+            InetAddress mcastAddr = InetAddress.getByName(this.currentAddr.getAddress());
+            MulticastSocket mcastSocket;
+            mcastSocket = new MulticastSocket(currentAddr.getPort());
+            mcastSocket.joinGroup(mcastAddr);
 
             while (true) {
                 byte[] rbuf = new byte[64000];
                 DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
-                mcast_socket.receive(packet);
+                mcastSocket.receive(packet);
                 handle(packet);
             }
 
@@ -44,6 +43,4 @@ public abstract class Channel implements Runnable {
             e.printStackTrace();
         }
     }
-
-
 }

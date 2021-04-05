@@ -1,5 +1,7 @@
 package peer;
 
+import utils.FileHandler;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,18 +23,46 @@ public class PeerMetadata implements Serializable {
         System.out.println("METADATA PATH: " + path);
     }
 
-    public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId) throws IOException {
-        String chunkId = fileId + "-" + chunkNo;
+    public String getChunkId(String fileId,Integer chunkNo){ return fileId + "-" + chunkNo; }
+
+    public void updateChunkInfo(String fileId, Integer chunkNo, Integer storedNo) throws IOException {
+        String chunkId = getChunkId(fileId,chunkNo);
         if (!chunksInfo.containsKey(chunkId)) {
             List<Integer> stored = new ArrayList<>();
-            stored.add(peerId);
+            stored.add(storedNo);
             chunksInfo.put(chunkId, stored);
         } else {
             List<Integer> peerIds = chunksInfo.get(chunkId);
-            if (!peerIds.contains(peerId))
-                peerIds.add(peerId);
+            if (!peerIds.contains(storedNo))
+                peerIds.add(storedNo);
         }
         writeMetadata();
+    }
+
+    public void deleteChunk(String fileId, Integer chunkNo) throws IOException {
+        String chunkId = fileId + "-" + chunkNo;
+        if (!chunksInfo.containsKey(chunkId)) {
+            System.out.println("Cannot delete Chunk from Metadata");
+        }else{
+            chunksInfo.remove(chunkId);
+        }
+        writeMetadata();
+    }
+
+    public void deleteChunksFile(List<Integer> chunksNums,String fileID){
+        for (Integer chunkNo : chunksNums){
+            String chunkId = getChunkId(fileID,chunkNo);
+            if (chunksInfo.containsKey(chunkId)) {
+                chunksInfo.remove(chunkId);
+            }
+        }
+        try {
+            writeMetadata();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public Integer getStoredCount(String fileId, Integer chunkNo) {
@@ -59,6 +89,25 @@ public class PeerMetadata implements Serializable {
         os.writeObject(this);
         os.close();
     }
+
+    public PeerMetadata readMetadata(){
+        try {
+            ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
+            PeerMetadata peerMetadata = (PeerMetadata) is.readObject();
+            Map<String, List<Integer>> chunksInfo = peerMetadata.getChunksInfo();
+            for (String chunkId : chunksInfo.keySet()) {
+                System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
+            }
+            is.close();
+            return peerMetadata;
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("No data to read from peer");
+            System.out.println("Creating new one...");
+            return new PeerMetadata(path);
+
+        }
+    }
+
     public Map<String, List<Integer>> getChunksInfo() {
         return chunksInfo;
     }
