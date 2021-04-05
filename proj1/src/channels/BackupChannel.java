@@ -25,12 +25,11 @@ public class BackupChannel extends Channel {
         System.out.println("Received message from MDB channel");
         PutChunk msg = new PutChunk(recv);
 
-        if (msg.getSenderId() != peer.getPeerArgs().getPeerId()) {
+        if (!msg.getSenderId().equals(peer.getPeerArgs().getPeerId())) {
             FileHandler.saveChunk(msg, peer.getFileSystem());
 
             //If parse correctly, send stored msg to MC channel
-            Stored confmsg = new Stored(msg.getVersion(), msg.getSenderId(),
-                    msg.getFileId(), msg.getChunkNo());
+            Stored confmsg = new Stored(msg.getVersion(), peer.getPeerArgs().getPeerId(), msg.getFileId(), msg.getChunkNo());
             sendConfirmationMc(confmsg.getBytes());
         }
     }
