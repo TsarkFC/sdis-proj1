@@ -78,6 +78,7 @@ public class FileHandler {
         return peerDir.concat("/" + fileId + "/");
     }
 
+
     public static void saveChunk(PutChunk message, String peerDir) {
         // create directory if it does not exist
         String dirPath = getFilePath(peerDir, message);
@@ -203,8 +204,31 @@ public class FileHandler {
         return null;
     }
 
+    public static void reclaimDiskSpace(double maxDiskSpace, double currentSize,String peerDir){
+        File folder = new File(peerDir);
+        if (!folder.exists()){
+            System.out.println("Peer folder does not exist");
+            return;
+        }
+        File[] allContents = folder.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                String name = file.getName();
+                if(name != "metadata"){
+                    System.out.println("Eliminating folder: " + file.getPath());
+                    double size = FileHandler.getFolderKbSize(file.getPath());
+                    deleteFile(file.getName(),peerDir);
+                    currentSize -= size;
+                    System.out.println("Current Size = "  + currentSize);
+                    if(currentSize <= maxDiskSpace) break;
+                }
+            }
+            return;
+        }
+    }
 
-    public static float getFolderSize(String dirPath) {
+
+    private static double getFolderSize(String dirPath) {
 
         File folder = new File(dirPath);
         float length = 0;
@@ -219,15 +243,22 @@ public class FileHandler {
                 length += getFolderSize(files[i].getPath());
             }
         }
-        return length/1000;
+        return length;
     }
+
+    public static double getFolderKbSize(String dirPath){
+        return FileHandler.getFolderSize(dirPath)/1000.0;
+    }
+
+
+
+
 
 
 
     static boolean  deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
-
             for (File file : allContents) {
                 FileHandler.deleteDirectory(file);
             }

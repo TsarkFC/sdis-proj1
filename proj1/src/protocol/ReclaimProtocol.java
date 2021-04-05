@@ -21,12 +21,14 @@ public class ReclaimProtocol extends Protocol {
 
     @Override
     public void initialize() {
+        System.out.println("Initializing reclaim");
         //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
         PeerArgs peerArgs = peer.getPeerArgs();
         List<byte[]> messages = new ArrayList<>();
 
-        float currentStoredSize =  FileHandler.getFolderSize(peer.getFileSystem());
+        double currentStoredSize =  FileHandler.getFolderKbSize(peer.getFileSystem());
         System.out.println(String.format("Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
+        reclaimSpace(maxDiskSpace,currentStoredSize);
         if(currentStoredSize > maxDiskSpace){
 
             //Delete files
@@ -44,6 +46,6 @@ public class ReclaimProtocol extends Protocol {
     }
 
     public void reclaimSpace(double maxDiskSpace, double currentSize){
-
+        FileHandler.reclaimDiskSpace(maxDiskSpace,currentSize,peer.getFileSystem());
     }
 }

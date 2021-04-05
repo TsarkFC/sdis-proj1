@@ -164,6 +164,7 @@ public class Peer implements RemoteObject {
 
     @Override
     public String delete(File file) throws IOException, InterruptedException {
+        System.out.println("Initiator peer received Delete");
         this.protocol = new DeleteProtocol(file, this);
         this.protocol.initialize();
         return null;
@@ -177,8 +178,10 @@ public class Peer implements RemoteObject {
 
     @Override
     public String reclaim(double maxDiskSpace) throws IOException {
+        System.out.println("Initiator peer received Reclaim");
         this.protocol = new ReclaimProtocol(maxDiskSpace, this);
         this.protocol.initialize();
+
         return null;
     }
 }
