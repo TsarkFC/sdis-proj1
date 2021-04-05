@@ -44,13 +44,4 @@ public class ChannelCoordinator {
         executor.schedule(restoreChannel, 0, TimeUnit.SECONDS);
         return restoreChannel;
     }
-
-    public void closeMcIn1Second() {
-        executor = new ScheduledThreadPoolExecutor(1);
-        executor.schedule(this::closeMc, 1, TimeUnit.SECONDS);
-    }
-
-    public void closeMc() {
-        this.controlChannel.closeMcChannel();
-    }
 }

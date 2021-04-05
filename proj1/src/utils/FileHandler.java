@@ -204,10 +204,30 @@ public class FileHandler {
     }
 
 
+    public static float getFolderSize(String dirPath) {
+
+        File folder = new File(dirPath);
+        float length = 0;
+        File[] files = folder.listFiles();
+        int count = files.length;
+
+        for (int i = 0; i < count; i++) {
+            if (files[i].isFile()) {
+                length += files[i].length();
+            }
+            else {
+                length += getFolderSize(files[i].getPath());
+            }
+        }
+        return length/1000;
+    }
+
+
 
     static boolean  deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
+
             for (File file : allContents) {
                 FileHandler.deleteDirectory(file);
             }

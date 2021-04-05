@@ -15,15 +15,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class RestoreProtocol extends Protocol{
     private static final String NO_CHUNK_MSG ="NO_CHUNK";
     //TODO APAGAR ISTO QUANDO JA ESTIVER A FUNCIONAR
     private static final String SENT_CHUNK = "SENT_CHUNK";
 
     private Map< Integer,byte[]> chunksMap = new HashMap();
+
     public RestoreProtocol(File file, Peer peer) {
         super(file, peer);
     }
+
     @Override
     public void initialize() {
         List<byte[]> messages = new ArrayList<>();
@@ -39,7 +42,7 @@ public class RestoreProtocol extends Protocol{
         String fileId = fileHandler.createFileId();
 
         for (int i = 0; i < chunks.size(); i++) {
-            GetChunk getChunk = new GetChunk(peerArgs.getVersion(), peerArgs.getPeerId(),fileId,i);
+            GetChunk getChunk = new GetChunk(peerArgs.getVersion(), peerArgs.getPeerId(), fileId, i);
             byte[] msg = getChunk.getBytes();
             messages.add(msg);
         }
@@ -47,11 +50,11 @@ public class RestoreProtocol extends Protocol{
                 peerArgs.getAddressList().getMcAddr().getPort(), messages);
     }
 
-    public static void handleGetChunk(GetChunk msg,Peer peerStatic){
-        byte[] chunk = FileHandler.restoreChunk(msg,peerStatic.getFileSystem());
+    public static void handleGetChunk(GetChunk msg, Peer peerStatic) {
+        byte[] chunk = FileHandler.restoreChunk(msg, peerStatic.getFileSystem());
         List<byte[]> msgs = new ArrayList<>();
 
-        if (chunk!=null){
+        if (chunk != null) {
             //TODO UNCOMMENT
             //Send chunk body
             //Chunk chunkMsg = new Chunk(msg.getVersion(), peerStatic.getPeerArgs().getPeerId(),msg.getFileId() , msg.getChunkNo(), chunk);
@@ -60,12 +63,12 @@ public class RestoreProtocol extends Protocol{
 
             //TODO TIRAR ISTO
             msgs.add(SENT_CHUNK.getBytes());
-            System.out.println("Recovered chunk from: " +peerStatic.getPeerArgs().getPeerId());
+            System.out.println("Recovered chunk from: " + peerStatic.getPeerArgs().getPeerId());
 
-        }else{
+        } else {
             //TODO Ele se nao adicionarmos nada a lista ele da erro e nao chega ao restore
             msgs.add(NO_CHUNK_MSG.getBytes());
-            System.out.println("Tried to restore chunk that does not exist " +peerStatic.getPeerArgs().getPeerId());
+            System.out.println("Tried to restore chunk that does not exist " + peerStatic.getPeerArgs().getPeerId());
         }
         AddressList addrList = peerStatic.getPeerArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
@@ -73,6 +76,7 @@ public class RestoreProtocol extends Protocol{
 
     public void handleChunkMsg(String rcvd){
         if (rcvd.equals(NO_CHUNK_MSG)) return;
+
         System.out.println();
         System.out.println("\nHandling Chunk message ");
 

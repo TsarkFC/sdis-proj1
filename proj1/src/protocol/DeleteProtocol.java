@@ -13,7 +13,7 @@ import java.util.List;
 public class DeleteProtocol extends Protocol {
 
     public DeleteProtocol(File file, Peer peer) {
-        super(file,peer);
+        super(file, peer);
     }
 
     //Send on the MC Channel
@@ -22,11 +22,11 @@ public class DeleteProtocol extends Protocol {
     //An implementation may send this message as many times as it is deemed necessary to ensure that all space used
     // by chunks of the deleted file are deleted in spite of the loss of some messages.
     @Override
-    public void initialize(){
+    public void initialize() {
         PeerArgs peerArgs = peer.getPeerArgs();
         List<byte[]> messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
-        Delete msg = new Delete(peerArgs.getVersion(),peerArgs.getPeerId(),fileHandler.createFileId());
+        Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), fileHandler.createFileId());
         messages.add(msg.getBytes());
         ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
                 peerArgs.getAddressList().getMcAddr().getPort(), messages);

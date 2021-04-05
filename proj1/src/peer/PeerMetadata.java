@@ -3,6 +3,7 @@ package peer;
 import utils.FileHandler;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +13,9 @@ public class PeerMetadata implements Serializable {
     /**
      * Information about chunks saved by the peer.
      * String key identifies the chunk (<fileId>-<chunkNo>)
-     * Integer value identifies the number of STORED messages associated to the chunk
+     * List<Integer> identifies the peers who stored the message
      */
-    Map<String, Integer> chunksInfo = new HashMap<>();
+    Map<String, List<Integer>> chunksInfo = new HashMap<>();
     String path;
 
     public PeerMetadata(String path) {
@@ -27,10 +28,13 @@ public class PeerMetadata implements Serializable {
     public void updateChunkInfo(String fileId, Integer chunkNo, Integer storedNo) throws IOException {
         String chunkId = getChunkId(fileId,chunkNo);
         if (!chunksInfo.containsKey(chunkId)) {
-            chunksInfo.put(chunkId, storedNo);
+            List<Integer> stored = new ArrayList<>();
+            stored.add(storedNo);
+            chunksInfo.put(chunkId, stored);
         } else {
-            Integer currentStoredNo = chunksInfo.get(chunkId);
-            chunksInfo.put(chunkId, currentStoredNo + storedNo);
+            List<Integer> peerIds = chunksInfo.get(chunkId);
+            if (!peerIds.contains(storedNo))
+                peerIds.add(storedNo);
         }
         writeMetadata();
     }
@@ -63,14 +67,18 @@ public class PeerMetadata implements Serializable {
 
     public Integer getStoredCount(String fileId, Integer chunkNo) {
         String chunkId = fileId + "-" + chunkNo;
-        return chunksInfo.getOrDefault(chunkId, 0);
+        if (!chunksInfo.containsKey(chunkId)) {
+            return 0;
+        } else {
+            return chunksInfo.get(chunkId).size();
+        }
     }
 
     public Integer getFileStoredCount(String fileId) {
         Integer count = 0;
         for (String chunkId : chunksInfo.keySet()) {
             if (chunkId.split("-")[0].equals(fileId)) {
-                count += chunksInfo.get(chunkId);
+                count += chunksInfo.get(chunkId).size();
             }
         }
         return count;
@@ -86,7 +94,7 @@ public class PeerMetadata implements Serializable {
         try {
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
             PeerMetadata peerMetadata = (PeerMetadata) is.readObject();
-            Map<String,Integer> chunksInfo = peerMetadata.getChunksInfo();
+            Map<String, List<Integer>> chunksInfo = peerMetadata.getChunksInfo();
             for (String chunkId : chunksInfo.keySet()) {
                 System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
             }
@@ -100,7 +108,7 @@ public class PeerMetadata implements Serializable {
         }
     }
 
-    public Map<String, Integer> getChunksInfo() {
+    public Map<String, List<Integer>> getChunksInfo() {
         return chunksInfo;
     }
 

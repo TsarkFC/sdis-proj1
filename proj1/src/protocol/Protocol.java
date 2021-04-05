@@ -7,6 +7,7 @@ import utils.FileHandler;
 import utils.ThreadHandler;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,5 +19,5 @@ public abstract class Protocol {
         this.file = file;
         this.peer = peer;
     }
-    public abstract void initialize();
+    public abstract void initialize() throws IOException;
 }
