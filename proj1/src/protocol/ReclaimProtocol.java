@@ -24,7 +24,6 @@ public class ReclaimProtocol extends Protocol {
         System.out.println("Initializing reclaim");
         //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
         PeerArgs peerArgs = peer.getPeerArgs();
-        List<byte[]> messages = new ArrayList<>();
 
         double currentStoredSize =  FileHandler.getFolderKbSize(peer.getFileSystem());
         System.out.println(String.format("Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
@@ -46,6 +45,41 @@ public class ReclaimProtocol extends Protocol {
     }
 
     public void reclaimSpace(double maxDiskSpace, double currentSize){
-        FileHandler.reclaimDiskSpace(maxDiskSpace,currentSize,peer.getFileSystem());
+        List<byte[]> messages = new ArrayList<>();
+        //Isto pode ir para o file handler talvez faça mais sentido
+        System.out.println("Current size: " + currentSize + " Max Size: " + maxDiskSpace);
+        File[] fileFolders = FileHandler.getFolderFiles(peer.getFileSystem());
+        if (fileFolders != null) {
+            for (File file : fileFolders) {
+                if (currentSize <= maxDiskSpace) break;
+                currentSize = reclaimFileSpace(file,currentSize,messages);
+            }
+            PeerArgs peerArgs = peer.getPeerArgs();
+            ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
+                    peerArgs.getAddressList().getMcAddr().getPort(), messages);
+        }
+    }
+
+    private double reclaimFileSpace(File fileId,double currentSize,List<byte[]> messages){
+        PeerArgs peerArgs = peer.getPeerArgs();
+
+        String name = fileId.getName();
+        if(name != "metadata"){
+            File[] chunks = FileHandler.getFolderFiles(fileId.getPath());
+            if (chunks!= null){
+                for (File chunkFile : chunks){
+                    double size = chunkFile.length()/1000;
+                    System.out.println("Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
+                    if(FileHandler.deleteFile(chunkFile)){
+                        Removed removedMsg = new Removed(peerArgs.getVersion(), peerArgs.getPeerId(), fileId.getName(),Integer.parseInt(chunkFile.getName()));
+                        messages.add(removedMsg.getBytes());
+                        currentSize -= size;
+                        System.out.println("Current Size = "  + currentSize);
+                        if(currentSize <= maxDiskSpace) break;
+                    }
+                }
+            }
+        }
+        return currentSize;
     }
 }

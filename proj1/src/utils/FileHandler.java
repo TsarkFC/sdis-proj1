@@ -78,6 +78,10 @@ public class FileHandler {
         return peerDir.concat("/" + fileId + "/");
     }
 
+    public static String getFilePath(String peerDir, String fileId,String chunkNo) {
+        return peerDir.concat("/" + fileId + "/"+chunkNo);
+    }
+
 
     public static void saveChunk(PutChunk message, String peerDir) {
         // create directory if it does not exist
@@ -109,6 +113,7 @@ public class FileHandler {
         }
         return null;
     }
+
 
 
     /*public static byte[] restoreChunk(GetChunk message, String peerDir){
@@ -186,6 +191,22 @@ public class FileHandler {
         }
     }
 
+
+    public static boolean deleteFile(File myObj){
+        if (myObj.delete()) {
+            System.out.println("Deleted the file: " + myObj.getName());
+            return true;
+        } else {
+            System.out.println("Failed to delete the file.");
+            return false;
+        }
+    }
+
+    public boolean checkFileExists(String path){
+        File tempFile = new File(path);
+        return tempFile.exists();
+    }
+
     public static List<Integer> getChunkNoStored(String fileId,String peerDir){
         List<Integer> storedChunks = new ArrayList<>();
         String dirPath = getFilePath(peerDir, fileId);
@@ -204,27 +225,17 @@ public class FileHandler {
         return null;
     }
 
-    public static void reclaimDiskSpace(double maxDiskSpace, double currentSize,String peerDir){
+    public static File[] getFolderFiles(String peerDir){
         File folder = new File(peerDir);
         if (!folder.exists()){
             System.out.println("Peer folder does not exist");
-            return;
+            return null;
         }
-        File[] allContents = folder.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                String name = file.getName();
-                if(name != "metadata"){
-                    System.out.println("Eliminating folder: " + file.getPath());
-                    double size = FileHandler.getFolderKbSize(file.getPath());
-                    deleteFile(file.getName(),peerDir);
-                    currentSize -= size;
-                    System.out.println("Current Size = "  + currentSize);
-                    if(currentSize <= maxDiskSpace) break;
-                }
-            }
-            return;
-        }
+        return folder.listFiles();
+    }
+
+    public static void reclaimDiskSpace(double maxDiskSpace, double currentSize,String peerDir){
+
     }
 
 

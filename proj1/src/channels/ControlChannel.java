@@ -2,6 +2,7 @@ package channels;
 
 import messages.*;
 import peer.Peer;
+import protocol.BackupProtocol;
 import protocol.RestoreProtocol;
 import utils.AddressList;
 import utils.FileHandler;
@@ -34,6 +35,7 @@ public class ControlChannel extends Channel {
         if (msgType.equals("STORED")) handleBackup(msgString);
         else if (msgType.equals("DELETE")) handleDelete(msgString);
         else if (msgType.equals("GETCHUNK")) handleRestore(msgString);
+        else if (msgType.equals("REMOVED")) handleReclaim(msgString);
         else System.out.println("\nERROR NOT PARSING THAT MESSAGE " + msgType);
     }
 
@@ -55,5 +57,17 @@ public class ControlChannel extends Channel {
         System.out.println("Control Channel received Restore Msg: " + msgString);
         GetChunk msg = new GetChunk(msgString);
         RestoreProtocol.handleGetChunk(msg, peer);
+    }
+
+    public void handleReclaim(String msgString) throws IOException {
+        System.out.println("Control Channel received Removed Msg: " + msgString);
+        //A peer that has a local copy of the chunk shall update its local count of this chunk
+        //If this count drops below the desired replication degree of that chunk, it shall initiate
+        // the chunk backup subprotocol between 0 and 400 ms
+        //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
+        // it should back off and restrain from starting yet another backup subprotocol for that file chunk.
+        //BackupProtocol backupProtocol = new BackupProtocol()
+        //Stored msg = new Stored(msgString);
+        //peer.getPeerMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
     }
 }
