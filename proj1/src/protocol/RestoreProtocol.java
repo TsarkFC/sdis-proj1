@@ -17,9 +17,10 @@ import java.util.Map;
 
 public class RestoreProtocol extends Protocol{
     private static final String NO_CHUNK_MSG ="NO_CHUNK";
+    //TODO APAGAR ISTO QUANDO JA ESTIVER A FUNCIONAR
     private static final String SENT_CHUNK = "SENT_CHUNK";
 
-    private Map< Integer,byte[]> chunks = new HashMap();
+    private Map< Integer,byte[]> chunksMap = new HashMap();
     public RestoreProtocol(File file, Peer peer) {
         super(file, peer);
     }
@@ -71,16 +72,16 @@ public class RestoreProtocol extends Protocol{
     }
 
     public void handleChunkMsg(String rcvd){
-        if (rcvd == NO_CHUNK_MSG) return;
+        if (rcvd.equals(NO_CHUNK_MSG)) return;
         System.out.println();
         System.out.println("\nHandling Chunk message ");
 
         //Como tenho acesso ao numero de chunks necessários?
-        /*int fileChunkNum = 2;
+       /* int fileChunkNum = 2;
         Chunk chunkMsg = new Chunk(rcvd);
         chunkMsg.getFileId();
-        chunks.put(chunkMsg.getChunkNo(),chunkMsg.getBody());
-        if (chunks.size() == fileChunkNum){
+        chunksMap.put(chunkMsg.getChunkNo(),chunkMsg.getBody());
+        if (chunksMap.size() == fileChunkNum){
             //Backup file?
             //Stop receiving messages
         }*/
