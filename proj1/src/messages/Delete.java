@@ -17,7 +17,7 @@ public class Delete extends Message {
 
     @Override
     protected String getExtraString() {
-        return getDoubleCRLF();
+        return "";
     }
 
     @Override
@@ -27,6 +27,6 @@ public class Delete extends Message {
 
     @Override
     public byte[] getBytes() {
-        return getMsgString().getBytes();
+        return addCRLF(getMsgString().getBytes());
     }
 }

@@ -7,6 +7,7 @@ import utils.AddressList;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.Arrays;
 
 public class RestoreChannel extends Channel{
 
@@ -17,9 +18,13 @@ public class RestoreChannel extends Channel{
 
     @Override
     public void handle(DatagramPacket packet) throws IOException {
-        //Como e que sei quantos chunks tenho?
-        String rcvd = new String(packet.getData(), 0, packet.getLength());
-        Chunk msg = new Chunk(rcvd);
+        byte[] packetData = packet.getData();
+        int bodyStartPos = getBodyStartPos(packetData);
+        byte[] header = Arrays.copyOfRange(packetData, 0, bodyStartPos - 4);
+        byte[] body = Arrays.copyOfRange(packetData, bodyStartPos, packet.getLength());
+
+        String headerString = new String(header);
+        Chunk msg = new Chunk(headerString, body);
 
         RestoreProtocol restoreProtocol = (RestoreProtocol) peer.getProtocol();
         restoreProtocol.handleChunkMsg(msg);

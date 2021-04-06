@@ -49,7 +49,7 @@ public class RestoreProtocol extends Protocol {
         msgs.add(msg.getBytes());
         System.out.println("Recovered chunk from: " + msg.getSenderId());
 
-        //TODO: wait random delay between 0-400 ms
+        //TODO: wait random delay between 0.jpg-400 ms
         AddressList addrList = peer.getPeerArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
     }

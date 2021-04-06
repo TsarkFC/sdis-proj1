@@ -13,6 +13,8 @@ public abstract class Channel implements Runnable {
     protected AddressList addrList;
     protected MulticastAddress currentAddr;
     protected Peer peer;
+    private final int CR = 0xD;
+    private final int LF = 0xA;
 
     public AddressList getAddrList() {
         return addrList;
@@ -42,5 +44,18 @@ public abstract class Channel implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected int getBodyStartPos(byte[] msg) {
+        int crlf = 0;
+        for (int i = 0; i < msg.length - 1; i++) {
+            if (msg[i] == CR && msg[i+1] == LF && crlf == 1) {
+                return i + 2;
+            } else if (msg[i] == CR && msg[i+1] == LF) {
+                crlf++;
+                i++;
+            } else crlf = 0;
+        }
+        return 0;
     }
 }

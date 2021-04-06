@@ -14,7 +14,7 @@ public class Removed extends MsgWithChunk {
 
     @Override
     protected String getChildString() {
-        return getDoubleCRLF();
+        return "";
     }
 
     @Override
@@ -24,6 +24,6 @@ public class Removed extends MsgWithChunk {
 
     @Override
     public byte[] getBytes() {
-        return getMsgString().getBytes();
+        return addCRLF(getMsgString().getBytes());
     }
 }

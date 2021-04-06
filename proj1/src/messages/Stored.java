@@ -19,7 +19,7 @@ public class Stored extends MsgWithChunk {
     @Override
     protected String getChildString() {
         //Version> STORED <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
-        return getDoubleCRLF();
+        return "";
     }
 
     @Override
@@ -29,7 +29,7 @@ public class Stored extends MsgWithChunk {
 
     @Override
     public byte[] getBytes() {
-        return getMsgString().getBytes();
+        return addCRLF(getMsgString().getBytes());
     }
 
     public void printMsg() {

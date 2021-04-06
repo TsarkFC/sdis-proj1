@@ -63,18 +63,35 @@ public abstract class Message {
         return fileId;
     }
 
-    public String getCRLF() {
-        return Integer.toHexString(CR) + Integer.toHexString(LF);
+    private byte[] getDoubleCRLF() {
+        return new byte[] {(byte) CR, (byte) LF, (byte) CR, (byte) LF};
     }
 
-    public String getDoubleCRLF() {
-        return getCRLF() + getCRLF();
+    protected byte[] addCRLF(byte[] header) {
+        byte[] crlf = getDoubleCRLF();
+
+        byte[] msgBytes = new byte[header.length + crlf.length];
+        System.arraycopy(header, 0, msgBytes, 0, header.length);
+        System.arraycopy(crlf, 0, msgBytes, header.length, crlf.length);
+
+        return msgBytes;
+    }
+
+    protected byte[] addBody(byte[] header, byte[] body) {
+        byte[] crlf = getDoubleCRLF();
+        int headerCrlfSize = header.length + crlf.length;
+
+        byte[] msgBytes = new byte[header.length + crlf.length + body.length];
+        System.arraycopy(header, 0, msgBytes, 0, header.length);
+        System.arraycopy(crlf, 0, msgBytes, header.length, crlf.length);
+        System.arraycopy(body, 0, msgBytes, headerCrlfSize, body.length);
+
+        return msgBytes;
     }
 
     public static String getTypeStatic(String msg){
         String[] stringArr = msg.split("\\s+", 4);
         return stringArr[MSG_TYPE_IDX];
     }
-
 }
 

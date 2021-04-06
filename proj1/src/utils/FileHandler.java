@@ -88,7 +88,6 @@ public class FileHandler {
         // write message body to file
         File file = new File(dirPath + message.getChunkNo());
         try (FileOutputStream stream = new FileOutputStream(file)) {
-            System.out.println("WRITING: " + message.getBody().length);
             stream.write(message.getBody());
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,11 +182,11 @@ public class FileHandler {
         File[] files = folder.listFiles();
         int count = files.length;
 
-        for (int i = 0; i < count; i++) {
-            if (files[i].isFile()) {
-                length += files[i].length();
+        for (File value : files) {
+            if (value.isFile()) {
+                length += value.length();
             } else {
-                length += getFolderSize(files[i].getPath());
+                length += getFolderSize(value.getPath());
             }
         }
         return length;

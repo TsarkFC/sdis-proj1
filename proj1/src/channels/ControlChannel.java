@@ -61,7 +61,7 @@ public class ControlChannel extends Channel {
         System.out.println("Control Channel received Removed Msg: " + msgString);
         //A peer that has a local copy of the chunk shall update its local count of this chunk
         //If this count drops below the desired replication degree of that chunk, it shall initiate
-        // the chunk backup subprotocol between 0 and 400 ms
+        // the chunk backup subprotocol between 0.jpg and 400 ms
         //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
         // it should back off and restrain from starting yet another backup subprotocol for that file chunk.
         //BackupProtocol backupProtocol = new BackupProtocol()
