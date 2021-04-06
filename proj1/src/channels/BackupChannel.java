@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -25,11 +26,14 @@ public class BackupChannel extends Channel {
     }
 
     @Override
-    public void handle(DatagramPacket packet)  {
-        String rcvd = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("STRING LENGTH: " + rcvd.length());
-        PutChunk rcvdMsg = new PutChunk(rcvd);
-        System.out.println("BODY LENGTH: " + rcvdMsg.getBody().length);
+    public void handle(DatagramPacket packet) {
+        byte[] packetData = packet.getData();
+        int bodyStartPos = getBodyStartPos(packetData);
+        byte[] header = Arrays.copyOfRange(packetData, 0, bodyStartPos - 4);
+        byte[] body = Arrays.copyOfRange(packetData, bodyStartPos, packet.getLength());
+
+        String rcvd = new String(header, 0, header.length);
+        PutChunk rcvdMsg = new PutChunk(rcvd, body);
 
         if (!rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId())) {
             FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());

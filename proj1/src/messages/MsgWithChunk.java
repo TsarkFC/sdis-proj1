@@ -7,7 +7,7 @@ public abstract class MsgWithChunk extends Message {
     protected Integer chunkNo;
 
     public MsgWithChunk(Double version, Integer senderId, String fileId, Integer chunkNo) {
-        super(version,senderId,fileId);
+        super(version, senderId, fileId);
         this.chunkNo = chunkNo;
     }
 
@@ -21,7 +21,7 @@ public abstract class MsgWithChunk extends Message {
 
     @Override
     protected String getExtraString() {
-        return String.format("%d %s",this.chunkNo,getChildString());
+        return String.format("%d %s", this.chunkNo, getChildString());
     }
 
     protected abstract String getChildString();
@@ -36,7 +36,7 @@ public abstract class MsgWithChunk extends Message {
         super.printMsg();
         System.out.println("Chunk No: " + this.chunkNo);
     }
-    
+
     public Integer getChunkNo() {
         return chunkNo;
     }

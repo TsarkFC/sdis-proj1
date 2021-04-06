@@ -18,12 +18,10 @@ public class PutChunk extends MsgWithChunk {
         this.body = body;
     }
 
-    public PutChunk(String message) {
-        super(message);
+    public PutChunk(String header, byte[] body) {
+        super(header);
         this.replicationDeg = Integer.parseInt(tokens[REP_DGR_IDX]);
-        this.body = tokens[BODY_IDX].substring(4).getBytes();
-        System.out.println("CRLF: " + tokens[BODY_IDX].substring(0, 4));
-        System.out.println("TESTING BODY SIZE: " + tokens[BODY_IDX].getBytes().length);
+        this.body = body;
     }
 
     @Override
@@ -33,7 +31,7 @@ public class PutChunk extends MsgWithChunk {
 
     @Override
     protected String getChildString() {
-        return String.format("%d %s", this.replicationDeg, getDoubleCRLF());
+        return String.format("%d", this.replicationDeg);
     }
 
     @Override
@@ -47,26 +45,11 @@ public class PutChunk extends MsgWithChunk {
         System.out.println("Body: " + new String(this.body));
     }
 
-    //TODO Há alguma razao para nao converter a String toda para bytes?
     @Override
     public byte[] getBytes() {
-        System.out.println("GETTING BYTES...");
-        //<Version> <MessageType> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF>
-        String header = String.format("%s %s %d %s %d %d %s", this.version, getMsgType(), this.senderId,
-                this.fileId, this.chunkNo, this.replicationDeg, getDoubleCRLF());
-        byte[] headerBytes = header.getBytes();
-
-        // create a destination array that is the size of the two arrays
-        byte[] msgBytes = new byte[headerBytes.length + this.body.length];
-
-        // copy headerBytes into start of msgBytes (from pos 0, copy headerBytes.length bytes)
-        System.arraycopy(headerBytes, 0, msgBytes, 0, headerBytes.length);
-
-        // copy this.body into end of msgBytes (from pos headerBytes.length, copy this.body.length bytes)
-        System.arraycopy(this.body, 0, msgBytes, headerBytes.length, this.body.length);
-        System.out.println("CHECKING MESSAGE BODY SIZE: " + this.body.length);
-
-        return msgBytes;
+        String header = String.format("%s %s %d %s %d %d", this.version, getMsgType(), this.senderId,
+                this.fileId, this.chunkNo, this.replicationDeg);
+        return addBody(header.getBytes(), body);
     }
 
     public Integer getReplicationDeg() {
