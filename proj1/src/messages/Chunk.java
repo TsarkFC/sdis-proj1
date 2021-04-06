@@ -7,10 +7,11 @@ public class Chunk extends MsgWithChunk {
     private static int BODY_IDX = 5;
 
     public Chunk(Double version, Integer senderId, String fileId, Integer chunkNo, byte[] body) {
-        super(version,senderId,fileId,chunkNo);
+        super(version, senderId, fileId, chunkNo);
         this.body = body;
     }
-    public Chunk(String msg){
+
+    public Chunk(String msg) {
         super(msg);
         this.body = tokens[BODY_IDX].substring(4).getBytes();
     }
@@ -23,7 +24,7 @@ public class Chunk extends MsgWithChunk {
     @Override
     protected String getChildString() {
         //TODO ADD MsgBody class
-        return String.format("%s",getDoubleCRLF());
+        return String.format("%s", getDoubleCRLF());
     }
 
     @Override

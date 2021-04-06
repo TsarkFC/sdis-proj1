@@ -1,5 +1,8 @@
 package messages;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+
 // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
 public class PutChunk extends MsgWithChunk {
 
@@ -10,7 +13,7 @@ public class PutChunk extends MsgWithChunk {
 
     public PutChunk(Double version, Integer senderId, String fileId, Integer chunkNo,
                     Integer replicationDeg, byte[] body) {
-        super(version, senderId,fileId,chunkNo);
+        super(version, senderId, fileId, chunkNo);
         this.replicationDeg = replicationDeg;
         this.body = body;
     }
@@ -18,8 +21,9 @@ public class PutChunk extends MsgWithChunk {
     public PutChunk(String message) {
         super(message);
         this.replicationDeg = Integer.parseInt(tokens[REP_DGR_IDX]);
-        //Verificar se esta o CRLF
         this.body = tokens[BODY_IDX].substring(4).getBytes();
+        System.out.println("CRLF: " + tokens[BODY_IDX].substring(0, 4));
+        System.out.println("TESTING BODY SIZE: " + tokens[BODY_IDX].getBytes().length);
     }
 
     @Override
@@ -29,7 +33,7 @@ public class PutChunk extends MsgWithChunk {
 
     @Override
     protected String getChildString() {
-        return String.format("%d %s",this.replicationDeg, getDoubleCRLF());
+        return String.format("%d %s", this.replicationDeg, getDoubleCRLF());
     }
 
     @Override
@@ -46,6 +50,7 @@ public class PutChunk extends MsgWithChunk {
     //TODO Há alguma razao para nao converter a String toda para bytes?
     @Override
     public byte[] getBytes() {
+        System.out.println("GETTING BYTES...");
         //<Version> <MessageType> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF>
         String header = String.format("%s %s %d %s %d %d %s", this.version, getMsgType(), this.senderId,
                 this.fileId, this.chunkNo, this.replicationDeg, getDoubleCRLF());
@@ -59,10 +64,10 @@ public class PutChunk extends MsgWithChunk {
 
         // copy this.body into end of msgBytes (from pos headerBytes.length, copy this.body.length bytes)
         System.arraycopy(this.body, 0, msgBytes, headerBytes.length, this.body.length);
+        System.out.println("CHECKING MESSAGE BODY SIZE: " + this.body.length);
 
         return msgBytes;
     }
-
 
     public Integer getReplicationDeg() {
         return replicationDeg;

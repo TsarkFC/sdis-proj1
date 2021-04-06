@@ -28,7 +28,7 @@ public class BackupProtocol extends Protocol {
     }
 
     @Override
-    public void initialize() throws IOException {
+    public void initialize() {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
         List<byte[]> chunks = fileHandler.splitFile();
@@ -39,8 +39,7 @@ public class BackupProtocol extends Protocol {
         int chunkNo = 0;
         for (byte[] chunk : chunks) {
             PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId, chunkNo, repDegree, chunk);
-            byte[] msg = backupMsg.getBytes();
-            messages.add(msg);
+            messages.add(backupMsg.getBytes());
             chunkNo++;
         }
 

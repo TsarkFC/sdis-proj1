@@ -6,28 +6,25 @@ import java.util.List;
 
 public class Multicast implements Runnable {
 
-    private final String mcast_addr;
-    private final int mcast_port;
+    private final String mcastAddr;
+    private final int mcastPort;
     private final List<byte[]> messages;
 
-    public Multicast(int mcast_port, String mcast_addr, List<byte[]> messages) {
-        this.mcast_addr = mcast_addr;
-        this.mcast_port = mcast_port;
+    public Multicast(int mcastPort, String mcastAddr, List<byte[]> messages) {
+        this.mcastAddr = mcastAddr;
+        this.mcastPort = mcastPort;
         this.messages = messages;
     }
 
-
     @Override
     public void run() {
-        //Aqui e que ele vai decidir a que peers e que manda
         MulticastSocket socket;
         try {
             socket = new MulticastSocket();
-            InetAddress group = InetAddress.getByName(mcast_addr);
+            InetAddress group = InetAddress.getByName(mcastAddr);
             for (byte[] msg : messages) {
-                DatagramPacket datagramPacket = new DatagramPacket(msg, msg.length, group, mcast_port);
+                DatagramPacket datagramPacket = new DatagramPacket(msg, msg.length, group, mcastPort);
                 socket.send(datagramPacket);
-
             }
             socket.close();
         } catch (IOException e) {

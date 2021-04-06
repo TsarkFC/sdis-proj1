@@ -1,21 +1,17 @@
 package channels;
 
-import messages.*;
+import messages.Delete;
+import messages.GetChunk;
+import messages.Message;
+import messages.Stored;
 import peer.Peer;
-import protocol.BackupProtocol;
 import protocol.RestoreProtocol;
 import utils.AddressList;
 import utils.FileHandler;
-import utils.ThreadHandler;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static utils.FileHandler.restoreChunk;
 
 public class ControlChannel extends Channel {
 
@@ -50,13 +46,15 @@ public class ControlChannel extends Channel {
         Delete msg = new Delete(msgString);
         List<Integer> storedChunkNumbers = FileHandler.getChunkNoStored(msg.getFileId(), peer.getFileSystem());
         FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
+
+        assert storedChunkNumbers != null;
         peer.getPeerMetadata().deleteChunksFile(storedChunkNumbers, msg.getFileId());
     }
 
     public void handleRestore(String msgString) {
         System.out.println("Control Channel received Restore Msg: " + msgString);
         GetChunk msg = new GetChunk(msgString);
-        RestoreProtocol.handleGetChunk(msg, peer);
+        RestoreProtocol.handleGetChunkMsg(msg, peer);
     }
 
     public void handleReclaim(String msgString) throws IOException {

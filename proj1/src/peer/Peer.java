@@ -33,7 +33,8 @@ public class Peer implements RemoteObject {
     private String fileSystem;
     private ChannelCoordinator channelCoordinator;
     private Protocol protocol;
-
+    private String restoreDir;
+    private String filesDir;
 
     public static void main(String[] args) {
         if (args.length != 9) {
@@ -48,7 +49,6 @@ public class Peer implements RemoteObject {
             PeerMetadata metadata = new PeerMetadata(peer.getPeerArgs().getMetadataPath());
             peer.setPeerMetadata(metadata.readMetadata());
 
-
             // RMI connection
             String remoteObjName = peer.peerArgs.getAccessPoint();
             RemoteObject stub = (RemoteObject) UnicastRemoteObject.exportObject(peer, 0);
@@ -62,13 +62,9 @@ public class Peer implements RemoteObject {
         }
     }
 
-    // multicast channel, the control channel (MC), that is used for control messages.
-    // All peers must subscribe the MC channel.
-    // Some subprotocols use also one of two multicast data channels, MDB and MDR, which are used to backup and restore file chunk data.
-
-    public void startMulticastThread(String mcast_addr, int mcast_port, List<byte[]> message) {
+    public void startMulticastThread(String mcastAddr, int mcastPort, List<byte[]> message) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        Multicast multicastThread = new Multicast(mcast_port, mcast_addr, message);
+        Multicast multicastThread = new Multicast(mcastPort, mcastAddr, message);
         executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
     }
 
@@ -76,10 +72,12 @@ public class Peer implements RemoteObject {
         channelCoordinator = new ChannelCoordinator(this);
     }
 
-
     public void startFileSystem() throws IOException {
         fileSystem = "filesystem/" + peerArgs.getPeerId();
-        Files.createDirectories(Paths.get(fileSystem));
+        filesDir = fileSystem + "/files";
+        restoreDir = fileSystem + "/restored";
+        Files.createDirectories(Paths.get(filesDir));
+        Files.createDirectories(Paths.get(restoreDir));
     }
 
     public String getFileSystem() {
@@ -102,52 +100,16 @@ public class Peer implements RemoteObject {
         return peerArgs;
     }
 
-    private void readMetadata() {
-        try {
-            ObjectInputStream is = new ObjectInputStream(new FileInputStream(peerArgs.getMetadataPath()));
-            peerMetadata = (PeerMetadata) is.readObject();
-            Map<String, List<Integer>> chunksInfo = peerMetadata.getChunksInfo();
-            for (String chunkId : chunksInfo.keySet()) {
-                System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
-            }
-            is.close();
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No data to read from peer " + peerArgs.getPeerId());
-            System.out.println("Creating new one...");
-            peerMetadata = new PeerMetadata(peerArgs.getMetadataPath());
+    public String getRestoreDir() {
+        return restoreDir;
+    }
 
-        }
+    public String getFilesDir() {
+        return filesDir;
     }
 
     @Override
-    public String backup(File file, int repDegree) throws IOException, InterruptedException {
-        /*List<byte[]> messages = new ArrayList<>();
-        FileHandler fileHandler = new FileHandler(file);
-        List<byte[]> chunks = fileHandler.splitFile();
-        String fileId = fileHandler.createFileId();
-
-        int chunkNo = 0;
-        for (byte[] chunk : chunks) {
-            PutChunk backupMsg = new PutChunk(peerArgs.getVersion(), peerArgs.getPeerId(), fileId, chunkNo, repDegree, chunk);
-            byte[] msg = backupMsg.getBytes();
-            messages.add(msg);
-            chunkNo++;
-        }
-
-        int storedExpected = chunks.size() * repDegree;
-        int limit = 5;
-        int reps = 1;
-        int timeWait = 1;
-        while (reps <= limit) {
-            ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMdbAddr().getAddress(),
-                    peerArgs.getAddressList().getMdbAddr().getPort(), messages);
-            TimeUnit.SECONDS.sleep(timeWait);
-            timeWait *= 2;
-            if (storedExpected <= peerMetadata.getFileStoredCount(fileId))
-                break;
-            reps++;
-        }*/
-
+    public String backup(File file, int repDegree) throws IOException {
         System.out.println("Initiator peer received Backup");
         this.protocol = new BackupProtocol(file, this, repDegree);
         this.protocol.initialize();
@@ -181,7 +143,6 @@ public class Peer implements RemoteObject {
         System.out.println("Initiator peer received Reclaim");
         this.protocol = new ReclaimProtocol(maxDiskSpace, this);
         this.protocol.initialize();
-
         return null;
     }
 }

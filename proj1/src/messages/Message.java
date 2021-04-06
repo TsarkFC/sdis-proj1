@@ -74,7 +74,6 @@ public abstract class Message {
     public static String getTypeStatic(String msg){
         String[] stringArr = msg.split("\\s+", 4);
         return stringArr[MSG_TYPE_IDX];
-
     }
 
 }
