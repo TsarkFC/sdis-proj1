@@ -65,7 +65,7 @@ public class Peer implements RemoteObject {
         StoredChunksMetadata metadata = new StoredChunksMetadata(this.getPeerArgs().getMetadataPath());
         this.setPeerMetadata(metadata.readMetadata());
         StateMetadata stateMetadata = new StateMetadata(this.getPeerArgs().getStateMetadataPath());
-        this.setPeerMetadata(stateMetadata.readMetadata());
+        //stateMetadata.readState();
     }
 
     public void createChannels() {

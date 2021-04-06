@@ -1,7 +1,9 @@
 package peer.metadata;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class FileMetadata {
     private final String pathname;
@@ -30,6 +32,31 @@ public class FileMetadata {
         if(!chunks.contains(chunkMetadata)){
             chunks.add(chunkMetadata);
         }
+    }
+
+    public String getString(){
+        String fileText = String.format("%s:%s;%d;",id,pathname,repDgr);
+        for (ChunkMetadata chunk : chunks){
+            fileText.concat(chunk.getString() + " ");
+        }
+        return fileText;
+    }
+
+    public static FileMetadata readFile(Scanner in){
+        in.useDelimiter(":");
+        String fileId = in.next();
+        Scanner fileScanner = new Scanner(in.nextLine());
+        fileScanner.useDelimiter(";");
+        String pathname = fileScanner.next();
+        int repDgr = Integer.parseInt(fileScanner.next());
+        FileMetadata fileMetadata = new FileMetadata(pathname,fileId,repDgr);
+
+        String[] chunkList = in.nextLine().split(" ");
+        for (String chunk: chunkList) {
+            fileMetadata.addChunk(ChunkMetadata.readFile(chunk));
+        }
+        return  fileMetadata;
+
     }
 
     public String getPathname() {
