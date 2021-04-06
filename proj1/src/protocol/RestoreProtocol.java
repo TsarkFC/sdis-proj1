@@ -1,16 +1,22 @@
 package protocol;
 
+import channels.BackupChannel;
 import messages.Chunk;
 import messages.GetChunk;
+import messages.PutChunk;
+import messages.Stored;
 import peer.Peer;
 import peer.PeerArgs;
 import utils.AddressList;
 import utils.FileHandler;
 import utils.ThreadHandler;
+import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 public class RestoreProtocol extends Protocol {
@@ -38,20 +44,7 @@ public class RestoreProtocol extends Protocol {
     }
 
     public static void handleGetChunkMsg(GetChunk rcvdMsg, Peer peer) {
-        byte[] chunk = FileHandler.restoreChunk(rcvdMsg, peer.getFileSystem());
-        if (chunk == null) {
-            System.out.println("Peer does not have chunk " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo() + ", aborting...");
-            return;
-        }
-
-        List<byte[]> msgs = new ArrayList<>();
-        Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), chunk);
-        msgs.add(msg.getBytes());
-        System.out.println("Recovered chunk from: " + msg.getSenderId());
-
-        //TODO: wait random delay between 0-400 ms
-        AddressList addrList = peer.getPeerArgs().getAddressList();
-        ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
+        new ScheduledThreadPoolExecutor(1).schedule(new ChunkSender(rcvdMsg,peer), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
     }
 
     public void handleChunkMsg(Chunk rcvdMsg) throws IOException {
@@ -63,8 +56,9 @@ public class RestoreProtocol extends Protocol {
             String filename = peer.getRestoreDir() + "/" + file.getName();
             FileHandler.restoreFile(filename, chunksMap);
             System.out.println("RESTORE COMPLETE");
-
             //TODO: Stop receiving messages
         }
     }
+
+
 }

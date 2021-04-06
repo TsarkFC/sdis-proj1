@@ -6,6 +6,7 @@ import peer.Peer;
 import utils.AddressList;
 import utils.FileHandler;
 import utils.ThreadHandler;
+import utils.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
@@ -32,13 +33,11 @@ public class BackupChannel extends Channel {
             FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
 
             //If parse correctly, send stored msg to MC channel
-            new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg), generateRandom(), TimeUnit.MILLISECONDS);
+            new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
         }
     }
 
-    private int generateRandom() {
-        return (int) (Math.random() * (400+1));
-    }
+
 
     private class ConfirmationSender implements Runnable {
         PutChunk rcvdMsg;
