@@ -1,6 +1,4 @@
-package peer;
-
-import utils.FileHandler;
+package peer.metadata;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PeerMetadata implements Serializable {
+public class StoredChunksMetadata implements Serializable {
 
     /**
      * Information about chunks saved by the peer.
@@ -18,7 +16,7 @@ public class PeerMetadata implements Serializable {
     Map<String, List<Integer>> chunksInfo = new HashMap<>();
     String path;
 
-    public PeerMetadata(String path) {
+    public StoredChunksMetadata(String path) {
         this.path = path;
         System.out.println("METADATA PATH: " + path);
     }
@@ -90,20 +88,20 @@ public class PeerMetadata implements Serializable {
         os.close();
     }
 
-    public PeerMetadata readMetadata(){
+    public StoredChunksMetadata readMetadata(){
         try {
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
-            PeerMetadata peerMetadata = (PeerMetadata) is.readObject();
-            Map<String, List<Integer>> chunksInfo = peerMetadata.getChunksInfo();
+            StoredChunksMetadata storedChunksMetadata = (StoredChunksMetadata) is.readObject();
+            Map<String, List<Integer>> chunksInfo = storedChunksMetadata.getChunksInfo();
             for (String chunkId : chunksInfo.keySet()) {
                 System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
             }
             is.close();
-            return peerMetadata;
+            return storedChunksMetadata;
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("No data to read from peer");
             System.out.println("Creating new one...");
-            return new PeerMetadata(path);
+            return new StoredChunksMetadata(path);
 
         }
     }

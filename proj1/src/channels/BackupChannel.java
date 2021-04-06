@@ -3,11 +3,13 @@ package channels;
 import messages.PutChunk;
 import messages.Stored;
 import peer.Peer;
+import peer.metadata.FileMetadata;
 import utils.AddressList;
 import utils.FileHandler;
 import utils.ThreadHandler;
 import utils.Utils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
@@ -31,9 +33,20 @@ public class BackupChannel extends Channel {
 
         if (!rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId())) {
             FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
+            saveStateMetadata(rcvdMsg);
 
             //If parse correctly, send stored msg to MC channel
             new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void saveStateMetadata(PutChunk rcvdMsg){
+        String path = FileHandler.getFilePath(peer.getFileSystem(),rcvdMsg);
+
+        try {
+            peer.getPeerStateMetadata().updateInfo(path,rcvdMsg.getFileId(),rcvdMsg.getReplicationDeg(), rcvdMsg.getChunkNo(), 0,rcvdMsg.getBody().length);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

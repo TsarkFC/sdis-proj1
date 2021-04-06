@@ -38,7 +38,7 @@ public class ControlChannel extends Channel {
     public void handleBackup(String msgString) throws IOException {
         System.out.println("Control Channel received Stored Msg: " + msgString);
         Stored msg = new Stored(msgString);
-        peer.getPeerMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+        peer.getPeerStoredMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
     }
 
     public void handleDelete(String msgString) {
@@ -48,7 +48,7 @@ public class ControlChannel extends Channel {
         FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
 
         assert storedChunkNumbers != null;
-        peer.getPeerMetadata().deleteChunksFile(storedChunkNumbers, msg.getFileId());
+        peer.getPeerStoredMetadata().deleteChunksFile(storedChunkNumbers, msg.getFileId());
     }
 
     public void handleRestore(String msgString) {
@@ -66,6 +66,6 @@ public class ControlChannel extends Channel {
         // it should back off and restrain from starting yet another backup subprotocol for that file chunk.
         //BackupProtocol backupProtocol = new BackupProtocol()
         //Stored msg = new Stored(msgString);
-        //peer.getPeerMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+        //peer.getPeerStoredMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
     }
 }

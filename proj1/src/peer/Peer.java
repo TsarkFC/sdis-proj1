@@ -1,12 +1,8 @@
 package peer;
 
-import channels.BackupChannel;
 import channels.ChannelCoordinator;
-import channels.ControlChannel;
-import channels.RestoreChannel;
-import messages.Delete;
-import messages.GetChunk;
-import messages.PutChunk;
+import peer.metadata.StateMetadata;
+import peer.metadata.StoredChunksMetadata;
 import protocol.*;
 import utils.*;
 
@@ -17,19 +13,17 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 //java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
 
     private PeerArgs peerArgs;
-    private PeerMetadata peerMetadata;
+    private StoredChunksMetadata storedChunksMetadata;
+    private StateMetadata stateMetadata;
     private String fileSystem;
     private ChannelCoordinator channelCoordinator;
     private Protocol protocol;
@@ -46,8 +40,7 @@ public class Peer implements RemoteObject {
             Peer peer = new Peer();
             peer.peerArgs = new PeerArgs(args);
             peer.startFileSystem();
-            PeerMetadata metadata = new PeerMetadata(peer.getPeerArgs().getMetadataPath());
-            peer.setPeerMetadata(metadata.readMetadata());
+            peer.createMetadata();
 
             // RMI connection
             String remoteObjName = peer.peerArgs.getAccessPoint();
@@ -66,6 +59,13 @@ public class Peer implements RemoteObject {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         Multicast multicastThread = new Multicast(mcastPort, mcastAddr, message);
         executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
+    }
+
+    public void createMetadata(){
+        StoredChunksMetadata metadata = new StoredChunksMetadata(this.getPeerArgs().getMetadataPath());
+        this.setPeerMetadata(metadata.readMetadata());
+        StateMetadata stateMetadata = new StateMetadata(this.getPeerArgs().getStateMetadataPath());
+        this.setPeerMetadata(stateMetadata.readMetadata());
     }
 
     public void createChannels() {
@@ -88,12 +88,20 @@ public class Peer implements RemoteObject {
         return protocol;
     }
 
-    public PeerMetadata getPeerMetadata() {
-        return peerMetadata;
+    public StoredChunksMetadata getPeerStoredMetadata() {
+        return storedChunksMetadata;
     }
 
-    public void setPeerMetadata(PeerMetadata peerMetadata) {
-        this.peerMetadata = peerMetadata;
+    public StateMetadata getPeerStateMetadata() {
+        return stateMetadata;
+    }
+
+    public void setPeerMetadata(StateMetadata stateMetadata) {
+        this.stateMetadata = stateMetadata;
+    }
+
+    public void setPeerMetadata(StoredChunksMetadata storedChunksMetadata) {
+        this.storedChunksMetadata = storedChunksMetadata;
     }
 
     public PeerArgs getPeerArgs() {

@@ -4,5 +4,5 @@ javac -cp . TestApp.java
 java -cp . TestApp access0 BACKUP files/321.txt 3
 #java -cp . TestApp access0 BACKUP files/file.txt 3
 #java -cp . TestApp access0 DELETE files/321.txt
-java -cp . TestApp access0 RESTORE files/321.txt
+#java -cp . TestApp access0 RESTORE files/321.txt
 #java -cp . TestApp access0 RECLAIM 70

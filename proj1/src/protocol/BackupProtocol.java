@@ -58,7 +58,7 @@ public class BackupProtocol extends Protocol {
     }
 
     private void verify() {
-        if (storedExpected > peer.getPeerMetadata().getFileStoredCount(fileId)) {
+        if (storedExpected > peer.getPeerStoredMetadata().getFileStoredCount(fileId)) {
             System.out.println("Did not get expected replication degree after " + timeWait + " seconds. Resending...");
             execute();
             reps++;
