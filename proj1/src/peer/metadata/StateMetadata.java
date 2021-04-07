@@ -42,12 +42,15 @@ public class StateMetadata implements Serializable {
         return hostingFileInfo.containsKey(fileId);
     }
 
-    public void deleteFile(String fileId) throws IOException {
-        if (!hostingFileInfo.containsKey(fileId)) {
-            System.out.println("Cannot delete File from Metadata");
-        } else {
-            hostingFileInfo.remove(fileId);
+    public String getFileIdFromPath(String pathName) {
+        for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
+            if (entry.getValue().getPathname().equals(pathName)) return entry.getKey();
         }
+        return null;
+    }
+
+    public void deleteFile(String fileId) throws IOException {
+        hostingFileInfo.remove(fileId);
         storedChunksMetadata.deleteChunksFromFile(fileId);
         writeMetadata();
     }

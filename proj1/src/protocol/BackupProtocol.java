@@ -1,7 +1,9 @@
 package protocol;
 
+import messages.Delete;
 import messages.PutChunk;
 import peer.Peer;
+import peer.PeerArgs;
 import peer.metadata.FileMetadata;
 import utils.FileHandler;
 import utils.ThreadHandler;
@@ -36,13 +38,34 @@ public class BackupProtocol extends Protocol {
         fileId = fileHandler.createFileId();
         numOfChunks = chunks.size();
 
+        if (peer.getPeerMetadata().hasFile(fileId)) {
+            System.out.println("File already backed up, aborting...");
+            return;
+        }
+
+        // Updating a previously backed up file, delete previous one
+        String previousFileId = peer.getPeerMetadata().getFileIdFromPath(file.getPath());
+        if (previousFileId != null) {
+            System.out.println("Running DELETE protocol on previous file version...");
+
+            PeerArgs peerArgs = peer.getPeerArgs();
+            Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), previousFileId);
+            List<byte[]> msgs = new ArrayList<>();
+            msgs.add(msg.getBytes());
+            ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
+                    peerArgs.getAddressList().getMcAddr().getPort(), msgs);
+        }
+
+        System.out.println("Deleted previous file");
+
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
         peer.getPeerMetadata().addHostingEntry(fileMetadata);
 
         // message initialization
         int chunkNo = 0;
         for (byte[] chunk : chunks) {
-            PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId, chunkNo, repDgr, chunk);
+            PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
+                    chunkNo, repDgr, chunk);
             messages.add(backupMsg.getBytes());
             chunkNo++;
         }

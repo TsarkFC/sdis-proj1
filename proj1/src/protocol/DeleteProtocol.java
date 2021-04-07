@@ -15,7 +15,6 @@ public class DeleteProtocol extends Protocol {
     public DeleteProtocol(File file, Peer peer) {
         super(file, peer);
     }
-
     //Send on the MC Channel
     //A file may be deleted, and it should delete all the chunks of that file
     //When the file is modified, it should also delete the old copy
