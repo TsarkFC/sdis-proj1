@@ -23,7 +23,6 @@ public class PeerArgs {
     String accessPoint;
     AddressList addressList;
     String metadataPath;
-    String stateMetadataPath;
 
     public Double getVersion() {
         return Double.parseDouble(version);
@@ -48,9 +47,6 @@ public class PeerArgs {
     public String getMetadataPath() {
         return metadataPath;
     }
-    public String getStateMetadataPath() {
-        return stateMetadataPath;
-    }
 
     public PeerArgs(String[] args) {
         version = args[VERSION];
@@ -61,6 +57,5 @@ public class PeerArgs {
         MulticastAddress mdrAddr = new MulticastAddress(args[MDR_ADDR], Integer.parseInt(args[MDR_PORT]));
         addressList = new AddressList(mcAddr, mdbAddr, mdrAddr);
         metadataPath = "filesystem/" + peerId + "/metadata";
-        stateMetadataPath = "filesystem/" + peerId + "/stateMetadata";
     }
 }

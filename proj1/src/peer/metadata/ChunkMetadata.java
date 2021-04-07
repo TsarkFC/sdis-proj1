@@ -1,40 +1,30 @@
 package peer.metadata;
 
-import java.util.Scanner;
+import java.io.Serializable;
+import java.util.List;
 
-public class ChunkMetadata {
-    private int sizeKb;
-    private int id;
-    private int repDgr;
-    private int perceivedRepDgr;
+public class ChunkMetadata implements Serializable {
+    private final int sizeKb;
+    private final String id;
+    private final int repDgr;
+    private List<Integer> peerIds;
 
-    public ChunkMetadata(int sizeKb, int id, int repDgr, int perceivedRepDgr) {
+    public ChunkMetadata(int sizeKb, String id, int repDgr, List<Integer> peerIds) {
         this.sizeKb = sizeKb;
         this.id = id;
         this.repDgr = repDgr;
-        this.perceivedRepDgr = perceivedRepDgr;
+        this.peerIds = peerIds;
     }
 
-    public String getString(){
-        return String.format("%d,%d,%d,%d",sizeKb,id,repDgr,perceivedRepDgr);
-    }
-
-
-    public static ChunkMetadata readFile(String chunkStr){
-        Scanner chunkScanner = new Scanner(chunkStr);
-        chunkScanner.useDelimiter(",");
-        int sizeKb = Integer.parseInt(chunkScanner.next());
-        int id = Integer.parseInt(chunkScanner.next());
-        int repDgr = Integer.parseInt(chunkScanner.next());
-        int pRD = Integer.parseInt(chunkScanner.next());
-        return new ChunkMetadata(sizeKb,id,repDgr,pRD);
+    public String getString() {
+        return String.format("%d, %s, %d, %d", sizeKb, id, repDgr, peerIds.size());
     }
 
     public int getSizeKb() {
         return sizeKb;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -43,6 +33,11 @@ public class ChunkMetadata {
     }
 
     public int getPerceivedRepDgr() {
-        return perceivedRepDgr;
+        return peerIds.size();
+    }
+
+    public void addPeer(Integer peerId) {
+        if (!peerIds.contains(peerId))
+            peerIds.add(peerId);
     }
 }

@@ -21,11 +21,10 @@ import java.util.concurrent.TimeUnit;
 //java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
 
+    private ChannelCoordinator channelCoordinator;
     private PeerArgs peerArgs;
-    private StoredChunksMetadata storedChunksMetadata;
     private StateMetadata stateMetadata;
     private String fileSystem;
-    private ChannelCoordinator channelCoordinator;
     private Protocol protocol;
     private String restoreDir;
     private String filesDir;
@@ -55,17 +54,9 @@ public class Peer implements RemoteObject {
         }
     }
 
-    public void startMulticastThread(String mcastAddr, int mcastPort, List<byte[]> message) {
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        Multicast multicastThread = new Multicast(mcastPort, mcastAddr, message);
-        executor.schedule(multicastThread, 0, TimeUnit.SECONDS);
-    }
-
-    public void createMetadata(){
-        StoredChunksMetadata metadata = new StoredChunksMetadata(this.getPeerArgs().getMetadataPath());
+    public void createMetadata() {
+        StateMetadata metadata = new StateMetadata(this.getPeerArgs().getMetadataPath());
         this.setPeerMetadata(metadata.readMetadata());
-        StateMetadata stateMetadata = new StateMetadata(this.getPeerArgs().getStateMetadataPath());
-        //stateMetadata.readState();
     }
 
     public void createChannels() {
@@ -80,42 +71,6 @@ public class Peer implements RemoteObject {
         Files.createDirectories(Paths.get(restoreDir));
     }
 
-    public String getFileSystem() {
-        return fileSystem;
-    }
-
-    public Protocol getProtocol() {
-        return protocol;
-    }
-
-    public StoredChunksMetadata getPeerStoredMetadata() {
-        return storedChunksMetadata;
-    }
-
-    public StateMetadata getPeerStateMetadata() {
-        return stateMetadata;
-    }
-
-    public void setPeerMetadata(StateMetadata stateMetadata) {
-        this.stateMetadata = stateMetadata;
-    }
-
-    public void setPeerMetadata(StoredChunksMetadata storedChunksMetadata) {
-        this.storedChunksMetadata = storedChunksMetadata;
-    }
-
-    public PeerArgs getPeerArgs() {
-        return peerArgs;
-    }
-
-    public String getRestoreDir() {
-        return restoreDir;
-    }
-
-    public String getFilesDir() {
-        return filesDir;
-    }
-
     @Override
     public String backup(File file, int repDegree) throws IOException {
         System.out.println("Initiator peer received Backup");
@@ -125,7 +80,7 @@ public class Peer implements RemoteObject {
     }
 
     @Override
-    public String restore(File file) throws IOException, InterruptedException {
+    public String restore(File file) throws IOException {
         System.out.println("Initiator peer received Restore");
         this.protocol = new RestoreProtocol(file, this);
         this.protocol.initialize();
@@ -141,9 +96,8 @@ public class Peer implements RemoteObject {
     }
 
     @Override
-    public String state(File file) throws RemoteException {
-        System.out.println("State");
-        return null;
+    public String state() throws RemoteException {
+        return stateMetadata.returnState();
     }
 
     @Override
@@ -152,5 +106,33 @@ public class Peer implements RemoteObject {
         this.protocol = new ReclaimProtocol(maxDiskSpace, this);
         this.protocol.initialize();
         return null;
+    }
+
+    public String getFileSystem() {
+        return fileSystem;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public StateMetadata getPeerMetadata() {
+        return stateMetadata;
+    }
+
+    public void setPeerMetadata(StateMetadata stateMetadata) {
+        this.stateMetadata = stateMetadata;
+    }
+
+    public PeerArgs getPeerArgs() {
+        return peerArgs;
+    }
+
+    public String getRestoreDir() {
+        return restoreDir;
+    }
+
+    public String getFilesDir() {
+        return filesDir;
     }
 }

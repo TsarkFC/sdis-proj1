@@ -38,7 +38,7 @@ public class ControlChannel extends Channel {
     public void handleBackup(String msgString) throws IOException {
         System.out.println("Control Channel received Stored Msg: " + msgString);
         Stored msg = new Stored(msgString);
-        peer.getPeerStoredMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+        peer.getPeerMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
     }
 
     public void handleDelete(String msgString) {
@@ -48,7 +48,7 @@ public class ControlChannel extends Channel {
         FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
 
         assert storedChunkNumbers != null;
-        peer.getPeerStoredMetadata().deleteChunksFile(storedChunkNumbers, msg.getFileId());
+        peer.getPeerMetadata().deleteChunksFile(storedChunkNumbers, msg.getFileId());
     }
 
     public void handleRestore(String msgString) {

@@ -5,132 +5,122 @@ import java.util.*;
 
 public class StateMetadata implements Serializable {
 
-    Map<String, FileMetadata> fileInfo = new HashMap<>();
+    Map<String, FileMetadata> hostingFileInfo = new HashMap<>();
+    StoredChunksMetadata storedChunksMetadata;
     String path;
-
 
     public StateMetadata(String path) {
         this.path = path;
-        System.out.println("State METADATA PATH: " + path);
+        storedChunksMetadata = new StoredChunksMetadata();
     }
 
-    public void updateInfo(FileMetadata fileMetadata) throws IOException {
-        fileInfo.put(fileMetadata.getId(), fileMetadata);
-        writeState();
-    }
-    public void updateInfo(FileMetadata fileMetadata,ChunkMetadata chunkMetadata) throws IOException {
-        fileMetadata.addChunk(chunkMetadata);
-        fileInfo.put(fileMetadata.getId(), fileMetadata);
-        writeState();
+    /**
+     * Updating information on initiator peer data
+     */
+    public void addHostingEntry(FileMetadata fileMetadata) throws IOException {
+        hostingFileInfo.put(fileMetadata.getId(), fileMetadata);
+        writeMetadata();
     }
 
-    public void updateInfo(String filePath,String fileId,int repDgr,int chunkId,int percRepDgr,int chunkKbSize) throws IOException {
-        ChunkMetadata chunkMetadata = new ChunkMetadata(chunkKbSize,chunkId,repDgr,percRepDgr);
-        FileMetadata fileMetadata = new FileMetadata(filePath,fileId,repDgr,chunkMetadata);
-        fileInfo.put(fileMetadata.getId(),fileMetadata);
-        writeState();
+    public void updateHostingInfo(FileMetadata hostingMetadata, Integer chunkNo, Integer peerId) throws IOException {
+        hostingMetadata.addChunk(chunkNo, peerId);
+        writeMetadata();
     }
 
     public void deleteFile(String fileId) throws IOException {
-        if (!fileInfo.containsKey(fileId)) {
+        if (!hostingFileInfo.containsKey(fileId)) {
             System.out.println("Cannot delete File from Metadata");
-        }else{
-            fileInfo.remove(fileId);
+        } else {
+            hostingFileInfo.remove(fileId);
         }
-        writeState();
+        writeMetadata();
     }
 
-    /*private void writeMetadata() throws IOException {
+    /**
+     * Updating information on stored chunks data
+     */
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId) throws IOException {
+        FileMetadata hostingMetadata = hostingFileInfo.get(fileId);
+        if (hostingMetadata != null) {
+            updateHostingInfo(hostingMetadata, chunkNo, peerId);
+        } else {
+            storedChunksMetadata.updateChunkInfo(fileId, chunkNo, peerId);
+        }
+        writeMetadata();
+    }
+
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Integer chunkSize, Integer peerId) throws IOException {
+        storedChunksMetadata.updateChunkInfo(fileId, chunkNo, repDgr, chunkSize, peerId);
+        writeMetadata();
+    }
+
+    public boolean verifyRepDgr(String fileId, Integer repDgr, Integer numOfChunks) {
+        Map<Integer, List<Integer>> chunkData = hostingFileInfo.get(fileId).getChunksData();
+        int chunksCount = 0;
+        for (Map.Entry<Integer, List<Integer>> entry : chunkData.entrySet()) {
+            chunksCount++;
+            if (entry.getValue().size() < repDgr) return false;
+        }
+        return chunksCount == numOfChunks;
+    }
+
+    public void deleteChunksFile(List<Integer> chunksNums, String fileID) {
+        storedChunksMetadata.deleteChunksFile(chunksNums, fileID);
+    }
+
+    private void writeMetadata() throws IOException {
         ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(path));
         os.writeObject(this);
         os.close();
-    }*/
-
-    private void writeState(){
-
-        BufferedWriter out;
-        try {
-            out = new BufferedWriter(new FileWriter(path));
-            for (String fileID : fileInfo.keySet()){
-                FileMetadata fm = fileInfo.get(fileID);
-                out.write(fm.getString());
-            }
-            out.write("TODO NAO ESTA A ESCREVER");
-            out.close();
-            System.out.printf("Created file yo");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        /*try (PrintWriter out = new PrintWriter(path)) {
-            for (String fileID : fileInfo.keySet()){
-                FileMetadata fm = fileInfo.get(fileID);
-                out.println(fm.getString());
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }*/
     }
 
-    public void readState(){
-        File file = new File(path);
-        Scanner input = null;
+    public StateMetadata readMetadata() {
         try {
-            input = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            System.out.println("State file does not exist, creating new one...");
-            writeState();
-            e.printStackTrace();
-        }
-        while (input.hasNextLine()){
-            Scanner in = new Scanner(input.nextLine());
-            FileMetadata fm = FileMetadata.readFile(in);
-            fileInfo.put(fm.getId(),fm);
-        }
-    }
-
-    /*public StateMetadata readMetadata(){
-        try {
+            System.out.println("path = " + path);
+            File f = new File(path);
+            System.out.println("Name: " + f.getName());
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
+            System.out.println("test1");
             StateMetadata stateMetadata = (StateMetadata) is.readObject();
-            fileInfo = stateMetadata.getFileInfo();
+            System.out.println("test2");
             is.close();
-            printState();
             return stateMetadata;
         } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error: " + e);
             System.out.println("No data to read from peer");
             System.out.println("Creating new one...");
             return new StateMetadata(path);
         }
-    }*/
-
-    public void printState(){
-        for (String fileId : fileInfo.keySet()) {
-            FileMetadata fileMeta = fileInfo.get(fileId);
-            System.out.println("********************************************");
-            System.out.println("************* State Metadata  **************");
-            System.out.println("File:");
-            System.out.println(String.format("\tPathname: %s\n\tID: %s\t\nReplication Degree: %d",
-                    fileMeta.getPathname(),fileMeta.getId(),fileMeta.getRepDgr()));
-            System.out.println("\tChunks:");
-            for (ChunkMetadata chunkMetadata : fileMeta.getChunks()){
-                System.out.println("\t\tID: " + chunkMetadata.getId());
-                System.out.println("\t\tSize: " + chunkMetadata.getSizeKb());
-                System.out.println("\t\tDesired Rep: " + chunkMetadata.getRepDgr());
-                System.out.println("\t\tPerceived Rep: " + chunkMetadata.getPerceivedRepDgr());
-            }
-
-            System.out.println(String.format("\t\tID: "));
-        }
     }
 
+    public String returnState() {
+        StringBuilder state = new StringBuilder();
+
+        // hosting data
+        for (String fileId : hostingFileInfo.keySet()) {
+            FileMetadata fileMetadata = hostingFileInfo.get(fileId);
+            state.append("[Hosting]\n");
+            state.append(String.format("Pathname: %s\nID: %s\nReplication Degree: %d\n",
+                    fileMetadata.getPathname(), fileMetadata.getId(), fileMetadata.getRepDgr()));
+            state.append("[Chunks]\n");
+            for (Map.Entry<Integer, List<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
+                state.append("[").append(entry.getKey()).append("]");
+                state.append(" Perceived replication degree = ").append(entry.getValue().size()).append("\n");
+            }
+        }
+
+        // stored chunks data
+        state.append(storedChunksMetadata.returnData());
+
+        return state.toString();
+    }
 
 
     public String getPath() {
         return path;
     }
 
-    public Map<String, FileMetadata> getFileInfo() {
-        return fileInfo;
+    public Map<String, FileMetadata> getHostingFileInfo() {
+        return hostingFileInfo;
     }
 }

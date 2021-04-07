@@ -3,14 +3,12 @@ package channels;
 import messages.PutChunk;
 import messages.Stored;
 import peer.Peer;
-import peer.metadata.FileMetadata;
 import utils.AddressList;
 import utils.FileHandler;
 import utils.ThreadHandler;
 import utils.Utils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +24,7 @@ public class BackupChannel extends Channel {
     }
 
     @Override
-    public void handle(DatagramPacket packet) {
+    public void handle(DatagramPacket packet) throws IOException {
         byte[] packetData = packet.getData();
         int bodyStartPos = getBodyStartPos(packetData);
         byte[] header = Arrays.copyOfRange(packetData, 0, bodyStartPos - 4);
@@ -40,20 +38,15 @@ public class BackupChannel extends Channel {
             saveStateMetadata(rcvdMsg);
 
             //If parse correctly, send stored msg to MC channel
-            new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+            new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg),
+                    Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
         }
     }
 
-    private void saveStateMetadata(PutChunk rcvdMsg){
-        String path = FileHandler.getFilePath(peer.getFileSystem(),rcvdMsg);
-
-        try {
-            peer.getPeerStateMetadata().updateInfo(path,rcvdMsg.getFileId(),rcvdMsg.getReplicationDeg(), rcvdMsg.getChunkNo(), 0,rcvdMsg.getBody().length);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void saveStateMetadata(PutChunk rcvdMsg) throws IOException {
+        peer.getPeerMetadata().updateStoredInfo(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg(),
+                rcvdMsg.getBody().length, peer.getPeerArgs().getPeerId());
     }
-
 
 
     private class ConfirmationSender implements Runnable {

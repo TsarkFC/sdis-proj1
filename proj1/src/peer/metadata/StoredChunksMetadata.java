@@ -11,56 +11,54 @@ public class StoredChunksMetadata implements Serializable {
     /**
      * Information about chunks saved by the peer.
      * String key identifies the chunk (<fileId>-<chunkNo>)
-     * List<Integer> identifies the peers who stored the message
+     * ChunkMetadata contains all chunk necessary information
      */
-    Map<String, List<Integer>> chunksInfo = new HashMap<>();
-    String path;
+    Map<String, ChunkMetadata> chunksInfo = new HashMap<>();
 
-    public StoredChunksMetadata(String path) {
-        this.path = path;
-        System.out.println("METADATA PATH: " + path);
+    public String getChunkId(String fileId, Integer chunkNo) {
+        return fileId + "-" + chunkNo;
     }
 
-    public String getChunkId(String fileId,Integer chunkNo){ return fileId + "-" + chunkNo; }
-
-    public void updateChunkInfo(String fileId, Integer chunkNo, Integer storedNo) throws IOException {
-        String chunkId = getChunkId(fileId,chunkNo);
-        if (!chunksInfo.containsKey(chunkId)) {
-            List<Integer> stored = new ArrayList<>();
-            stored.add(storedNo);
-            chunksInfo.put(chunkId, stored);
-        } else {
-            List<Integer> peerIds = chunksInfo.get(chunkId);
-            if (!peerIds.contains(storedNo))
-                peerIds.add(storedNo);
+    /**
+     * Updating when received STORED messages
+     */
+    public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId) {
+        String chunkId = getChunkId(fileId, chunkNo);
+        if (chunksInfo.containsKey(chunkId))  {
+            ChunkMetadata chunk = chunksInfo.get(chunkId);
+            chunk.addPeer(peerId);
         }
-        writeMetadata();
     }
 
-    public void deleteChunk(String fileId, Integer chunkNo) throws IOException {
+    /**
+     * Updating when received BACKUP messages and before sending STORED messages
+     */
+    public void updateChunkInfo(String fileId, Integer chunkNo, Integer repDgr, Integer chunkSize, Integer peerId) {
+        String chunkId = getChunkId(fileId, chunkNo);
+        if (!chunksInfo.containsKey(chunkId)) {
+            List<Integer> peerIds = new ArrayList<>();
+            peerIds.add(peerId);
+            chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
+        } else {
+            ChunkMetadata chunk = chunksInfo.get(chunkId);
+            chunk.addPeer(peerId);
+        }
+    }
+
+    public void deleteChunk(String fileId, Integer chunkNo) {
         String chunkId = fileId + "-" + chunkNo;
         if (!chunksInfo.containsKey(chunkId)) {
             System.out.println("Cannot delete Chunk from Metadata");
-        }else{
+        } else {
             chunksInfo.remove(chunkId);
         }
-        writeMetadata();
     }
 
-    public void deleteChunksFile(List<Integer> chunksNums,String fileID){
-        for (Integer chunkNo : chunksNums){
-            String chunkId = getChunkId(fileID,chunkNo);
-            if (chunksInfo.containsKey(chunkId)) {
-                chunksInfo.remove(chunkId);
-            }
+    public void deleteChunksFile(List<Integer> chunksNums, String fileID) {
+        for (Integer chunkNo : chunksNums) {
+            String chunkId = getChunkId(fileID, chunkNo);
+            chunksInfo.remove(chunkId);
         }
-        try {
-            writeMetadata();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
     }
 
     public Integer getStoredCount(String fileId, Integer chunkNo) {
@@ -68,49 +66,29 @@ public class StoredChunksMetadata implements Serializable {
         if (!chunksInfo.containsKey(chunkId)) {
             return 0;
         } else {
-            return chunksInfo.get(chunkId).size();
+            return chunksInfo.get(chunkId).getPerceivedRepDgr();
         }
     }
 
     public Integer getFileStoredCount(String fileId) {
-        Integer count = 0;
+        int count = 0;
         for (String chunkId : chunksInfo.keySet()) {
             if (chunkId.split("-")[0].equals(fileId)) {
-                count += chunksInfo.get(chunkId).size();
+                count += chunksInfo.get(chunkId).getPerceivedRepDgr();
             }
         }
         return count;
     }
 
-    private void writeMetadata() throws IOException {
-        ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(path));
-        os.writeObject(this);
-        os.close();
-    }
+    public String returnData() {
+        StringBuilder state = new StringBuilder();
 
-    public StoredChunksMetadata readMetadata(){
-        try {
-            ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
-            StoredChunksMetadata storedChunksMetadata = (StoredChunksMetadata) is.readObject();
-            Map<String, List<Integer>> chunksInfo = storedChunksMetadata.getChunksInfo();
-            for (String chunkId : chunksInfo.keySet()) {
-                System.out.println("FILEID-CHUNK: CHUNKID" + chunkId + " : " + chunksInfo.get(chunkId));
-            }
-            is.close();
-            return storedChunksMetadata;
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("No data to read from peer");
-            System.out.println("Creating new one...");
-            return new StoredChunksMetadata(path);
-
+        for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
+            ChunkMetadata chunkMetadata = entry.getValue();
+            state.append("[Stored chunk ").append(entry.getKey()).append("]\n");
+            state.append(String.format("Size (kb): %d\nReplication Degree: %d\nPerceived replication Degree: %d\n",
+                    chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
         }
-    }
-
-    public Map<String, List<Integer>> getChunksInfo() {
-        return chunksInfo;
-    }
-
-    public String getPath() {
-        return path;
+        return state.toString();
     }
 }
