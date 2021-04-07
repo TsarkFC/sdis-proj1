@@ -5,8 +5,19 @@ import java.util.*;
 
 public class StateMetadata implements Serializable {
 
+    /**
+     * Maps fileId to FileMetadata
+     */
     Map<String, FileMetadata> hostingFileInfo = new HashMap<>();
+
+    /**
+     * Contains information about stored chunks
+     */
     StoredChunksMetadata storedChunksMetadata;
+
+    /**
+     * Path where metadata will be saved
+     */
     String path;
 
     public StateMetadata(String path) {
@@ -27,12 +38,17 @@ public class StateMetadata implements Serializable {
         writeMetadata();
     }
 
+    public boolean hasFile(String fileId) {
+        return hostingFileInfo.containsKey(fileId);
+    }
+
     public void deleteFile(String fileId) throws IOException {
         if (!hostingFileInfo.containsKey(fileId)) {
             System.out.println("Cannot delete File from Metadata");
         } else {
             hostingFileInfo.remove(fileId);
         }
+        storedChunksMetadata.deleteChunksFromFile(fileId);
         writeMetadata();
     }
 
@@ -62,10 +78,6 @@ public class StateMetadata implements Serializable {
             if (entry.getValue().size() < repDgr) return false;
         }
         return chunksCount == numOfChunks;
-    }
-
-    public void deleteChunksFile(List<Integer> chunksNums, String fileID) {
-        storedChunksMetadata.deleteChunksFile(chunksNums, fileID);
     }
 
     private void writeMetadata() throws IOException {

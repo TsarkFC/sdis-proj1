@@ -24,7 +24,7 @@ public class StoredChunksMetadata implements Serializable {
      */
     public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId) {
         String chunkId = getChunkId(fileId, chunkNo);
-        if (chunksInfo.containsKey(chunkId))  {
+        if (chunksInfo.containsKey(chunkId)) {
             ChunkMetadata chunk = chunksInfo.get(chunkId);
             chunk.addPeer(peerId);
         }
@@ -54,10 +54,11 @@ public class StoredChunksMetadata implements Serializable {
         }
     }
 
-    public void deleteChunksFile(List<Integer> chunksNums, String fileID) {
-        for (Integer chunkNo : chunksNums) {
-            String chunkId = getChunkId(fileID, chunkNo);
-            chunksInfo.remove(chunkId);
+    public void deleteChunksFromFile(String fileId) {
+        for (String chunkId : chunksInfo.keySet()) {
+            if (chunkId.split("-")[0].equals(fileId)) {
+                chunksInfo.remove(chunkId);
+            }
         }
     }
 
@@ -68,16 +69,6 @@ public class StoredChunksMetadata implements Serializable {
         } else {
             return chunksInfo.get(chunkId).getPerceivedRepDgr();
         }
-    }
-
-    public Integer getFileStoredCount(String fileId) {
-        int count = 0;
-        for (String chunkId : chunksInfo.keySet()) {
-            if (chunkId.split("-")[0].equals(fileId)) {
-                count += chunksInfo.get(chunkId).getPerceivedRepDgr();
-            }
-        }
-        return count;
     }
 
     public String returnData() {

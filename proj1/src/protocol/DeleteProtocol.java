@@ -26,7 +26,14 @@ public class DeleteProtocol extends Protocol {
         PeerArgs peerArgs = peer.getPeerArgs();
         List<byte[]> messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
-        Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), fileHandler.createFileId());
+        String fileId = fileHandler.createFileId();
+
+        if (!peer.getPeerMetadata().hasFile(fileId)) {
+            System.out.println("Peer has not hosted BACKUP to file");
+            return;
+        }
+
+        Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), fileId);
         messages.add(msg.getBytes());
         ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
                 peerArgs.getAddressList().getMcAddr().getPort(), messages);
