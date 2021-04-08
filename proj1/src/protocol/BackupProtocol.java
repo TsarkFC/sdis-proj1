@@ -29,6 +29,11 @@ public class BackupProtocol extends Protocol {
         super(file, peer);
         this.repDgr = repDgr;
     }
+    public BackupProtocol(String path, Peer peer, int repDgr) {
+        super(path, peer);
+        this.repDgr = repDgr;
+    }
+
 
     @Override
     public void initialize() throws IOException {
@@ -72,6 +77,30 @@ public class BackupProtocol extends Protocol {
 
         execute();
     }
+
+    public void backupChunk(String fileId,int chunkNo) throws IOException {
+        messages = new ArrayList<>();
+        FileHandler fileHandler = new FileHandler(file);
+
+        //Tod verify chunk
+        if (peer.getPeerMetadata().hasFile(fileId)) {
+            System.out.println("File already backed up, aborting...");
+            return;
+        }
+
+        System.out.println("Deleted previous file");
+
+        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
+        peer.getPeerMetadata().addHostingEntry(fileMetadata);
+
+
+        PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
+                chunkNo, repDgr, fileHandler.getChunkFileData());
+        messages.add(backupMsg.getBytes());
+
+        execute();
+    }
+
 
     private void execute() {
         if (reps <= repsLimit) {

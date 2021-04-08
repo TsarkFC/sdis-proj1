@@ -93,5 +93,9 @@ public abstract class Message {
         String[] stringArr = msg.split("\\s+", 4);
         return stringArr[MSG_TYPE_IDX];
     }
+
+    public boolean samePeerAndSender(int peerId){
+        return senderId == peerId;
+    }
 }
 

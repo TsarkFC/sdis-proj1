@@ -72,6 +72,29 @@ public class StoredChunksMetadata implements Serializable {
         }
     }
 
+    public Integer getFileStoredCount(String fileId) {
+        int count = 0;
+        for (String chunkId : chunksInfo.keySet()) {
+            if (chunkId.split("-")[0].equals(fileId)) {
+                count += chunksInfo.get(chunkId).getPerceivedRepDgr();
+            }
+        }
+        return count;
+    }
+
+    public boolean chunkIsStored(String fileID,int chunkNo){
+        return chunksInfo.containsKey(getChunkId(fileID,chunkNo));
+    }
+
+    public ChunkMetadata getChunk(String fileId,Integer chunkNo){
+        String chunkId = fileId + "-" + chunkNo;
+        if (!chunksInfo.containsKey(chunkId)) {
+            return null;
+        } else {
+            return chunksInfo.get(chunkId);
+        }
+    }
+
     public String returnData() {
         StringBuilder state = new StringBuilder();
 
@@ -82,5 +105,9 @@ public class StoredChunksMetadata implements Serializable {
                     chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
         }
         return state.toString();
+    }
+
+    public Map<String, ChunkMetadata> getChunksInfo() {
+        return chunksInfo;
     }
 }

@@ -19,5 +19,10 @@ public abstract class Protocol {
         this.file = file;
         this.peer = peer;
     }
+    public Protocol(String path,Peer peer){
+        this.file = FileHandler.getFile(path);
+        this.peer = peer;
+    }
+
     public abstract void initialize() throws IOException;
 }

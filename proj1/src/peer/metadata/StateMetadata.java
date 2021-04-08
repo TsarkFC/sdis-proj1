@@ -130,6 +130,28 @@ public class StateMetadata implements Serializable {
         return state.toString();
     }
 
+    public void printState(){
+        System.out.println("\n********************************************");
+        System.out.println("************* State Metadata  **************");
+        for (String fileId : hostingFileInfo.keySet()) {
+            FileMetadata fileMeta = hostingFileInfo.get(fileId);
+            System.out.println("File:");
+            System.out.println(String.format("\tPathname: %s\n\tID: %s\n\tReplication Degree: %d\n",
+                    fileMeta.getPathname(),fileMeta.getId(),fileMeta.getRepDgr()));
+
+            //System.out.println(String.format("\t\tID: "));
+        }
+        System.out.println("\tSaved Chunks:");
+        for (ChunkMetadata chunkMetadata : storedChunksMetadata.getChunksInfo().values()){
+            System.out.println("\t\tID: " + chunkMetadata.getId());
+            System.out.println("\t\tSize: " + chunkMetadata.getSizeKb());
+            System.out.println("\t\tDesired Rep: " + chunkMetadata.getRepDgr());
+            System.out.println("\t\tPerceived Rep: " + chunkMetadata.getPerceivedRepDgr());
+            System.out.println();
+        }
+    }
+
+
 
     public String getPath() {
         return path;
@@ -138,4 +160,9 @@ public class StateMetadata implements Serializable {
     public Map<String, FileMetadata> getHostingFileInfo() {
         return hostingFileInfo;
     }
+
+    public StoredChunksMetadata getStoredChunksMetadata() {
+        return storedChunksMetadata;
+    }
+
 }

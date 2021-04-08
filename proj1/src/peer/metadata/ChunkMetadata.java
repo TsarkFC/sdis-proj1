@@ -40,4 +40,10 @@ public class ChunkMetadata implements Serializable {
         if (!peerIds.contains(peerId))
             peerIds.add(peerId);
     }
+
+    public void removePeer(Integer peerId){
+        if (peerIds.contains(peerId)){
+            peerIds.remove(peerId);
+        }
+    }
 }

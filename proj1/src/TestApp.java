@@ -1,4 +1,5 @@
 import peer.RemoteObject;
+import utils.FileHandler;
 import utils.SubProtocol;
 
 import java.io.*;
@@ -32,7 +33,7 @@ public class TestApp {
         if (!testApp.parseArguments(args)) return;
         testApp.connectRmi();
         if (testApp.path != null) {
-            File file = testApp.getFile();
+            File file = FileHandler.getFile(testApp.path);
             if (file != null) testApp.processRequest(testApp.subProtocol, file);
         } else testApp.processRequest(testApp.subProtocol);
     }
@@ -130,12 +131,5 @@ public class TestApp {
         System.out.println(result);
     }
 
-    private File getFile() {
-        System.out.println(this.path);
-        if (Files.exists(Paths.get(this.path))) {
-            File file = new File(this.path);
-            if (file.exists() && file.canRead()) return file;
-        }
-        return null;
-    }
+
 }

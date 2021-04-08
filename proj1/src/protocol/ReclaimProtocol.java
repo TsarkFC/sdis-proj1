@@ -15,7 +15,7 @@ public class ReclaimProtocol extends Protocol {
     private final Double maxDiskSpace;
     //TODO Talvez este null de merda, mas sera que vale a pena?
     public ReclaimProtocol(Double maxDiskSpace, Peer peer) {
-        super(null, peer);
+        super((File) null, peer);
         this.maxDiskSpace = maxDiskSpace;
     }
 
@@ -53,16 +53,20 @@ public class ReclaimProtocol extends Protocol {
             for (File file : fileFolders) {
                 if (currentSize <= maxDiskSpace) break;
                 currentSize = reclaimFileSpace(file,currentSize,messages);
+
             }
             PeerArgs peerArgs = peer.getPeerArgs();
             ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
                     peerArgs.getAddressList().getMcAddr().getPort(), messages);
+        }else{
+            System.out.println("The peer does not have any stored files");
         }
     }
 
     private double reclaimFileSpace(File fileId,double currentSize,List<byte[]> messages){
         PeerArgs peerArgs = peer.getPeerArgs();
 
+        //TODO por por replication degree em vez de por ordem alfabetica
         String name = fileId.getName();
         if(name != "metadata"){
             File[] chunks = FileHandler.getFolderFiles(fileId.getPath());
