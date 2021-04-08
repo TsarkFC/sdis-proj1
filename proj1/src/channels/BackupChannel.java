@@ -3,6 +3,7 @@ package channels;
 import messages.PutChunk;
 import messages.Stored;
 import peer.Peer;
+import protocol.BackupProtocolInitiator;
 import utils.AddressList;
 import utils.FileHandler;
 import utils.ThreadHandler;
@@ -33,10 +34,18 @@ public class BackupChannel extends Channel {
         String rcvd = new String(header, 0, header.length);
         PutChunk rcvdMsg = new PutChunk(rcvd, body);
 
-        if (!rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId())) {
+        boolean sameSenderPeer = rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId());
+        boolean hasSpace = peer.getPeerMetadata().hasSpace(rcvdMsg.getBody().length/1000.0);
+        double totalSpace = peer.getPeerMetadata().getStoredChunksMetadata().getStoredSize() + rcvdMsg.getBody().length/1000.0;
+        System.out.println("Max space is: " + peer.getPeerMetadata().getMaxSpace() + " and total is " + totalSpace);
+        System.out.println("New file size:" + rcvdMsg.getBody().length/1000.0);
+
+        if (!sameSenderPeer && hasSpace ) {
+            System.out.println("Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo());
+            System.out.println("\tFrom " + rcvdMsg.getSenderId());
+            preventReclaim(rcvdMsg);
             FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
             saveStateMetadata(rcvdMsg);
-
             //If parse correctly, send stored msg to MC channel
             new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg),
                     Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
@@ -45,7 +54,15 @@ public class BackupChannel extends Channel {
 
     private void saveStateMetadata(PutChunk rcvdMsg) throws IOException {
         peer.getPeerMetadata().updateStoredInfo(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg(),
-                rcvdMsg.getBody().length, peer.getPeerArgs().getPeerId());
+                rcvdMsg.getBody().length/1000.0, peer.getPeerArgs().getPeerId());
+    }
+
+    private void preventReclaim(PutChunk rcvdMsg){
+        BackupProtocolInitiator backupProtocolInitiator = peer.getChannelCoordinator().getBackupInitiator();
+        if (backupProtocolInitiator!=null){
+            peer.getChannelCoordinator().getBackupInitiator().setReceivedPutChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo());
+        }
+
     }
 
 

@@ -5,13 +5,21 @@ import peer.Peer;
 import peer.metadata.ChunkMetadata;
 import peer.metadata.StoredChunksMetadata;
 import protocol.BackupProtocol;
+import protocol.BackupProtocolInitiator;
 import protocol.RestoreProtocol;
 import utils.AddressList;
 import utils.FileHandler;
+import utils.ThreadHandler;
+import utils.Utils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ControlChannel extends Channel {
 
@@ -77,20 +85,16 @@ public class ControlChannel extends Channel {
             // the chunk backup subprotocol between 0.jpg and 400 ms
             if(chunkMetadata.getPerceivedRepDgr() < chunkMetadata.getRepDgr()){
                 System.out.println("Perceived Rep Dgr < Desired Rep Degree");
-                String path = FileHandler.getFilePath(peer.getFileSystem(),removed.getFileId(),removed.getChunkNo());
-                System.out.println("Initiating backup protocol of path: " + path);
-                System.out.println();
                 //TODO Ver se o peer tem espaço suficiente
                 //TODO fazer cena de putchunk
                 //TODO Como impedir que o que fez backup inicialmente guarde o ficheiro
                 //TODO o percevied é 0
-                BackupProtocol backupProtocol = new BackupProtocol(path,peer,chunkMetadata.getRepDgr());
-                try {
-                    backupProtocol.backupChunk(removed.getFileId() ,removed.getChunkNo());
-                } catch (IOException e) {
-                    System.out.println("Exception initializing Backup protocol");
-                    e.printStackTrace();
-                }
+
+                BackupProtocolInitiator backupProtocolInitiator = new BackupProtocolInitiator(removed,chunkMetadata,peer);
+                peer.getChannelCoordinator().setBackupInitiator(backupProtocolInitiator);
+                new ScheduledThreadPoolExecutor(1).schedule(backupProtocolInitiator,
+                        Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+
             }
 
             //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
@@ -99,4 +103,6 @@ public class ControlChannel extends Channel {
         }
 
     }
+
+
 }

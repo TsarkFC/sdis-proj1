@@ -135,4 +135,12 @@ public class Peer implements RemoteObject {
     public String getFilesDir() {
         return filesDir;
     }
+
+    public ChannelCoordinator getChannelCoordinator() {
+        return channelCoordinator;
+    }
+
+    public void setChannelCoordinator(ChannelCoordinator channelCoordinator) {
+        this.channelCoordinator = channelCoordinator;
+    }
 }

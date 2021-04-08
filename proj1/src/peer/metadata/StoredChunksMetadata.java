@@ -107,6 +107,14 @@ public class StoredChunksMetadata implements Serializable {
         return state.toString();
     }
 
+    public int getStoredSize(){
+        int size = 0;
+        for (ChunkMetadata chunkMetadata : chunksInfo.values()){
+            size+=chunkMetadata.getSizeKb();
+        }
+        return size;
+    }
+
     public Map<String, ChunkMetadata> getChunksInfo() {
         return chunksInfo;
     }

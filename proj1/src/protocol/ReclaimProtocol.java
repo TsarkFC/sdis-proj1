@@ -33,9 +33,6 @@ public class ReclaimProtocol extends Protocol {
             //Delete files
             //Como vamos escolher que files damos delete? talvez os mais antigos, ou so por ordem alfabetica
             //Talvez faça mais sentido ir eliminando o maior que couber
-            //Removed msg = new Removed(peerArgs.getVersion(), peerArgs.getPeerId(), )
-            //ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
-            //        peerArgs.getAddressList().getMcAddr().getPort(), messages);
         }
 
         /*Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), fileHandler.createFileId());
@@ -49,6 +46,7 @@ public class ReclaimProtocol extends Protocol {
         //Isto pode ir para o file handler talvez faça mais sentido
         System.out.println("Current size: " + currentSize + " Max Size: " + maxDiskSpace);
         File[] fileFolders = FileHandler.getFolderFiles(peer.getFileSystem());
+        peer.getPeerMetadata().setMaxSpace(maxDiskSpace);
         if (fileFolders != null) {
             for (File file : fileFolders) {
                 if (currentSize <= maxDiskSpace) break;

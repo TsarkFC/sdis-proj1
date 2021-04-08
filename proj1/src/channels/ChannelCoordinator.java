@@ -1,6 +1,7 @@
 package channels;
 
 import peer.Peer;
+import protocol.BackupProtocolInitiator;
 import utils.AddressList;
 
 import java.util.concurrent.Executors;
@@ -15,6 +16,7 @@ public class ChannelCoordinator {
     private ControlChannel controlChannel;
     private RestoreChannel restoreChannel;
     private Peer peer;
+    private BackupProtocolInitiator backupInitiator;
 
     public ChannelCoordinator( Peer peer){
         this.peer = peer;
@@ -43,5 +45,13 @@ public class ChannelCoordinator {
         restoreChannel = new RestoreChannel(addressList, peer);
         executor.schedule(restoreChannel, 0, TimeUnit.SECONDS);
         return restoreChannel;
+    }
+
+    public BackupProtocolInitiator getBackupInitiator() {
+        return backupInitiator;
+    }
+
+    public void setBackupInitiator(BackupProtocolInitiator backupInitiator) {
+        this.backupInitiator = backupInitiator;
     }
 }

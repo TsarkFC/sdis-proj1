@@ -82,13 +82,11 @@ public class BackupProtocol extends Protocol {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 
-        //Tod verify chunk
+        //Todo verify chunk
         if (peer.getPeerMetadata().hasFile(fileId)) {
             System.out.println("File already backed up, aborting...");
             return;
         }
-
-        System.out.println("Deleted previous file");
 
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
         peer.getPeerMetadata().addHostingEntry(fileMetadata);
