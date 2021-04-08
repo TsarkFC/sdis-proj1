@@ -65,7 +65,6 @@ public class ControlChannel extends Channel {
         //A peer that has a local copy of the chunk shall update its local count of this chunk
         //1- Check if chunk is stored
         peer.getPeerMetadata().printState();
-
         StoredChunksMetadata storageMetadata = peer.getPeerMetadata().getStoredChunksMetadata();
         int peerId = peer.getPeerArgs().getPeerId();
         if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
@@ -76,11 +75,9 @@ public class ControlChannel extends Channel {
             peer.getPeerMetadata().printState();
 
             //If this count drops below the desired replication degree of that chunk, it shall initiate
-            // the chunk backup subprotocol between 0.jpg and 400 ms
+            // the chunk backup subProtocol between 0 and 400 ms
             if(chunkMetadata.getPerceivedRepDgr() < chunkMetadata.getRepDgr()){
                 System.out.println("Perceived Rep Dgr < Desired Rep Degree");
-                //TODO Como impedir que o que fez backup inicialmente guarde o ficheiro
-                //TODO o percevied é 0
                 BackupProtocolInitiator backupProtocolInitiator = new BackupProtocolInitiator(removed,chunkMetadata,peer);
                 peer.getChannelCoordinator().setBackupInitiator(backupProtocolInitiator);
                 new ScheduledThreadPoolExecutor(1).schedule(backupProtocolInitiator,
@@ -88,7 +85,7 @@ public class ControlChannel extends Channel {
 
             }
 
-            //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
+
             // it should back off and restrain from starting yet another backup subprotocol for that file chunk.
 
         }

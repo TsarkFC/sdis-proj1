@@ -15,6 +15,11 @@ public class BackupProtocolInitiator implements Runnable {
     Removed removed;
     private ChunkMetadata chunkMetadata;
     private Peer peer;
+    /**
+     * //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
+     * This map only has the fileId-chunkNo received before the reclaim initiated the protocol
+     * if the chunk that is going to initiate backup is in the map, some peer already initiated the protocol
+     */
     Set<String> receivedDuringReclaim = new HashSet<>();
 
 

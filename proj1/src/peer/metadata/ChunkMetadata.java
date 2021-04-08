@@ -36,6 +36,10 @@ public class ChunkMetadata implements Serializable {
         return peerIds.size();
     }
 
+    public boolean biggerThanDesiredRep(){
+        return getPerceivedRepDgr() > getRepDgr();
+    }
+
     public void addPeer(Integer peerId) {
         if (!peerIds.contains(peerId))
             peerIds.add(peerId);
