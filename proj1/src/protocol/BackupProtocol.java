@@ -105,6 +105,7 @@ public class BackupProtocol extends Protocol {
             System.out.println("Sent message, waiting " + timeWait + " seconds...");
         } else {
             System.out.println("Reached resending limit of PUTCHUNK messages!");
+            System.out.println("ERROR: Failed to  Back up file...");
         }
     }
 

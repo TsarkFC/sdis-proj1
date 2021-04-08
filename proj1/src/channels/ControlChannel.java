@@ -69,7 +69,6 @@ public class ControlChannel extends Channel {
         int peerId = peer.getPeerArgs().getPeerId();
         if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
             //2- Update local count of its chunk
-
             ChunkMetadata chunkMetadata = storageMetadata.getChunk(removed.getFileId(), removed.getChunkNo());
             chunkMetadata.removePeer(removed.getSenderId());
             peer.getPeerMetadata().printState();
@@ -82,15 +81,7 @@ public class ControlChannel extends Channel {
                 peer.getChannelCoordinator().setBackupInitiator(backupProtocolInitiator);
                 new ScheduledThreadPoolExecutor(1).schedule(backupProtocolInitiator,
                         Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
-
             }
-
-
-            // it should back off and restrain from starting yet another backup subprotocol for that file chunk.
-
         }
-
     }
-
-
 }
