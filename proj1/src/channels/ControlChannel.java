@@ -4,20 +4,14 @@ import messages.*;
 import peer.Peer;
 import peer.metadata.ChunkMetadata;
 import peer.metadata.StoredChunksMetadata;
-import protocol.BackupProtocol;
 import protocol.BackupProtocolInitiator;
 import protocol.RestoreProtocol;
 import utils.AddressList;
 import utils.FileHandler;
-import utils.ThreadHandler;
 import utils.Utils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -85,11 +79,8 @@ public class ControlChannel extends Channel {
             // the chunk backup subprotocol between 0.jpg and 400 ms
             if(chunkMetadata.getPerceivedRepDgr() < chunkMetadata.getRepDgr()){
                 System.out.println("Perceived Rep Dgr < Desired Rep Degree");
-                //TODO Ver se o peer tem espaço suficiente
-                //TODO fazer cena de putchunk
                 //TODO Como impedir que o que fez backup inicialmente guarde o ficheiro
                 //TODO o percevied é 0
-
                 BackupProtocolInitiator backupProtocolInitiator = new BackupProtocolInitiator(removed,chunkMetadata,peer);
                 peer.getChannelCoordinator().setBackupInitiator(backupProtocolInitiator);
                 new ScheduledThreadPoolExecutor(1).schedule(backupProtocolInitiator,

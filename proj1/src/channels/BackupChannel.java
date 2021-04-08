@@ -34,13 +34,9 @@ public class BackupChannel extends Channel {
         String rcvd = new String(header, 0, header.length);
         PutChunk rcvdMsg = new PutChunk(rcvd, body);
 
-        boolean sameSenderPeer = rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId());
-        boolean hasSpace = peer.getPeerMetadata().hasSpace(rcvdMsg.getBody().length/1000.0);
-        double totalSpace = peer.getPeerMetadata().getStoredChunksMetadata().getStoredSize() + rcvdMsg.getBody().length/1000.0;
-        System.out.println("Max space is: " + peer.getPeerMetadata().getMaxSpace() + " and total is " + totalSpace);
-        System.out.println("New file size:" + rcvdMsg.getBody().length/1000.0);
 
-        if (!sameSenderPeer && hasSpace ) {
+
+        if (shouldSaveFile(rcvdMsg)) {
             System.out.println("Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo());
             System.out.println("\tFrom " + rcvdMsg.getSenderId());
             preventReclaim(rcvdMsg);
@@ -52,6 +48,17 @@ public class BackupChannel extends Channel {
         }
     }
 
+    private boolean shouldSaveFile(PutChunk rcvdMsg){
+        boolean sameSenderPeer = rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId());
+        boolean hasSpace = peer.getPeerMetadata().hasSpace(rcvdMsg.getBody().length/1000.0);
+        boolean isOriginalFileSender =peer.getPeerMetadata().hasFile(rcvdMsg.getFileId());
+        double totalSpace = peer.getPeerMetadata().getStoredChunksMetadata().getStoredSize() + rcvdMsg.getBody().length/1000.0;
+        System.out.println("Max space is: " + peer.getPeerMetadata().getMaxSpace() + " and total is " + totalSpace);
+        System.out.println("New file size:" + rcvdMsg.getBody().length/1000.0);
+
+        return !sameSenderPeer && hasSpace && !isOriginalFileSender;
+    }
+
     private void saveStateMetadata(PutChunk rcvdMsg) throws IOException {
         peer.getPeerMetadata().updateStoredInfo(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg(),
                 rcvdMsg.getBody().length/1000.0, peer.getPeerArgs().getPeerId());
@@ -60,7 +67,7 @@ public class BackupChannel extends Channel {
     private void preventReclaim(PutChunk rcvdMsg){
         BackupProtocolInitiator backupProtocolInitiator = peer.getChannelCoordinator().getBackupInitiator();
         if (backupProtocolInitiator!=null){
-            peer.getChannelCoordinator().getBackupInitiator().setReceivedPutChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo());
+            backupProtocolInitiator.setReceivedPutChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo());
         }
 
     }

@@ -49,6 +49,13 @@ public class StateMetadata implements Serializable {
         return hostingFileInfo.containsKey(fileId);
     }
 
+    public boolean hasChunk(String fileId,int chunkNo) {
+        String chunkID = storedChunksMetadata.getChunkId(fileId,chunkNo);
+        return storedChunksMetadata.getChunksInfo().containsKey(chunkID);
+    }
+
+
+
     public String getFileIdFromPath(String pathName) {
         for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
             if (entry.getValue().getPathname().equals(pathName)) return entry.getKey();

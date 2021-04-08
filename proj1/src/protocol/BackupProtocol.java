@@ -83,7 +83,7 @@ public class BackupProtocol extends Protocol {
         FileHandler fileHandler = new FileHandler(file);
 
         //Todo verify chunk
-        if (peer.getPeerMetadata().hasFile(fileId)) {
+        if (peer.getPeerMetadata().hasChunk(fileId,chunkNo)) {
             System.out.println("File already backed up, aborting...");
             return;
         }
