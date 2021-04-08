@@ -6,7 +6,9 @@ public class Removed extends MsgWithChunk {
     public Removed(Double version, Integer senderId, String fileId, Integer chunkNo) {
         super(version, senderId, fileId, chunkNo);
     }
-
+    public Removed(String rcvd){
+        super(rcvd);
+    }
     @Override
     public String getMsgType() {
         return "REMOVED";

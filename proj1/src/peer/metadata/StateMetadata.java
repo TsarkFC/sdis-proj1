@@ -123,4 +123,9 @@ public class StateMetadata implements Serializable {
     public Map<String, FileMetadata> getHostingFileInfo() {
         return hostingFileInfo;
     }
+
+    public StoredChunksMetadata getStoredChunksMetadata() {
+        return storedChunksMetadata;
+    }
+
 }

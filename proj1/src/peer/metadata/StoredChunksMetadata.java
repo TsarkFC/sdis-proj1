@@ -80,6 +80,19 @@ public class StoredChunksMetadata implements Serializable {
         return count;
     }
 
+    public boolean chunkIsStored(String fileID,int chunkNo){
+        return !chunksInfo.containsKey(getChunkId(fileID,chunkNo));
+    }
+
+    public ChunkMetadata getChunk(String fileId,Integer chunkNo){
+        String chunkId = fileId + "-" + chunkNo;
+        if (!chunksInfo.containsKey(chunkId)) {
+            return null;
+        } else {
+            return chunksInfo.get(chunkId);
+        }
+    }
+
     public String returnData() {
         StringBuilder state = new StringBuilder();
 
