@@ -39,6 +39,15 @@ public class FileHandler {
         return newFile;
     }
 
+    public static File getFile(String path) {
+        System.out.println(path);
+        if (Files.exists(Paths.get(path))) {
+            File file = new File(path);
+            if (file.exists() && file.canRead()) return file;
+        }
+        return null;
+    }
+
     public String createFileId() {
         //Is not thread safe
         MessageDigest digest = null;
@@ -75,7 +84,7 @@ public class FileHandler {
         return peerDir.concat("/" + fileId + "/");
     }
 
-    public static String getFilePath(String peerDir, String fileId, String chunkNo) {
+    public static String getFilePath(String peerDir, String fileId, int chunkNo) {
         return peerDir.concat("/" + fileId + "/" + chunkNo);
     }
 
@@ -226,6 +235,22 @@ public class FileHandler {
         }
         return chunks;
     }
+
+    public byte[] getChunkFileData(){
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            System.out.println("File size: " + file.length());
+            byte[] chunk = new byte[CHUNK_SIZE];
+            int read = inputStream.read(chunk);
+            return Arrays.copyOf(chunk, read);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public int getNumberOfChunks() {
         int size = (int) file.length();

@@ -15,7 +15,7 @@ public class ReclaimProtocol extends Protocol {
     private final Double maxDiskSpace;
     //TODO Talvez este null de merda, mas sera que vale a pena?
     public ReclaimProtocol(Double maxDiskSpace, Peer peer) {
-        super(null, peer);
+        super((File) null, peer);
         this.maxDiskSpace = maxDiskSpace;
     }
 

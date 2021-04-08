@@ -4,6 +4,7 @@ import messages.*;
 import peer.Peer;
 import peer.metadata.ChunkMetadata;
 import peer.metadata.StoredChunksMetadata;
+import protocol.BackupProtocol;
 import protocol.RestoreProtocol;
 import utils.AddressList;
 import utils.FileHandler;
@@ -61,19 +62,39 @@ public class ControlChannel extends Channel {
         //System.out.println(removed.getMsgType() + " " + removed.getFileId() + " " + removed.getChunkNo());
         //A peer that has a local copy of the chunk shall update its local count of this chunk
         //1- Check if chunk is stored
+        peer.getPeerMetadata().printState();
+
         StoredChunksMetadata storageMetadata = peer.getPeerMetadata().getStoredChunksMetadata();
-        if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo())){
+        int peerId = peer.getPeerArgs().getPeerId();
+        if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
             //2- Update local count of its chunk
+
             ChunkMetadata chunkMetadata = storageMetadata.getChunk(removed.getFileId(), removed.getChunkNo());
             chunkMetadata.removePeer(removed.getSenderId());
-            //If this count drops below the desired replication degree of that chunk, it shall initiate
+            peer.getPeerMetadata().printState();
 
+            //If this count drops below the desired replication degree of that chunk, it shall initiate
             // the chunk backup subprotocol between 0.jpg and 400 ms
+            if(chunkMetadata.getPerceivedRepDgr() < chunkMetadata.getRepDgr()){
+                System.out.println("Perceived Rep Dgr < Desired Rep Degree");
+                String path = FileHandler.getFilePath(peer.getFileSystem(),removed.getFileId(),removed.getChunkNo());
+                System.out.println("Initiating backup protocol of path: " + path);
+                System.out.println();
+                //TODO
+                //TODO Como impedir que o que fez backup inicialmente guarde o ficheiro
+                //TODO o percevied é 0
+                BackupProtocol backupProtocol = new BackupProtocol(path,peer,chunkMetadata.getRepDgr());
+                try {
+                    backupProtocol.backupChunk(removed.getFileId() ,removed.getChunkNo());
+                } catch (IOException e) {
+                    System.out.println("Exception initializing Backup protocol");
+                    e.printStackTrace();
+                }
+            }
+
             //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
             // it should back off and restrain from starting yet another backup subprotocol for that file chunk.
-            //BackupProtocol backupProtocol = new BackupProtocol()
-            //Stored msg = new Stored(msgString);
-            //peer.getPeerStoredMetadata().updateChunkInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+
         }
 
     }
