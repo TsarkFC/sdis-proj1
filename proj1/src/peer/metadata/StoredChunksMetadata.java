@@ -1,10 +1,7 @@
 package peer.metadata;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StoredChunksMetadata implements Serializable {
 
@@ -24,7 +21,7 @@ public class StoredChunksMetadata implements Serializable {
      */
     public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId) {
         String chunkId = getChunkId(fileId, chunkNo);
-        if (chunksInfo.containsKey(chunkId))  {
+        if (chunksInfo.containsKey(chunkId)) {
             ChunkMetadata chunk = chunksInfo.get(chunkId);
             chunk.addPeer(peerId);
         }
@@ -54,11 +51,16 @@ public class StoredChunksMetadata implements Serializable {
         }
     }
 
-    public void deleteChunksFile(List<Integer> chunksNums, String fileID) {
-        for (Integer chunkNo : chunksNums) {
-            String chunkId = getChunkId(fileID, chunkNo);
-            chunksInfo.remove(chunkId);
+    public void deleteChunksFromFile(String fileId) {
+        Iterator<String> it = chunksInfo.keySet().iterator();
+        while (it.hasNext()) {
+            String chunkId = it.next();
+            if (chunkId.split("-")[0].equals(fileId)) {
+                System.out.println("got inside");
+                it.remove();
+            }
         }
+        System.out.println("got out");
     }
 
     public Integer getStoredCount(String fileId, Integer chunkNo) {

@@ -35,6 +35,11 @@ public class RestoreProtocol extends Protocol {
         String fileId = fileHandler.createFileId();
         PeerArgs peerArgs = peer.getPeerArgs();
 
+        if (!peer.getPeerMetadata().hasFile(fileId)) {
+            System.out.println("Peer has not hosted BACKUP to file");
+            return;
+        }
+
         for (int i = 0; i < chunksNo; i++) {
             GetChunk getChunk = new GetChunk(peerArgs.getVersion(), peerArgs.getPeerId(), fileId, i);
             messages.add(getChunk.getBytes());
@@ -44,7 +49,7 @@ public class RestoreProtocol extends Protocol {
     }
 
     public static void handleGetChunkMsg(GetChunk rcvdMsg, Peer peer) {
-        new ScheduledThreadPoolExecutor(1).schedule(new ChunkSender(rcvdMsg,peer), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+        new ScheduledThreadPoolExecutor(1).schedule(new ChunkSender(rcvdMsg, peer), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
     }
 
     public void handleChunkMsg(Chunk rcvdMsg) throws IOException {
@@ -56,6 +61,7 @@ public class RestoreProtocol extends Protocol {
             String filename = peer.getRestoreDir() + "/" + file.getName();
             FileHandler.restoreFile(filename, chunksMap);
             System.out.println("RESTORE COMPLETE");
+
             //TODO: Stop receiving messages
         }
     }

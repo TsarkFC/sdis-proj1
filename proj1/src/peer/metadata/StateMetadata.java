@@ -5,8 +5,19 @@ import java.util.*;
 
 public class StateMetadata implements Serializable {
 
+    /**
+     * Maps fileId to FileMetadata
+     */
     Map<String, FileMetadata> hostingFileInfo = new HashMap<>();
+
+    /**
+     * Contains information about stored chunks
+     */
     StoredChunksMetadata storedChunksMetadata;
+
+    /**
+     * Path where metadata will be saved
+     */
     String path;
 
     public StateMetadata(String path) {
@@ -27,12 +38,20 @@ public class StateMetadata implements Serializable {
         writeMetadata();
     }
 
-    public void deleteFile(String fileId) throws IOException {
-        if (!hostingFileInfo.containsKey(fileId)) {
-            System.out.println("Cannot delete File from Metadata");
-        } else {
-            hostingFileInfo.remove(fileId);
+    public boolean hasFile(String fileId) {
+        return hostingFileInfo.containsKey(fileId);
+    }
+
+    public String getFileIdFromPath(String pathName) {
+        for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
+            if (entry.getValue().getPathname().equals(pathName)) return entry.getKey();
         }
+        return null;
+    }
+
+    public void deleteFile(String fileId) throws IOException {
+        hostingFileInfo.remove(fileId);
+        storedChunksMetadata.deleteChunksFromFile(fileId);
         writeMetadata();
     }
 
@@ -62,10 +81,6 @@ public class StateMetadata implements Serializable {
             if (entry.getValue().size() < repDgr) return false;
         }
         return chunksCount == numOfChunks;
-    }
-
-    public void deleteChunksFile(List<Integer> chunksNums, String fileID) {
-        storedChunksMetadata.deleteChunksFile(chunksNums, fileID);
     }
 
     private void writeMetadata() throws IOException {

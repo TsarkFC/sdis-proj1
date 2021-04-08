@@ -30,7 +30,7 @@ public class ChunkSender implements Runnable {
         Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), chunk);
         msgs.add(msg.getBytes());
         System.out.println("Recovered chunk from: " + msg.getSenderId());
-        //TODO: wait random delay between 0-400 ms
+
         AddressList addrList = peer.getPeerArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
     }

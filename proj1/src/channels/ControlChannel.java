@@ -27,11 +27,13 @@ public class ControlChannel extends Channel {
 
     public void parseMsg(String msgString) throws IOException {
         String msgType = Message.getTypeStatic(msgString);
-        if (msgType.equals("STORED")) handleBackup(msgString);
-        else if (msgType.equals("DELETE")) handleDelete(msgString);
-        else if (msgType.equals("GETCHUNK")) handleRestore(msgString);
-        else if (msgType.equals("REMOVED")) handleReclaim(msgString);
-        else System.out.println("\nERROR NOT PARSING THAT MESSAGE " + msgType);
+        switch (msgType) {
+            case "STORED" -> handleBackup(msgString);
+            case "DELETE" -> handleDelete(msgString);
+            case "GETCHUNK" -> handleRestore(msgString);
+            case "REMOVED" -> handleReclaim(msgString);
+            default -> System.out.println("\nERROR NOT PARSING THAT MESSAGE " + msgType);
+        }
     }
 
     public void handleBackup(String msgString) throws IOException {
@@ -40,14 +42,11 @@ public class ControlChannel extends Channel {
         peer.getPeerMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
     }
 
-    public void handleDelete(String msgString) {
+    public void handleDelete(String msgString) throws IOException {
         System.out.println("Control Channel received Delete Msg: " + msgString);
         Delete msg = new Delete(msgString);
-        List<Integer> storedChunkNumbers = FileHandler.getChunkNoStored(msg.getFileId(), peer.getFileSystem());
         FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
-
-        assert storedChunkNumbers != null;
-        peer.getPeerMetadata().deleteChunksFile(storedChunkNumbers, msg.getFileId());
+        peer.getPeerMetadata().deleteFile(msg.getFileId());
     }
 
     public void handleRestore(String msgString) {
