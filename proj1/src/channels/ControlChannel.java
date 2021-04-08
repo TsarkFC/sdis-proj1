@@ -80,7 +80,8 @@ public class ControlChannel extends Channel {
                 String path = FileHandler.getFilePath(peer.getFileSystem(),removed.getFileId(),removed.getChunkNo());
                 System.out.println("Initiating backup protocol of path: " + path);
                 System.out.println();
-                //TODO
+                //TODO Ver se o peer tem espaço suficiente
+                //TODO fazer cena de putchunk
                 //TODO Como impedir que o que fez backup inicialmente guarde o ficheiro
                 //TODO o percevied é 0
                 BackupProtocol backupProtocol = new BackupProtocol(path,peer,chunkMetadata.getRepDgr());
