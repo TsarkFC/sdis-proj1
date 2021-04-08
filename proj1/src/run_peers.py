@@ -23,20 +23,19 @@ def handler(signal_received, frame):
     os._exit(0)
 
 def peer(i):
-	cmd = "java peer/Peer " + protocol_version + " " + str(i) + " access" + str(i) + " " + mc_addr[0] + " " + mc_addr[1] + " " + mdb_addr[0] + " " + mdb_addr[1] + " " + mdr_addr[0] + " " + mdr_addr[1]
+	cmd = "../../scripts/peer.sh " + protocol_version + " " + str(i) + " access" + str(i) + " " + mc_addr[0] + " " + mc_addr[1] + " " + mdb_addr[0] + " " + mdb_addr[1] + " " + mdr_addr[0] + " " + mdr_addr[1]
 	print(cmd)
-	if(redirect): redirect_to = " > output/peer" + str(i) + ".out"
-	else: redirect_to =""
-	subprocess.run(cmd + redirect_to , shell=True)
+	if (redirect): cmd += " > output/peer" + str(i) + ".out"
+	subprocess.Popen(cmd, shell=True, cwd="build")
 	os._exit(0)
 
 def start():
 	signal(SIGINT, handler)
-	subprocess.run(["fuser", "-k", "1099/tcp"])
-	subprocess.run("rmiregistry &", shell=True)
-	subprocess.run('find . -type f -name "*.class" -delete', shell=True)
-	#subprocess.run('rm -r filesystem', shell=True)
-	subprocess.run(["javac", "peer/Peer.java"])
+	subprocess.run("fuser -k 1099/tcp", shell=True)
+	subprocess.Popen("rmiregistry &", shell=True, cwd="build")
+	subprocess.run("../scripts/compile.sh", shell=True)
+	subprocess.Popen("rm -r output", shell=True, cwd="build")
+	subprocess.Popen("mkdir output", shell=True, cwd="build")
 
 	for i in range(peers_num):
 		newpid = os.fork()

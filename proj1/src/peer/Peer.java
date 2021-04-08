@@ -2,21 +2,16 @@ package peer;
 
 import channels.ChannelCoordinator;
 import peer.metadata.StateMetadata;
-import peer.metadata.StoredChunksMetadata;
 import protocol.*;
-import utils.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 //java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
@@ -50,7 +45,7 @@ public class Peer implements RemoteObject {
             peer.createChannels();
 
         } catch (Exception e) {
-            System.out.println("Peer name already taken");
+            System.out.println("Error creating peer and connecting to RMI: " + e);
         }
     }
 
@@ -64,7 +59,7 @@ public class Peer implements RemoteObject {
     }
 
     public void startFileSystem() throws IOException {
-        fileSystem = "filesystem/" + peerArgs.getPeerId();
+        fileSystem = "../filesystem/" + peerArgs.getPeerId();
         filesDir = fileSystem + "/files";
         restoreDir = fileSystem + "/restored";
         Files.createDirectories(Paths.get(filesDir));

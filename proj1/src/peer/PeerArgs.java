@@ -56,6 +56,6 @@ public class PeerArgs {
         MulticastAddress mdbAddr = new MulticastAddress(args[MDB_ADDR], Integer.parseInt(args[MDB_PORT]));
         MulticastAddress mdrAddr = new MulticastAddress(args[MDR_ADDR], Integer.parseInt(args[MDR_PORT]));
         addressList = new AddressList(mcAddr, mdbAddr, mdrAddr);
-        metadataPath = "filesystem/" + peerId + "/metadata";
+        metadataPath = "../filesystem/" + peerId + "/metadata";
     }
 }
