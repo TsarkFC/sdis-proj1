@@ -22,35 +22,13 @@ import java.util.concurrent.Future;
 
 public class FileHandler {
     private final File file;
-    private AsynchronousFileChannel fileChannel;
     private static final int CHUNK_SIZE = 64000;
 
     public FileHandler(File file) {
         this.file = file;
-        try {
-            fileChannel = AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public File createFileFromBytes(byte[] chunk, String name, int counter) {
-        //Substituir por SHA
-        File newFile = new File(file.getParent(), name + "."
-                + String.format("%03d", counter++));
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(newFile);
-            fos.write(chunk);
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return newFile;
     }
 
     public static File getFile(String path) {
-        System.out.println(path);
         if (Files.exists(Paths.get(path))) {
             File file = new File(path);
             if (file.exists() && file.canRead()) return file;
@@ -77,15 +55,6 @@ public class FileHandler {
         return sb.toString();
     }
 
-    // filesystem
-    //   peer1
-    //       file1
-    //           chunk1
-    //           chunk2
-    //       file2
-    //           chunk1
-    //           chunk2
-    //   peer2
     public static String getFilePath(String peerDir, Message message) {
         return peerDir.concat("/" + message.getFileId() + "/");
     }
@@ -94,25 +63,54 @@ public class FileHandler {
         return peerDir.concat("/" + fileId + "/");
     }
 
-    public static String getFilePath(String peerDir, String fileId, int chunkNo) {
+    public static String getChunkPath(String peerDir, String fileId, int chunkNo) {
         return peerDir.concat("/" + fileId + "/" + chunkNo);
     }
 
+    //TODO: asynchronousfilechannel
     public static void saveChunk(PutChunk message, String peerDir) {
         // create directory if it does not exist
         String dirPath = getFilePath(peerDir, message);
         File dir = new File(dirPath);
         if (!dir.exists()) dir.mkdir();
 
+        File chunk = new File(dirPath + message.getChunkNo());
+
         // write message body to file
-        File file = new File(dirPath + message.getChunkNo());
+        /*
         try (FileOutputStream stream = new FileOutputStream(file)) {
             stream.write(message.getBody());
         } catch (IOException e) {
             e.printStackTrace();
+        }*/
+
+        ByteBuffer buffer = ByteBuffer.allocate(CHUNK_SIZE);
+        buffer.put(message.getBody());
+        buffer.rewind();
+
+        AsynchronousFileChannel writeFileChannel = null;
+        try {
+            writeFileChannel = AsynchronousFileChannel.open(chunk.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        System.out.println("WRITING...");
+        writeFileChannel.write(buffer, 0, buffer, new CompletionHandler<>() {
+            @Override
+            public void completed(Integer result, ByteBuffer attachment) {
+                System.out.println("Total bytes written: " + result);
+            }
+
+            @Override
+            public void failed(Throwable ex, ByteBuffer attachment) {
+                System.out.println("Write operation failed: " + ex.getMessage());
+            }
+        });
     }
 
+
+    //TODO: asynchronousfilechannel
     public static void restoreFile(String path, Map<Integer, byte[]> content) throws IOException {
         File file = new File(path);
         FileOutputStream stream = new FileOutputStream(file);
@@ -123,7 +121,9 @@ public class FileHandler {
         }
     }
 
-    public static byte[] restoreChunk(GetChunk message, String peerDir) {
+
+    //TODO: asynchronousfilechannel
+    public static byte[] getChunk(GetChunk message, String peerDir) {
         String chunkPath = getFilePath(peerDir, message) + message.getChunkNo();
         Path path = Paths.get(chunkPath);
         if (!Files.exists(path)) {
@@ -161,29 +161,6 @@ public class FileHandler {
         }
     }
 
-    public boolean checkFileExists(String path) {
-        File tempFile = new File(path);
-        return tempFile.exists();
-    }
-
-    public static List<Integer> getChunkNoStored(String fileId, String peerDir) {
-        List<Integer> storedChunks = new ArrayList<>();
-        String dirPath = getFilePath(peerDir, fileId);
-        File folder = new File(dirPath);
-        if (!folder.exists()) {
-            System.out.println("Tried to see stored Chunks but file folder does not exist");
-            return null;
-        }
-        File[] allContents = folder.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                storedChunks.add(Integer.parseInt(file.getName()));
-            }
-            return storedChunks;
-        }
-        return null;
-    }
-
     public static File[] getFolderFiles(String peerDir) {
         File folder = new File(peerDir);
         if (!folder.exists()) {
@@ -193,12 +170,11 @@ public class FileHandler {
         return folder.listFiles();
     }
 
-    public static void reclaimDiskSpace(double maxDiskSpace, double currentSize, String peerDir) {
-
+    public static double getFolderKbSize(String dirPath) {
+        return FileHandler.getFolderSize(dirPath) / 1000.0;
     }
 
     private static double getFolderSize(String dirPath) {
-
         File folder = new File(dirPath);
         float length = 0;
         File[] files = folder.listFiles();
@@ -211,10 +187,6 @@ public class FileHandler {
             }
         }
         return length;
-    }
-
-    public static double getFolderKbSize(String dirPath) {
-        return FileHandler.getFolderSize(dirPath) / 1000.0;
     }
 
     static boolean deleteDirectory(File directoryToBeDeleted) {
@@ -231,14 +203,22 @@ public class FileHandler {
         ConcurrentHashMap<Integer, byte[]> chunks = new ConcurrentHashMap<>();
 
         for (int chunkNo = 0; chunkNo < getNumberOfChunks(); chunkNo++) {
-            asyncRead(chunks, chunkNo);
+            asyncChunkRead(chunks, chunkNo);
         }
         return chunks;
     }
 
-    private void asyncRead(ConcurrentHashMap<Integer, byte[]> chunks, int chunkNo) {
+    private void asyncChunkRead(ConcurrentHashMap<Integer, byte[]> chunks, int chunkNo) {
         ByteBuffer buffer = ByteBuffer.allocate(CHUNK_SIZE);
-        fileChannel.read(buffer, (long) chunkNo * CHUNK_SIZE, buffer, new CompletionHandler<>() {
+        AsynchronousFileChannel readFileChannel;
+        try {
+            readFileChannel = AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        readFileChannel.read(buffer, (long) chunkNo * CHUNK_SIZE, buffer, new CompletionHandler<>() {
             @Override
             public void completed(Integer result, ByteBuffer bufferRead) {
                 System.out.println("Number of bytes read: " + result);

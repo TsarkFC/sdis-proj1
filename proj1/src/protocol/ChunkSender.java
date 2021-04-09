@@ -21,15 +21,15 @@ public class ChunkSender implements Runnable {
     }
 
     public void run() {
-        byte[] chunk = FileHandler.restoreChunk(rcvdMsg, peer.getFileSystem());
+        byte[] chunk = FileHandler.getChunk(rcvdMsg, peer.getFileSystem());
         if (chunk == null) {
             System.out.println("Peer does not have chunk " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo() + ", aborting...");
             return;
         }
         List<byte[]> msgs = new ArrayList<>();
-        Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), chunk);
+        Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(),
+                rcvdMsg.getChunkNo(), chunk);
         msgs.add(msg.getBytes());
-        System.out.println("Recovered chunk from: " + msg.getSenderId());
 
         AddressList addrList = peer.getPeerArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);

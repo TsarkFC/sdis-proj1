@@ -6,9 +6,7 @@ import peer.metadata.ChunkMetadata;
 import utils.FileHandler;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class BackupProtocolInitiator implements Runnable {
@@ -30,7 +28,7 @@ public class BackupProtocolInitiator implements Runnable {
     }
 
     public void run() {
-        String path = FileHandler.getFilePath(peer.getFileSystem(),removed.getFileId(),removed.getChunkNo());
+        String path = FileHandler.getChunkPath(peer.getFileSystem(),removed.getFileId(),removed.getChunkNo());
         System.out.println("Initiating backup protocol of path: " + path);
         System.out.println();
         if(!receivedDuringReclaim(removed.getFileId(), removed.getChunkNo())){
