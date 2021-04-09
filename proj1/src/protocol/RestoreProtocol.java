@@ -5,6 +5,7 @@ import messages.GetChunk;
 import peer.Peer;
 import peer.PeerArgs;
 import filehandler.FileHandler;
+import utils.AddressList;
 import utils.ThreadHandler;
 import utils.Utils;
 
@@ -48,7 +49,22 @@ public class RestoreProtocol extends Protocol {
 
     public static void handleGetChunkMsg(GetChunk rcvdMsg, Peer peer) {
         new ScheduledThreadPoolExecutor(1).
-                schedule(new ChunkSender(rcvdMsg, peer), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+                schedule(() -> sendChunk(rcvdMsg, peer), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+    }
+
+    public static void sendChunk(GetChunk rcvdMsg, Peer peer) {
+        byte[] chunk = FileHandler.getChunk(rcvdMsg, peer.getFileSystem());
+        if (chunk == null) {
+            System.out.println("Peer does not have chunk " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo() + ", aborting...");
+            return;
+        }
+        List<byte[]> msgs = new ArrayList<>();
+        Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(),
+                rcvdMsg.getChunkNo(), chunk);
+        msgs.add(msg.getBytes());
+
+        AddressList addrList = peer.getPeerArgs().getAddressList();
+        ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
     }
 
     public void handleChunkMsg(Chunk rcvdMsg) throws IOException {

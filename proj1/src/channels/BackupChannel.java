@@ -36,7 +36,7 @@ public class BackupChannel extends Channel {
 
 
         if (shouldSaveFile(rcvdMsg)) {
-            new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg),
+            new ScheduledThreadPoolExecutor(1).schedule(() -> sendStored(rcvdMsg),
                     Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
         }
     }
@@ -58,46 +58,37 @@ public class BackupChannel extends Channel {
         }
     }
 
+    public void sendStored(PutChunk rcvdMsg) {
+        //if (!alreadyReachedRepDgr(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg())) {
+            System.out.println("Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo());
+            System.out.println("\tFrom " + rcvdMsg.getSenderId());
+            //TODO confirmar que este prevent reclaim deve ser aqui dentro e nao antes
+            preventReclaim(rcvdMsg);
+            FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
+            saveStateMetadata(rcvdMsg);
+            Stored confMsg = new Stored(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
+            sendStoredMsg(confMsg.getBytes());
+        //} else {
+        //    System.out.println("Not backing up because reached perceived rep degree");
+        //}
+    }
 
-    private class ConfirmationSender implements Runnable {
-        PutChunk rcvdMsg;
+    private void sendStoredMsg(byte[] msg) {
+        List<byte[]> msgs = new ArrayList<>();
+        msgs.add(msg);
+        ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), msgs);
+    }
 
-        public ConfirmationSender(PutChunk rcvdMsg) {
-            this.rcvdMsg = rcvdMsg;
+    private void preventReclaim(PutChunk rcvdMsg) {
+        BackupProtocolInitiator backupProtocolInitiator = peer.getChannelCoordinator().getBackupInitiator();
+        if (backupProtocolInitiator != null) {
+            backupProtocolInitiator.setReceivedPutChunk(rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
         }
+    }
 
-        public void run() {
-            //if (!alreadyReachedRepDgr(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg())) {
-                System.out.println("Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo());
-                System.out.println("\tFrom " + rcvdMsg.getSenderId());
-                //TODO confirmar que este prevent reclaim deve ser aqui dentro e nao antes
-                preventReclaim(rcvdMsg);
-                FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
-                saveStateMetadata(rcvdMsg);
-                Stored confMsg = new Stored(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
-                sendConfirmationMc(confMsg.getBytes());
-            //} else {
-            //    System.out.println("Not backing up because reached perceived rep degree");
-            //}
-        }
-
-        private void sendConfirmationMc(byte[] msg) {
-            List<byte[]> msgs = new ArrayList<>();
-            msgs.add(msg);
-            ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), msgs);
-        }
-
-        private void preventReclaim(PutChunk rcvdMsg) {
-            BackupProtocolInitiator backupProtocolInitiator = peer.getChannelCoordinator().getBackupInitiator();
-            if (backupProtocolInitiator != null) {
-                backupProtocolInitiator.setReceivedPutChunk(rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
-            }
-        }
-
-        private boolean alreadyReachedRepDgr(String fileId, int chunkNo, int repDgr) {
-            int stored = peer.getPeerMetadata().getStoredChunksMetadata().getStoredCount(fileId, chunkNo);
-            System.out.println("REP DGR: " + repDgr + " PERCEIVED: " + stored);
-            return stored >= repDgr;
-        }
+    private boolean alreadyReachedRepDgr(String fileId, int chunkNo, int repDgr) {
+        int stored = peer.getPeerMetadata().getStoredChunksMetadata().getStoredCount(fileId, chunkNo);
+        System.out.println("REP DGR: " + repDgr + " PERCEIVED: " + stored);
+        return stored >= repDgr;
     }
 }
