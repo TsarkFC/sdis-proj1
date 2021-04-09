@@ -43,6 +43,7 @@ public class ControlChannel extends Channel {
         System.out.println("Control Channel received Stored Msg: " + msgString);
         Stored msg = new Stored(msgString);
         peer.getPeerMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+        System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getPeerMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
     }
 
     public void handleDelete(String msgString) throws IOException {
@@ -76,7 +77,6 @@ public class ControlChannel extends Channel {
             //If this count drops below the desired replication degree of that chunk, it shall initiate
             // the chunk backup subProtocol between 0 and 400 ms
             if(chunkMetadata.getPerceivedRepDgr() < chunkMetadata.getRepDgr()){
-                System.out.println("Perceived Rep Dgr < Desired Rep Degree");
                 BackupProtocolInitiator backupProtocolInitiator = new BackupProtocolInitiator(removed,chunkMetadata,peer);
                 peer.getChannelCoordinator().setBackupInitiator(backupProtocolInitiator);
                 new ScheduledThreadPoolExecutor(1).schedule(backupProtocolInitiator,

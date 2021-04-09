@@ -3,11 +3,12 @@ package channels;
 import peer.Peer;
 import protocol.BackupProtocolInitiator;
 import utils.AddressList;
+import utils.FileHandler;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.*;
 
 public class ChannelCoordinator {
     private boolean mcReceiving = true;
@@ -17,7 +18,8 @@ public class ChannelCoordinator {
     private RestoreChannel restoreChannel;
     private Peer peer;
     private BackupProtocolInitiator backupInitiator;
-
+    private ConcurrentHashMap<String,Integer> receivedStoredMsg = new ConcurrentHashMap<>();
+;
     public ChannelCoordinator( Peer peer){
         this.peer = peer;
         AddressList addressList = peer.getPeerArgs().getAddressList();
@@ -54,4 +56,6 @@ public class ChannelCoordinator {
     public void setBackupInitiator(BackupProtocolInitiator backupInitiator) {
         this.backupInitiator = backupInitiator;
     }
+
+
 }
