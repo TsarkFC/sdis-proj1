@@ -2,12 +2,13 @@ package peer.metadata;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileMetadata implements Serializable {
     private final String pathname;
     private final String id;
     private final int repDgr;
-    private Map<Integer, List<Integer>> chunksData = new HashMap<>();
+    private ConcurrentHashMap<Integer, List<Integer>> chunksData = new ConcurrentHashMap<>();
 
     public FileMetadata(String pathname, String id, int repDgr) {
         this.pathname = pathname;

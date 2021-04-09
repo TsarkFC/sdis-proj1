@@ -2,13 +2,14 @@ package peer.metadata;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StateMetadata implements Serializable {
 
     /**
      * Maps fileId to FileMetadata
      */
-    Map<String, FileMetadata> hostingFileInfo = new HashMap<>();
+    ConcurrentHashMap<String, FileMetadata> hostingFileInfo = new ConcurrentHashMap<>();
 
     /**
      * Contains information about stored chunks
