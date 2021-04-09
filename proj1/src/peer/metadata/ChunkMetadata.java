@@ -1,12 +1,13 @@
 package peer.metadata;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChunkMetadata implements Serializable {
-    private final int sizeKb;
-    private final String id;
-    private final int repDgr;
+    private int sizeKb;
+    private String id;
+    private int repDgr;
     private List<Integer> peerIds;
 
     public ChunkMetadata(int sizeKb, String id, int repDgr, List<Integer> peerIds) {
@@ -14,6 +15,13 @@ public class ChunkMetadata implements Serializable {
         this.id = id;
         this.repDgr = repDgr;
         this.peerIds = peerIds;
+    }
+
+    public ChunkMetadata(){
+        sizeKb = 0;
+        id = "";
+        repDgr = 0;
+        peerIds = new ArrayList<>();
     }
 
     public String getString() {
@@ -35,6 +43,11 @@ public class ChunkMetadata implements Serializable {
     public int getPerceivedRepDgr() {
         return peerIds.size();
     }
+    public List<Integer> getPeerIds() { return peerIds; }
+
+    public boolean biggerThanDesiredRep(){
+        return getPerceivedRepDgr() > getRepDgr();
+    }
 
     public void addPeer(Integer peerId) {
         if (!peerIds.contains(peerId))
@@ -46,4 +59,5 @@ public class ChunkMetadata implements Serializable {
             peerIds.remove(peerId);
         }
     }
+
 }

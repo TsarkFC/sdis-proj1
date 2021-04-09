@@ -202,7 +202,6 @@ public class FileHandler {
         File folder = new File(dirPath);
         float length = 0;
         File[] files = folder.listFiles();
-        int count = files.length;
 
         for (File value : files) {
             if (value.isFile()) {

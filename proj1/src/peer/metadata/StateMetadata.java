@@ -1,5 +1,7 @@
 package peer.metadata;
 
+import utils.FileHandler;
+
 import java.io.*;
 import java.util.*;
 
@@ -19,6 +21,11 @@ public class StateMetadata implements Serializable {
      * Path where metadata will be saved
      */
     String path;
+
+    /**
+     * Max space the peer can store
+     */
+    double maxSpace = -1;
 
     public StateMetadata(String path) {
         this.path = path;
@@ -41,6 +48,13 @@ public class StateMetadata implements Serializable {
     public boolean hasFile(String fileId) {
         return hostingFileInfo.containsKey(fileId);
     }
+
+    public boolean hasChunk(String fileId,int chunkNo) {
+        String chunkID = storedChunksMetadata.getChunkId(fileId,chunkNo);
+        return storedChunksMetadata.getChunksInfo().containsKey(chunkID);
+    }
+
+
 
     public String getFileIdFromPath(String pathName) {
         for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
@@ -68,8 +82,9 @@ public class StateMetadata implements Serializable {
         writeMetadata();
     }
 
-    public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Integer chunkSize, Integer peerId) throws IOException {
-        storedChunksMetadata.updateChunkInfo(fileId, chunkNo, repDgr, chunkSize, peerId);
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Double chunkSize, Integer peerId) throws IOException {
+        int chunkSizeKb = (int) Math.round(chunkSize);
+        storedChunksMetadata.updateChunkInfo(fileId, chunkNo, repDgr, chunkSizeKb, peerId);
         writeMetadata();
     }
 
@@ -128,16 +143,27 @@ public class StateMetadata implements Serializable {
         return state.toString();
     }
 
+    public void setMaxSpace(double maxSpace){
+        this.maxSpace= maxSpace;
+    }
+    public double getMaxSpace(){return maxSpace;}
+
+    public boolean hasSpace(double newFileSizeKb){
+        int storedSize = storedChunksMetadata.getStoredSize();
+        double finalSpace = storedSize+newFileSizeKb;
+        if(maxSpace==-1) return true;
+        return maxSpace > finalSpace;
+    }
+
     public void printState(){
         System.out.println("\n********************************************");
         System.out.println("************* State Metadata  **************");
+        System.out.println("Max space: " + maxSpace);
         for (String fileId : hostingFileInfo.keySet()) {
             FileMetadata fileMeta = hostingFileInfo.get(fileId);
             System.out.println("File:");
             System.out.println(String.format("\tPathname: %s\n\tID: %s\n\tReplication Degree: %d\n",
                     fileMeta.getPathname(),fileMeta.getId(),fileMeta.getRepDgr()));
-
-            //System.out.println(String.format("\t\tID: "));
         }
         System.out.println("\tSaved Chunks:");
         for (ChunkMetadata chunkMetadata : storedChunksMetadata.getChunksInfo().values()){

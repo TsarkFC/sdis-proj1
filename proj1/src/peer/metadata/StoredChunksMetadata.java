@@ -21,10 +21,17 @@ public class StoredChunksMetadata implements Serializable {
      */
     public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId) {
         String chunkId = getChunkId(fileId, chunkNo);
+        ChunkMetadata chunk;
+
         if (chunksInfo.containsKey(chunkId)) {
-            ChunkMetadata chunk = chunksInfo.get(chunkId);
-            chunk.addPeer(peerId);
+            chunk = chunksInfo.get(chunkId);
+        }else{
+            //TODO
+            chunk = new ChunkMetadata();
+            chunksInfo.put(chunkId,chunk);
         }
+        chunk.addPeer(peerId);
+
     }
 
     /**
@@ -36,9 +43,15 @@ public class StoredChunksMetadata implements Serializable {
             List<Integer> peerIds = new ArrayList<>();
             peerIds.add(peerId);
             chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
-        } else {
-            ChunkMetadata chunk = chunksInfo.get(chunkId);
-            chunk.addPeer(peerId);
+        } else{
+            ChunkMetadata chunkMetadata = chunksInfo.get(chunkId);
+            if(chunkId==""){
+                List<Integer> peerIds = chunkMetadata.getPeerIds();
+                chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
+            }else{
+                ChunkMetadata chunk = chunksInfo.get(chunkId);
+                chunk.addPeer(peerId);
+            }
         }
     }
 
@@ -64,7 +77,7 @@ public class StoredChunksMetadata implements Serializable {
     }
 
     public Integer getStoredCount(String fileId, Integer chunkNo) {
-        String chunkId = fileId + "-" + chunkNo;
+        String chunkId = getChunkId(fileId, chunkNo);
         if (!chunksInfo.containsKey(chunkId)) {
             return 0;
         } else {
@@ -105,6 +118,14 @@ public class StoredChunksMetadata implements Serializable {
                     chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
         }
         return state.toString();
+    }
+
+    public int getStoredSize(){
+        int size = 0;
+        for (ChunkMetadata chunkMetadata : chunksInfo.values()){
+            size+=chunkMetadata.getSizeKb();
+        }
+        return size;
     }
 
     public Map<String, ChunkMetadata> getChunksInfo() {

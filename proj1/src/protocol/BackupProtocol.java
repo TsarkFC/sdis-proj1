@@ -82,17 +82,12 @@ public class BackupProtocol extends Protocol {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 
-        //Tod verify chunk
-        if (peer.getPeerMetadata().hasFile(fileId)) {
+        if (peer.getPeerMetadata().hasChunk(fileId,chunkNo)) {
             System.out.println("File already backed up, aborting...");
             return;
         }
-
-        System.out.println("Deleted previous file");
-
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
         peer.getPeerMetadata().addHostingEntry(fileMetadata);
-
 
         PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
                 chunkNo, repDgr, fileHandler.getChunkFileData());
@@ -110,6 +105,7 @@ public class BackupProtocol extends Protocol {
             System.out.println("Sent message, waiting " + timeWait + " seconds...");
         } else {
             System.out.println("Reached resending limit of PUTCHUNK messages!");
+            System.out.println("ERROR: Failed to  Back up file...");
         }
     }
 
