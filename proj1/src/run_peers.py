@@ -32,9 +32,15 @@ def peer(i):
 def start():
 	signal(SIGINT, handler)
 	subprocess.run("fuser -k 1099/tcp", shell=True)
+
+	if not os.path.exists("build"):
+		subprocess.run("mkdir build", shell=True)
+
 	subprocess.Popen("rmiregistry &", shell=True, cwd="build")
 	subprocess.run("../scripts/compile.sh", shell=True)
-	subprocess.Popen("rm -r output", shell=True, cwd="build")
+
+	if os.path.exists("build/output"):
+		subprocess.Popen("rm -r output", shell=True, cwd="build")
 	subprocess.Popen("mkdir output", shell=True, cwd="build")
 
 	for i in range(peers_num):

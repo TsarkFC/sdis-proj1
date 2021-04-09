@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 public class BackupChannel extends Channel {
 
+    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+
     public BackupChannel(AddressList addressList, Peer peer) {
         super(addressList, peer);
         super.currentAddr = addressList.getMdbAddr();
@@ -38,7 +40,7 @@ public class BackupChannel extends Channel {
             saveStateMetadata(rcvdMsg);
 
             //If parse correctly, send stored msg to MC channel
-            new ScheduledThreadPoolExecutor(1).schedule(new ConfirmationSender(rcvdMsg),
+            executor.schedule(new ConfirmationSender(rcvdMsg),
                     Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
         }
     }

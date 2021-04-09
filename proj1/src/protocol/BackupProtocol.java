@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,7 @@ public class BackupProtocol extends Protocol {
         super(file, peer);
         this.repDgr = repDgr;
     }
+
     public BackupProtocol(String path, Peer peer, int repDgr) {
         super(path, peer);
         this.repDgr = repDgr;
@@ -39,7 +41,7 @@ public class BackupProtocol extends Protocol {
     public void initialize() throws IOException {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
-        List<byte[]> chunks = fileHandler.splitFile();
+        ConcurrentHashMap<Integer, byte[]> chunks = fileHandler.splitFile();
         fileId = fileHandler.createFileId();
         numOfChunks = chunks.size();
 
@@ -67,18 +69,16 @@ public class BackupProtocol extends Protocol {
         peer.getPeerMetadata().addHostingEntry(fileMetadata);
 
         // message initialization
-        int chunkNo = 0;
-        for (byte[] chunk : chunks) {
+        for (ConcurrentHashMap.Entry<Integer, byte[]> chunk : chunks.entrySet()) {
             PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
-                    chunkNo, repDgr, chunk);
+                    chunk.getKey(), repDgr, chunk.getValue());
             messages.add(backupMsg.getBytes());
-            chunkNo++;
         }
 
         execute();
     }
 
-    public void backupChunk(String fileId,int chunkNo) throws IOException {
+    public void backupChunk(String fileId, int chunkNo) throws IOException {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 

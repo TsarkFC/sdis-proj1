@@ -15,6 +15,7 @@ public abstract class Channel implements Runnable {
     protected Peer peer;
     private final int CR = 0xD;
     private final int LF = 0xA;
+    private final double MAX_SIZE = Math.pow(2, 16);
 
     public AddressList getAddrList() {
         return addrList;
@@ -35,7 +36,7 @@ public abstract class Channel implements Runnable {
             mcastSocket.joinGroup(mcastAddr);
 
             while (true) {
-                byte[] rbuf = new byte[64000];
+                byte[] rbuf = new byte[(int) MAX_SIZE];
                 DatagramPacket packet = new DatagramPacket(rbuf, rbuf.length);
                 mcastSocket.receive(packet);
                 handle(packet);

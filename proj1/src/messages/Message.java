@@ -22,7 +22,7 @@ public abstract class Message {
         tokens = message.split("\\s+", getNumberArguments());
 
         if (!tokens[MSG_TYPE_IDX].equals(getMsgType())) {
-            System.out.println("ERROR: building " + tokens[MSG_TYPE_IDX] + " message with "+ getMsgType() + " constructor!");
+            System.out.println("ERROR: building " + tokens[MSG_TYPE_IDX] + " message with " + getMsgType() + " constructor!");
         }
 
         this.version = Double.parseDouble(tokens[VERSION_IDX]);
@@ -30,7 +30,7 @@ public abstract class Message {
         this.fileId = tokens[FILE_ID_IDX];
     }
 
-    public String getMsgString(){
+    public String getMsgString() {
         return String.format("%s %s %d %s %s", this.version, getMsgType(), this.senderId,
                 this.fileId, getExtraString());
     }
@@ -42,7 +42,7 @@ public abstract class Message {
 
     public abstract int getNumberArguments();
 
-    public void printMsg(){
+    public void printMsg() {
         System.out.println(getMsgType());
         System.out.println("Version: " + this.version);
         System.out.println("Sender ID: " + this.senderId);
@@ -64,7 +64,7 @@ public abstract class Message {
     }
 
     private byte[] getDoubleCRLF() {
-        return new byte[] {(byte) CR, (byte) LF, (byte) CR, (byte) LF};
+        return new byte[]{(byte) CR, (byte) LF, (byte) CR, (byte) LF};
     }
 
     protected byte[] addCRLF(byte[] header) {
@@ -89,12 +89,12 @@ public abstract class Message {
         return msgBytes;
     }
 
-    public static String getTypeStatic(String msg){
+    public static String getTypeStatic(String msg) {
         String[] stringArr = msg.split("\\s+", 4);
         return stringArr[MSG_TYPE_IDX];
     }
 
-    public boolean samePeerAndSender(int peerId){
+    public boolean samePeerAndSender(int peerId) {
         return senderId == peerId;
     }
 }

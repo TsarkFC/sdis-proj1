@@ -5,23 +5,33 @@ import messages.Message;
 import messages.PutChunk;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class FileHandler {
     private final File file;
+    private AsynchronousFileChannel fileChannel;
     private static final int CHUNK_SIZE = 64000;
 
     public FileHandler(File file) {
         this.file = file;
+        try {
+            fileChannel = AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public File createFileFromBytes(byte[] chunk, String name, int counter) {
@@ -106,8 +116,11 @@ public class FileHandler {
     public static void restoreFile(String path, Map<Integer, byte[]> content) throws IOException {
         File file = new File(path);
         FileOutputStream stream = new FileOutputStream(file);
-        for (Map.Entry<Integer, byte[]> entry : content.entrySet())
-            stream.write(entry.getValue());
+        List<Integer> keys = new ArrayList<>(content.keySet());
+        Collections.sort(keys);
+        for (Integer key : keys) {
+            stream.write(content.get(key));
+        }
     }
 
     public static byte[] restoreChunk(GetChunk message, String peerDir) {
@@ -215,36 +228,44 @@ public class FileHandler {
         return directoryToBeDeleted.delete();
     }
 
-    public List<byte[]> splitFile() {
-        List<byte[]> chunks = new ArrayList<>();
+    public ConcurrentHashMap<Integer, byte[]> splitFile() {
+        ConcurrentHashMap<Integer, byte[]> chunks = new ConcurrentHashMap<>();
 
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            System.out.println("File size: " + file.length());
-            byte[] chunk = new byte[CHUNK_SIZE];
-
-            int read;
-            while ((read = inputStream.read(chunk)) != -1) {
-                byte[] chunkClone = Arrays.copyOf(chunk, read);
-                chunks.add(chunkClone);
-            }
-        } catch (FileNotFoundException fnfE) {
-            // file not found, handle case
-        } catch (IOException ignored) {
-
+        for (int chunkNo = 0; chunkNo < getNumberOfChunks(); chunkNo++) {
+            asyncRead(chunks, chunkNo);
         }
         return chunks;
     }
 
-    public byte[] getChunkFileData(){
+    private void asyncRead(ConcurrentHashMap<Integer, byte[]> chunks, int chunkNo) {
+        ByteBuffer buffer = ByteBuffer.allocate(CHUNK_SIZE);
+        fileChannel.read(buffer, (long) chunkNo * CHUNK_SIZE, buffer, new CompletionHandler<>() {
+            @Override
+            public void completed(Integer result, ByteBuffer bufferRead) {
+                System.out.println("Number of bytes read: " + result);
+                buffer.rewind();
+                byte[] chunk = new byte[result];
+                buffer.get(chunk);
+                chunks.put(chunkNo, chunk);
+                bufferRead.clear();
+            }
+
+            @Override
+            public void failed(Throwable exc, ByteBuffer attachment) {
+                System.out.println("Read operation failed: " + exc.getMessage());
+
+            }
+        });
+        System.out.println("Waiting for the asynchronous file read operation");
+    }
+
+    public byte[] getChunkFileData() {
         try {
             FileInputStream inputStream = new FileInputStream(file);
             System.out.println("File size: " + file.length());
             byte[] chunk = new byte[CHUNK_SIZE];
             int read = inputStream.read(chunk);
             return Arrays.copyOf(chunk, read);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

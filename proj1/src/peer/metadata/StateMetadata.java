@@ -95,9 +95,7 @@ public class StateMetadata implements Serializable {
             File f = new File(path);
             System.out.println("Name: " + f.getName());
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
-            System.out.println("test1");
             StateMetadata stateMetadata = (StateMetadata) is.readObject();
-            System.out.println("test2");
             is.close();
             return stateMetadata;
         } catch (IOException | ClassNotFoundException e) {
