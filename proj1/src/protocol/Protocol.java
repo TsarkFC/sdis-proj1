@@ -9,13 +9,16 @@ import java.io.IOException;
 public abstract class Protocol {
     protected File file;
     protected Peer peer;
+    protected String path;
 
     public Protocol(File file, Peer peer) {
         this.file = file;
         this.peer = peer;
     }
-    public Protocol(String path,Peer peer){
+
+    public Protocol(String path, Peer peer) {
         this.file = FileHandler.getFile(path);
+        this.path = path;
         this.peer = peer;
     }
 

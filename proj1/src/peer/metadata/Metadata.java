@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class StateMetadata implements Serializable {
+public class Metadata implements Serializable {
 
     /**
      * Maps fileId to FileMetadata
@@ -26,7 +26,7 @@ public class StateMetadata implements Serializable {
      */
     double maxSpace = -1;
 
-    public StateMetadata(String path) {
+    public Metadata(String path) {
         this.path = path;
         storedChunksMetadata = new StoredChunksMetadata();
     }
@@ -45,15 +45,13 @@ public class StateMetadata implements Serializable {
     }
 
     public boolean hasFile(String fileId) {
-        return hostingFileInfo.containsKey(fileId);
+        return hostingFileInfo.size() > 0 && hostingFileInfo.containsKey(fileId);
     }
 
-    public boolean hasChunk(String fileId,int chunkNo) {
-        String chunkID = storedChunksMetadata.getChunkId(fileId,chunkNo);
+    public boolean hasChunk(String fileId, int chunkNo) {
+        String chunkID = storedChunksMetadata.getChunkId(fileId, chunkNo);
         return storedChunksMetadata.getChunksInfo().containsKey(chunkID);
     }
-
-
 
     public String getFileIdFromPath(String pathName) {
         for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
@@ -103,20 +101,17 @@ public class StateMetadata implements Serializable {
         os.close();
     }
 
-    public StateMetadata readMetadata() {
+    public Metadata readMetadata() {
         try {
-            System.out.println("path = " + path);
-            File f = new File(path);
-            System.out.println("Name: " + f.getName());
             ObjectInputStream is = new ObjectInputStream(new FileInputStream(path));
-            StateMetadata stateMetadata = (StateMetadata) is.readObject();
+            Metadata metadata = (Metadata) is.readObject();
             is.close();
-            return stateMetadata;
+            return metadata;
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error: " + e);
             System.out.println("No data to read from peer");
             System.out.println("Creating new one...");
-            return new StateMetadata(path);
+            return new Metadata(path);
         }
     }
 
@@ -136,25 +131,29 @@ public class StateMetadata implements Serializable {
             }
         }
 
+        state.append("\n\n[STORED]\n");
         // stored chunks data
         state.append(storedChunksMetadata.returnData());
 
         return state.toString();
     }
 
-    public void setMaxSpace(double maxSpace){
-        this.maxSpace= maxSpace;
+    public void setMaxSpace(double maxSpace) {
+        this.maxSpace = maxSpace;
     }
-    public double getMaxSpace(){return maxSpace;}
 
-    public boolean hasSpace(double newFileSizeKb){
+    public double getMaxSpace() {
+        return maxSpace;
+    }
+
+    public boolean hasSpace(double newFileSizeKb) {
         int storedSize = storedChunksMetadata.getStoredSize();
-        double finalSpace = storedSize+newFileSizeKb;
-        if(maxSpace==-1) return true;
+        double finalSpace = storedSize + newFileSizeKb;
+        if (maxSpace == -1) return true;
         return maxSpace > finalSpace;
     }
 
-    public void printState(){
+    public void printState() {
         System.out.println("\n********************************************");
         System.out.println("************* State Metadata  **************");
         System.out.println("Max space: " + maxSpace);
@@ -162,10 +161,10 @@ public class StateMetadata implements Serializable {
             FileMetadata fileMeta = hostingFileInfo.get(fileId);
             System.out.println("File:");
             System.out.println(String.format("\tPathname: %s\n\tID: %s\n\tReplication Degree: %d\n",
-                    fileMeta.getPathname(),fileMeta.getId(),fileMeta.getRepDgr()));
+                    fileMeta.getPathname(), fileMeta.getId(), fileMeta.getRepDgr()));
         }
         System.out.println("\tSaved Chunks:");
-        for (ChunkMetadata chunkMetadata : storedChunksMetadata.getChunksInfo().values()){
+        for (ChunkMetadata chunkMetadata : storedChunksMetadata.getChunksInfo().values()) {
             System.out.println("\t\tID: " + chunkMetadata.getId());
             System.out.println("\t\tSize: " + chunkMetadata.getSizeKb());
             System.out.println("\t\tDesired Rep: " + chunkMetadata.getRepDgr());
@@ -173,8 +172,6 @@ public class StateMetadata implements Serializable {
             System.out.println();
         }
     }
-
-
 
     public String getPath() {
         return path;
@@ -186,6 +183,10 @@ public class StateMetadata implements Serializable {
 
     public StoredChunksMetadata getStoredChunksMetadata() {
         return storedChunksMetadata;
+    }
+
+    public int getFileSize(String fileId) {
+        return hostingFileInfo.get(fileId).getSize();
     }
 
 }

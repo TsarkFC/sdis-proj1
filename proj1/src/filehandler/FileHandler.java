@@ -18,11 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FileHandler {
     private final File file;
     public static final int CHUNK_SIZE = 64000;
-    private FileReader fileReader;
+    private final FileReader fileReader;
 
     public FileHandler(File file) {
         this.file = file;
-        fileReader = new FileReader(file, getNumberOfChunks());
+        System.out.println("file.getName() = " + file.getName());
+        System.out.println("file.length() = " + file.length());
+        fileReader = new FileReader(file, getNumberOfChunks((int)file.length()));
     }
 
     public static File getFile(String path) {
@@ -30,6 +32,7 @@ public class FileHandler {
             File file = new File(path);
             if (file.exists() && file.canRead()) return file;
         }
+        System.out.println(path + " does not exist!");
         return null;
     }
 
@@ -138,8 +141,7 @@ public class FileHandler {
         return null;
     }
 
-    public int getNumberOfChunks() {
-        int size = (int) file.length();
+    public static int getNumberOfChunks(int size) {
         if (size % CHUNK_SIZE == 0)
             return size / CHUNK_SIZE;
         return size / CHUNK_SIZE + 1;

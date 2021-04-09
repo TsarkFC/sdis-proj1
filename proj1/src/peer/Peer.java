@@ -1,7 +1,7 @@
 package peer;
 
 import channels.ChannelCoordinator;
-import peer.metadata.StateMetadata;
+import peer.metadata.Metadata;
 import protocol.*;
 
 import java.io.File;
@@ -18,7 +18,7 @@ public class Peer implements RemoteObject {
 
     private ChannelCoordinator channelCoordinator;
     private PeerArgs peerArgs;
-    private StateMetadata stateMetadata;
+    private Metadata metadata;
     private String fileSystem;
     private Protocol protocol;
     private String restoreDir;
@@ -50,7 +50,7 @@ public class Peer implements RemoteObject {
     }
 
     public void createMetadata() {
-        StateMetadata metadata = new StateMetadata(this.getPeerArgs().getMetadataPath());
+        Metadata metadata = new Metadata(this.getPeerArgs().getMetadataPath());
         this.setPeerMetadata(metadata.readMetadata());
     }
 
@@ -75,24 +75,24 @@ public class Peer implements RemoteObject {
     }
 
     @Override
-    public String restore(File file) throws IOException {
+    public String restore(String path) throws IOException {
         System.out.println("Initiator peer received Restore");
-        this.protocol = new RestoreProtocol(file, this);
+        this.protocol = new RestoreProtocol(path, this);
         this.protocol.initialize();
         return null;
     }
 
     @Override
-    public String delete(File file) throws IOException, InterruptedException {
+    public String delete(String path) throws IOException, InterruptedException {
         System.out.println("Initiator peer received Delete");
-        this.protocol = new DeleteProtocol(file, this);
+        this.protocol = new DeleteProtocol(path, this);
         this.protocol.initialize();
         return null;
     }
 
     @Override
     public String state() throws RemoteException {
-        return stateMetadata.returnState();
+        return metadata.returnState();
     }
 
     @Override
@@ -111,12 +111,12 @@ public class Peer implements RemoteObject {
         return protocol;
     }
 
-    public StateMetadata getPeerMetadata() {
-        return stateMetadata;
+    public Metadata getMetadata() {
+        return metadata;
     }
 
-    public void setPeerMetadata(StateMetadata stateMetadata) {
-        this.stateMetadata = stateMetadata;
+    public void setPeerMetadata(Metadata metadata) {
+        this.metadata = metadata;
     }
 
     public PeerArgs getPeerArgs() {

@@ -55,6 +55,7 @@ public class FileWriter {
         Collections.sort(keys);
 
         for (Integer key : keys) {
+            System.out.println("chunk no: " + key);
             byte[] chunk = content.get(key);
             ByteBuffer buffer = ByteBuffer.allocate(chunk.length);
             buffer.put(chunk);

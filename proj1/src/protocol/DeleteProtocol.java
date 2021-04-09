@@ -3,17 +3,16 @@ package protocol;
 import messages.Delete;
 import peer.Peer;
 import peer.PeerArgs;
-import filehandler.FileHandler;
+import peer.metadata.Metadata;
 import utils.ThreadHandler;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DeleteProtocol extends Protocol {
 
-    public DeleteProtocol(File file, Peer peer) {
-        super(file, peer);
+    public DeleteProtocol(String path, Peer peer) {
+        super(path, peer);
     }
     //Send on the MC Channel
     //A file may be deleted, and it should delete all the chunks of that file
@@ -24,10 +23,10 @@ public class DeleteProtocol extends Protocol {
     public void initialize() {
         PeerArgs peerArgs = peer.getPeerArgs();
         List<byte[]> messages = new ArrayList<>();
-        FileHandler fileHandler = new FileHandler(file);
-        String fileId = fileHandler.createFileId();
+        Metadata metadata = peer.getMetadata();
+        String fileId = metadata.getFileIdFromPath(path);
 
-        if (!peer.getPeerMetadata().hasFile(fileId)) {
+        if (!metadata.hasFile(fileId)) {
             System.out.println("Peer has not hosted BACKUP to file");
             return;
         }

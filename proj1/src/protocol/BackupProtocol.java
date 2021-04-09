@@ -29,6 +29,8 @@ public class BackupProtocol extends Protocol {
     public BackupProtocol(File file, Peer peer, int repDgr) {
         super(file, peer);
         this.repDgr = repDgr;
+        System.out.println("though here");
+        System.out.println(file.getName());
     }
 
     public BackupProtocol(String path, Peer peer, int repDgr) {
@@ -45,13 +47,13 @@ public class BackupProtocol extends Protocol {
         fileId = fileHandler.createFileId();
         numOfChunks = chunks.size();
 
-        if (peer.getPeerMetadata().hasFile(fileId)) {
+        if (peer.getMetadata().hasFile(fileId)) {
             System.out.println("File already backed up, aborting...");
             return;
         }
 
         // Updating a previously backed up file, delete previous one
-        String previousFileId = peer.getPeerMetadata().getFileIdFromPath(file.getPath());
+        String previousFileId = peer.getMetadata().getFileIdFromPath(file.getPath());
         if (previousFileId != null) {
             System.out.println("Running DELETE protocol on previous file version...");
 
@@ -65,8 +67,8 @@ public class BackupProtocol extends Protocol {
 
         System.out.println("Deleted previous file");
 
-        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
-        peer.getPeerMetadata().addHostingEntry(fileMetadata);
+        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
+        peer.getMetadata().addHostingEntry(fileMetadata);
 
         // message initialization
         for (ConcurrentHashMap.Entry<Integer, byte[]> chunk : chunks.entrySet()) {
@@ -91,7 +93,7 @@ public class BackupProtocol extends Protocol {
     }
 
     private void verify() {
-        if (!peer.getPeerMetadata().verifyRepDgr(fileId, repDgr, numOfChunks)) {
+        if (!peer.getMetadata().verifyRepDgr(fileId, repDgr, numOfChunks)) {
             System.out.println("Did not get expected replication degree after " + timeWait + " seconds. Resending...");
             execute();
             reps++;
@@ -105,12 +107,12 @@ public class BackupProtocol extends Protocol {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 
-        if (peer.getPeerMetadata().hasChunk(fileId,chunkNo)) {
+        if (peer.getMetadata().hasChunk(fileId, chunkNo)) {
             System.out.println("File already backed up, aborting...");
             return;
         }
-        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
-        peer.getPeerMetadata().addHostingEntry(fileMetadata);
+        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
+        peer.getMetadata().addHostingEntry(fileMetadata);
 
         PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
                 chunkNo, repDgr, fileHandler.getChunkFileData());

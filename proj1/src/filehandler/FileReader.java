@@ -66,6 +66,7 @@ public class FileReader {
 
     public static byte[] getChunk(GetChunk message, String peerDir) {
         String chunkPath = FileHandler.getFilePath(peerDir, message) + message.getChunkNo();
+        System.out.println("PATH: " + chunkPath);
         Path path = Paths.get(chunkPath);
         if (!Files.exists(path)) {
             return null;

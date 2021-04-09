@@ -42,15 +42,15 @@ public class ControlChannel extends Channel {
     public void handleBackup(String msgString) throws IOException {
         System.out.println("Control Channel received Stored Msg: " + msgString);
         Stored msg = new Stored(msgString);
-        peer.getPeerMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
-        System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getPeerMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
+        peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+        System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
     }
 
     public void handleDelete(String msgString) throws IOException {
         System.out.println("Control Channel received Delete Msg: " + msgString);
         Delete msg = new Delete(msgString);
         FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
-        peer.getPeerMetadata().deleteFile(msg.getFileId());
+        peer.getMetadata().deleteFile(msg.getFileId());
     }
 
     public void handleRestore(String msgString) {
@@ -65,14 +65,14 @@ public class ControlChannel extends Channel {
         //System.out.println(removed.getMsgType() + " " + removed.getFileId() + " " + removed.getChunkNo());
         //A peer that has a local copy of the chunk shall update its local count of this chunk
         //1- Check if chunk is stored
-        peer.getPeerMetadata().printState();
-        StoredChunksMetadata storageMetadata = peer.getPeerMetadata().getStoredChunksMetadata();
+        peer.getMetadata().printState();
+        StoredChunksMetadata storageMetadata = peer.getMetadata().getStoredChunksMetadata();
         int peerId = peer.getPeerArgs().getPeerId();
         if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
             //2- Update local count of its chunk
             ChunkMetadata chunkMetadata = storageMetadata.getChunk(removed.getFileId(), removed.getChunkNo());
             chunkMetadata.removePeer(removed.getSenderId());
-            peer.getPeerMetadata().printState();
+            peer.getMetadata().printState();
 
             //If this count drops below the desired replication degree of that chunk, it shall initiate
             // the chunk backup subProtocol between 0 and 400 ms

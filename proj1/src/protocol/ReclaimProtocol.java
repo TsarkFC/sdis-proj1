@@ -38,7 +38,7 @@ public class ReclaimProtocol extends Protocol {
         List<byte[]> messages = new ArrayList<>();
         System.out.println("Current size: " + currentSize + " Max Size: " + maxDiskSpace);
         File[] fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
-        peer.getPeerMetadata().setMaxSpace(maxDiskSpace);
+        peer.getMetadata().setMaxSpace(maxDiskSpace);
         if (fileFolders != null) {
 
             //TODO primeiro percorrer aqueles com perceived degree > rep degree
@@ -70,7 +70,7 @@ public class ReclaimProtocol extends Protocol {
 
 
     private double reclaimFileSpace(File fileId,double currentSize,List<byte[]> messages, boolean onlyBiggerPercDgr){
-        StoredChunksMetadata storedChunksMetadata = peer.getPeerMetadata().getStoredChunksMetadata();
+        StoredChunksMetadata storedChunksMetadata = peer.getMetadata().getStoredChunksMetadata();
 
 
         //TODO por por replication degree em vez de por ordem alfabetica
