@@ -1,7 +1,5 @@
 package peer.metadata;
 
-import utils.FileHandler;
-
 import java.io.*;
 import java.util.*;
 

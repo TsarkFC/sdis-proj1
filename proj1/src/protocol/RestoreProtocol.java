@@ -4,7 +4,7 @@ import messages.Chunk;
 import messages.GetChunk;
 import peer.Peer;
 import peer.PeerArgs;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.ThreadHandler;
 import utils.Utils;
 
@@ -13,13 +13,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
 public class RestoreProtocol extends Protocol {
-    private final ConcurrentMap<Integer, byte[]> chunksMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, byte[]> chunksMap = new ConcurrentHashMap<>();
     private int chunksNo;
 
     public RestoreProtocol(File file, Peer peer) {

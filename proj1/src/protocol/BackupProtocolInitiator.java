@@ -3,7 +3,7 @@ package protocol;
 import messages.Removed;
 import peer.Peer;
 import peer.metadata.ChunkMetadata;
-import utils.FileHandler;
+import filehandler.FileHandler;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -14,9 +14,9 @@ public class BackupProtocolInitiator implements Runnable {
     private ChunkMetadata chunkMetadata;
     private Peer peer;
     /**
-     * //if during this delay, a peer receives a PUTCHUNK message for the same file chunk,
-     * This map only has the fileId-chunkNo received before the reclaim initiated the protocol
-     * if the chunk that is going to initiate backup is in the map, some peer already initiated the protocol
+     * If during this delay, a peer receives a PUTCHUNK message for the same file chunk,
+     * this map only has the fileId-chunkNo received before the reclaim initiated the protocol
+     * If the chunk that is going to initiate backup is in the map, some peer already initiated the protocol
      */
     Set<String> receivedDuringReclaim = new HashSet<>();
 
@@ -28,13 +28,13 @@ public class BackupProtocolInitiator implements Runnable {
     }
 
     public void run() {
-        String path = FileHandler.getChunkPath(peer.getFileSystem(),removed.getFileId(),removed.getChunkNo());
+        String path = FileHandler.getChunkPath(peer.getFileSystem(), removed.getFileId(), removed.getChunkNo());
         System.out.println("Initiating backup protocol of path: " + path);
         System.out.println();
-        if(!receivedDuringReclaim(removed.getFileId(), removed.getChunkNo())){
-            BackupProtocol backupProtocol = new BackupProtocol(path,peer,chunkMetadata.getRepDgr());
+        if (!receivedDuringReclaim(removed.getFileId(), removed.getChunkNo())) {
+            BackupProtocol backupProtocol = new BackupProtocol(path, peer, chunkMetadata.getRepDgr());
             try {
-                backupProtocol.backupChunk(removed.getFileId() ,removed.getChunkNo());
+                backupProtocol.backupChunk(removed.getFileId(), removed.getChunkNo());
             } catch (IOException e) {
                 System.out.println("Exception initializing Backup protocol");
                 e.printStackTrace();
@@ -43,11 +43,12 @@ public class BackupProtocolInitiator implements Runnable {
         peer.getChannelCoordinator().setBackupInitiator(null);
 
     }
-    public void setReceivedPutChunk(String fileId, int chunkNo){
-        receivedDuringReclaim.add(fileId+"-"+chunkNo);
+
+    public void setReceivedPutChunk(String fileId, int chunkNo) {
+        receivedDuringReclaim.add(fileId + "-" + chunkNo);
     }
 
-    public boolean receivedDuringReclaim(String fileId,int chunkNo){
-        return receivedDuringReclaim.contains(fileId+"-"+chunkNo);
+    public boolean receivedDuringReclaim(String fileId, int chunkNo) {
+        return receivedDuringReclaim.contains(fileId + "-" + chunkNo);
     }
 }

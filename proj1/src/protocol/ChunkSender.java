@@ -4,7 +4,7 @@ import messages.Chunk;
 import messages.GetChunk;
 import peer.Peer;
 import utils.AddressList;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.ThreadHandler;
 
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import java.util.List;
 public class ChunkSender implements Runnable {
     GetChunk rcvdMsg;
     Peer peer;
-
 
     public ChunkSender(GetChunk rcvdMsg, Peer peer) {
         this.rcvdMsg = rcvdMsg;

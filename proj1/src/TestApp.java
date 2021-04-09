@@ -1,12 +1,9 @@
 import peer.RemoteObject;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.SubProtocol;
 
 import java.io.*;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 

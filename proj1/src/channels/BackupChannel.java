@@ -5,7 +5,7 @@ import messages.Stored;
 import peer.Peer;
 import protocol.BackupProtocolInitiator;
 import utils.AddressList;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.ThreadHandler;
 import utils.Utils;
 
@@ -70,7 +70,7 @@ public class BackupChannel extends Channel {
         }
 
         public void run() {
-            if (!alreadyReachedRepDgr(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg())) {
+            //if (!alreadyReachedRepDgr(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg())) {
                 System.out.println("Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo());
                 System.out.println("\tFrom " + rcvdMsg.getSenderId());
                 //TODO confirmar que este prevent reclaim deve ser aqui dentro e nao antes
@@ -79,9 +79,9 @@ public class BackupChannel extends Channel {
                 saveStateMetadata(rcvdMsg);
                 Stored confMsg = new Stored(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
                 sendConfirmationMc(confMsg.getBytes());
-            } else {
-                System.out.println("Not backing up because reached perceived rep degree");
-            }
+            //} else {
+            //    System.out.println("Not backing up because reached perceived rep degree");
+            //}
         }
 
         private void sendConfirmationMc(byte[] msg) {
@@ -99,7 +99,7 @@ public class BackupChannel extends Channel {
 
         private boolean alreadyReachedRepDgr(String fileId, int chunkNo, int repDgr) {
             int stored = peer.getPeerMetadata().getStoredChunksMetadata().getStoredCount(fileId, chunkNo);
-            System.out.println("REP DGR: " + repDgr + " PERCEIVED =" + stored);
+            System.out.println("REP DGR: " + repDgr + " PERCEIVED: " + stored);
             return stored >= repDgr;
         }
     }

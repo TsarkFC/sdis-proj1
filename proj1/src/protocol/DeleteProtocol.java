@@ -3,7 +3,7 @@ package protocol;
 import messages.Delete;
 import peer.Peer;
 import peer.PeerArgs;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.ThreadHandler;
 
 import java.io.File;

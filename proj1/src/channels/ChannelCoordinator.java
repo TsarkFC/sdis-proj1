@@ -3,11 +3,7 @@ package channels;
 import peer.Peer;
 import protocol.BackupProtocolInitiator;
 import utils.AddressList;
-import utils.FileHandler;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.*;
 
 public class ChannelCoordinator {

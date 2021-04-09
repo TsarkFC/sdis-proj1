@@ -7,7 +7,7 @@ import peer.metadata.StoredChunksMetadata;
 import protocol.BackupProtocolInitiator;
 import protocol.RestoreProtocol;
 import utils.AddressList;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.Utils;
 
 import java.io.IOException;

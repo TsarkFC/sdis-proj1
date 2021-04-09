@@ -5,7 +5,7 @@ import messages.PutChunk;
 import peer.Peer;
 import peer.PeerArgs;
 import peer.metadata.FileMetadata;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.ThreadHandler;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class BackupProtocol extends Protocol {
     public void initialize() throws IOException {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
-        ConcurrentHashMap<Integer, byte[]> chunks = fileHandler.splitFile();
+        ConcurrentHashMap<Integer, byte[]> chunks = fileHandler.getFileChunks();
         fileId = fileHandler.createFileId();
         numOfChunks = chunks.size();
 
@@ -78,25 +78,6 @@ public class BackupProtocol extends Protocol {
         execute();
     }
 
-    public void backupChunk(String fileId, int chunkNo) throws IOException {
-        messages = new ArrayList<>();
-        FileHandler fileHandler = new FileHandler(file);
-
-        if (peer.getPeerMetadata().hasChunk(fileId,chunkNo)) {
-            System.out.println("File already backed up, aborting...");
-            return;
-        }
-        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
-        peer.getPeerMetadata().addHostingEntry(fileMetadata);
-
-        PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
-                chunkNo, repDgr, fileHandler.getChunkFileData());
-        messages.add(backupMsg.getBytes());
-
-        execute();
-    }
-
-
     private void execute() {
         if (reps <= repsLimit) {
             ThreadHandler.startMulticastThread(peer.getPeerArgs().getAddressList().getMdbAddr().getAddress(),
@@ -118,5 +99,23 @@ public class BackupProtocol extends Protocol {
         } else {
             System.out.println("Got expected replication degree!");
         }
+    }
+
+    public void backupChunk(String fileId, int chunkNo) throws IOException {
+        messages = new ArrayList<>();
+        FileHandler fileHandler = new FileHandler(file);
+
+        if (peer.getPeerMetadata().hasChunk(fileId,chunkNo)) {
+            System.out.println("File already backed up, aborting...");
+            return;
+        }
+        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr);
+        peer.getPeerMetadata().addHostingEntry(fileMetadata);
+
+        PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
+                chunkNo, repDgr, fileHandler.getChunkFileData());
+        messages.add(backupMsg.getBytes());
+
+        execute();
     }
 }
