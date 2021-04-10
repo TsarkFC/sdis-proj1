@@ -178,8 +178,8 @@ public class Metadata implements Serializable {
         return path;
     }
 
-    public Map<String, FileMetadata> getHostingFileInfo() {
-        return hostingFileInfo;
+    public FileMetadata getFileMetadata(String fileId) {
+        return hostingFileInfo.get(fileId);
     }
 
     public StoredChunksMetadata getStoredChunksMetadata() {
