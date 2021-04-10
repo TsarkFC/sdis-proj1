@@ -43,7 +43,7 @@ public class ChunkMetadata implements Serializable {
     public int getPerceivedRepDgr() {
         return peerIds.size();
     }
-    public List<Integer> getPeerIds() { return peerIds; }
+    public List<Integer> getPeerIds() { return peerIds;    }
 
     public boolean biggerThanDesiredRep(){
         return getPerceivedRepDgr() > getRepDgr();

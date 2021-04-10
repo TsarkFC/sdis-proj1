@@ -24,9 +24,11 @@ public class StoredChunksMetadata implements Serializable {
         ChunkMetadata chunk;
 
         if (chunksInfo.containsKey(chunkId)) {
+            System.out.println("CONTAINS KEY");
             chunk = chunksInfo.get(chunkId);
         }else{
             //TODO
+            System.out.println("DOES NOT CONTAIN KEY");
             chunk = new ChunkMetadata();
             chunksInfo.put(chunkId,chunk);
         }

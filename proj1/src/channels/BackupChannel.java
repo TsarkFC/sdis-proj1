@@ -100,6 +100,7 @@ public class BackupChannel extends Channel {
         }
 
         private boolean alreadyReachedRepDgr(String fileId,int chunkNo,int repDgr){
+            if (peer.isVanillaVersion()) return false;
             int stored = peer.getPeerMetadata().getStoredChunksMetadata().getStoredCount(fileId,chunkNo);
             System.out.println("REP DGR: " + repDgr + " PERCEIVED =" + stored);
             if(stored >= repDgr) return true;

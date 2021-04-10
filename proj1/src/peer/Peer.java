@@ -138,4 +138,7 @@ public class Peer implements RemoteObject {
     public void setChannelCoordinator(ChannelCoordinator channelCoordinator) {
         this.channelCoordinator = channelCoordinator;
     }
+    public boolean isVanillaVersion(){
+        return  peerArgs.getVersion() == 1.0;
+    }
 }

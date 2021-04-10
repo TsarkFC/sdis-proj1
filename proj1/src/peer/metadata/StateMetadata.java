@@ -75,8 +75,10 @@ public class StateMetadata implements Serializable {
     public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId) throws IOException {
         FileMetadata hostingMetadata = hostingFileInfo.get(fileId);
         if (hostingMetadata != null) {
+            System.out.println("HOSTING");
             updateHostingInfo(hostingMetadata, chunkNo, peerId);
         } else {
+            System.out.println("UPDATING STORED");
             storedChunksMetadata.updateChunkInfo(fileId, chunkNo, peerId);
         }
         writeMetadata();
