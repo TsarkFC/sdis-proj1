@@ -54,8 +54,8 @@ public class Peer implements RemoteObject {
     }
 
     public void createMetadata() {
-        Metadata metadata = new Metadata(this.getPeerArgs().getMetadataPath());
-        this.setPeerMetadata(metadata.readMetadata());
+        Metadata metadata = new Metadata(this.getArgs().getMetadataPath());
+        this.setMetadata(metadata.readMetadata());
     }
 
     public void createChannels() {
@@ -119,11 +119,11 @@ public class Peer implements RemoteObject {
         return metadata;
     }
 
-    public void setPeerMetadata(Metadata metadata) {
+    public void setMetadata(Metadata metadata) {
         this.metadata = metadata;
     }
 
-    public PeerArgs getPeerArgs() {
+    public PeerArgs getArgs() {
         return peerArgs;
     }
 

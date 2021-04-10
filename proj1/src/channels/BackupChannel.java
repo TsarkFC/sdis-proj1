@@ -42,7 +42,7 @@ public class BackupChannel extends Channel {
     }
 
     private boolean shouldSaveFile(PutChunk rcvdMsg) {
-        boolean sameSenderPeer = rcvdMsg.getSenderId().equals(peer.getPeerArgs().getPeerId());
+        boolean sameSenderPeer = rcvdMsg.getSenderId().equals(peer.getArgs().getPeerId());
         boolean hasSpace = peer.getMetadata().hasSpace(rcvdMsg.getBody().length / 1000.0);
         boolean isOriginalFileSender = peer.getMetadata().hasFile(rcvdMsg.getFileId());
         //double totalSpace = peer.getPeerMetadata().getStoredChunksMetadata().getStoredSize() + rcvdMsg.getBody().length/1000.0;
@@ -52,7 +52,7 @@ public class BackupChannel extends Channel {
     private void saveStateMetadata(PutChunk rcvdMsg) {
         try {
             peer.getMetadata().updateStoredInfo(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg(),
-                    rcvdMsg.getBody().length / 1000.0, peer.getPeerArgs().getPeerId());
+                    rcvdMsg.getBody().length / 1000.0, peer.getArgs().getPeerId());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,7 +67,7 @@ public class BackupChannel extends Channel {
             preventReclaim(rcvdMsg);
             FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
             saveStateMetadata(rcvdMsg);
-            Stored confMsg = new Stored(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
+            Stored confMsg = new Stored(rcvdMsg.getVersion(), peer.getArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
             sendStoredMsg(confMsg.getBytes());
         } else {
             System.out.println("Not backing up because reached perceived rep degree");

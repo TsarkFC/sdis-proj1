@@ -22,8 +22,6 @@ public class FileHandler {
 
     public FileHandler(File file) {
         this.file = file;
-        System.out.println("file.getName() = " + file.getName());
-        System.out.println("file.length() = " + file.length());
         fileReader = new FileReader(file, getNumberOfChunks((int)file.length()));
     }
 

@@ -29,7 +29,6 @@ public class BackupProtocol extends Protocol {
     public BackupProtocol(File file, Peer peer, int repDgr) {
         super(file, peer);
         this.repDgr = repDgr;
-        System.out.println("though here");
         System.out.println(file.getName());
     }
 
@@ -57,7 +56,7 @@ public class BackupProtocol extends Protocol {
         if (previousFileId != null) {
             System.out.println("Running DELETE protocol on previous file version...");
 
-            PeerArgs peerArgs = peer.getPeerArgs();
+            PeerArgs peerArgs = peer.getArgs();
             Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), previousFileId);
             List<byte[]> msgs = new ArrayList<>();
             msgs.add(msg.getBytes());
@@ -72,7 +71,7 @@ public class BackupProtocol extends Protocol {
 
         // message initialization
         for (ConcurrentHashMap.Entry<Integer, byte[]> chunk : chunks.entrySet()) {
-            PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
+            PutChunk backupMsg = new PutChunk(peer.getArgs().getVersion(), peer.getArgs().getPeerId(), fileId,
                     chunk.getKey(), repDgr, chunk.getValue());
             messages.add(backupMsg.getBytes());
         }
@@ -82,8 +81,8 @@ public class BackupProtocol extends Protocol {
 
     private void execute() {
         if (reps <= repsLimit) {
-            ThreadHandler.startMulticastThread(peer.getPeerArgs().getAddressList().getMdbAddr().getAddress(),
-                    peer.getPeerArgs().getAddressList().getMdbAddr().getPort(), messages);
+            ThreadHandler.startMulticastThread(peer.getArgs().getAddressList().getMdbAddr().getAddress(),
+                    peer.getArgs().getAddressList().getMdbAddr().getPort(), messages);
             executor.schedule(this::verify, timeWait, TimeUnit.SECONDS);
             System.out.println("[BACKUP] Sent message, waiting " + timeWait + " seconds...");
         } else {
@@ -114,7 +113,7 @@ public class BackupProtocol extends Protocol {
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
         peer.getMetadata().addHostingEntry(fileMetadata);
 
-        PutChunk backupMsg = new PutChunk(peer.getPeerArgs().getVersion(), peer.getPeerArgs().getPeerId(), fileId,
+        PutChunk backupMsg = new PutChunk(peer.getArgs().getVersion(), peer.getArgs().getPeerId(), fileId,
                 chunkNo, repDgr, fileHandler.getChunkFileData());
         messages.add(backupMsg.getBytes());
 

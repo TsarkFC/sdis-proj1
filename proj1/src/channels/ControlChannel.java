@@ -68,7 +68,7 @@ public class ControlChannel extends Channel {
         //1- Check if chunk is stored
         peer.getMetadata().printState();
         StoredChunksMetadata storageMetadata = peer.getMetadata().getStoredChunksMetadata();
-        int peerId = peer.getPeerArgs().getPeerId();
+        int peerId = peer.getArgs().getPeerId();
         if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
             //2- Update local count of its chunk
             ChunkMetadata chunkMetadata = storageMetadata.getChunk(removed.getFileId(), removed.getChunkNo());
