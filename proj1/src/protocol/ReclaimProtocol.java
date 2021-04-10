@@ -42,10 +42,10 @@ public class ReclaimProtocol extends Protocol {
         if (fileFolders != null) {
 
             //TODO primeiro percorrer aqueles com perceived degree > rep degree
+            System.out.println("Eliminating only chunks with perceived rep degree > rep degree");
             for (File file : fileFolders) {
                 if (currentSize <= maxDiskSpace) break;
                 //if (storedChunksMetadata.getChunkId(fi))
-                System.out.println("Elimnating only chunks with perceived rep degree > rep degree");
                 currentSize = reclaimFileSpace(file,currentSize,messages,true);
             }
             fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
@@ -79,8 +79,8 @@ public class ReclaimProtocol extends Protocol {
         if(name != "metadata"){
             File[] chunks = FileHandler.getDirectoryFiles(fileId.getPath());
             if (chunks!= null){
+                System.out.println("\n\n\nFOR EACH CHUNK");
                 for (File chunkFile : chunks){
-                    System.out.println("\n\n\nFOR EACH CHUNK");
                     System.out.println("FILE ID: " + fileId.getName());
                     System.out.println("Chunk no: " + chunkFile.getName());
 
