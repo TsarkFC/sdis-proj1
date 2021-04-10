@@ -10,10 +10,10 @@ cd build
 #../../scripts/test.sh access0 RECLAIM 70
 
 #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
-#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
-../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
+../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
+#../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
 
 #../../scripts/test.sh access0 BACKUP ../files/bigtextfile.txt 3
 #../../scripts/test.sh access0 RESTORE ../files/bigtextfile.txt
 
-../../scripts/test.sh access0 STATE
+#../../scripts/test.sh access0 STATE

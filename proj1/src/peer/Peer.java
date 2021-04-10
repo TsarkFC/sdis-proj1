@@ -12,6 +12,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 
 //java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
@@ -23,6 +25,8 @@ public class Peer implements RemoteObject {
     private Protocol protocol;
     private String restoreDir;
     private String filesDir;
+
+    private List<String> chunksReceived = new ArrayList<>();
 
     public static void main(String[] args) {
         if (args.length != 9) {
@@ -137,5 +141,21 @@ public class Peer implements RemoteObject {
 
     public void setChannelCoordinator(ChannelCoordinator channelCoordinator) {
         this.channelCoordinator = channelCoordinator;
+    }
+
+    public boolean hasReceivedChunk(String chunkId) {
+        return chunksReceived.contains(chunkId);
+    }
+
+    public void addChunkReceived(String chunkId) {
+        this.chunksReceived.add(chunkId);
+    }
+
+    public void resetChunksReceived() {
+        this.chunksReceived = new ArrayList<>();
+    }
+
+    public List<String> chunksReceived() {
+        return chunksReceived;
     }
 }

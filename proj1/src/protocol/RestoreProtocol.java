@@ -10,7 +10,6 @@ import utils.AddressList;
 import utils.ThreadHandler;
 import utils.Utils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -35,6 +34,11 @@ public class RestoreProtocol extends Protocol {
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
         PeerArgs peerArgs = peer.getPeerArgs();
+        peer.resetChunksReceived();
+        System.out.println("reseting...");
+        for (String s : peer.chunksReceived()) {
+            System.out.println(s);
+        }
 
         if (!metadata.hasFile(fileId)) {
             System.out.println("Peer has not hosted BACKUP to file");
@@ -65,6 +69,10 @@ public class RestoreProtocol extends Protocol {
         Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(),
                 rcvdMsg.getChunkNo(), chunk);
         msgs.add(msg.getBytes());
+
+        String chunkId = rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo();
+        System.out.println("RECEIVED = " + peer.hasReceivedChunk(chunkId));
+        if (peer.hasReceivedChunk(chunkId)) return;
 
         AddressList addrList = peer.getPeerArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
