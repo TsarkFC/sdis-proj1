@@ -3,8 +3,10 @@ package channels;
 import messages.*;
 import peer.Peer;
 import peer.metadata.ChunkMetadata;
+import peer.metadata.FileMetadata;
 import peer.metadata.StoredChunksMetadata;
 import protocol.BackupProtocolInitiator;
+import protocol.DeleteProtocol;
 import protocol.RestoreProtocol;
 import utils.AddressList;
 import filehandler.FileHandler;
@@ -12,6 +14,8 @@ import utils.Utils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +39,8 @@ public class ControlChannel extends Channel {
             case "DELETE" -> handleDelete(msgString);
             case "GETCHUNK" -> handleRestore(msgString);
             case "REMOVED" -> handleReclaim(msgString);
+            case "DELETED" -> handleDeleted(msgString);
+            case "STARTING" -> handleStart(msgString);
             default -> System.out.println("\nERROR NOT PARSING THAT MESSAGE " + msgType);
         }
     }
@@ -47,10 +53,46 @@ public class ControlChannel extends Channel {
     }
 
     public void handleDelete(String msgString) throws IOException {
-        System.out.println("Control Channel received Delete Msg: " + msgString.substring(0, msgString.length() - 4));
         Delete msg = new Delete(msgString);
-        FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
-        peer.getMetadata().deleteFile(msg.getFileId());
+        if(!msg.samePeerAndSender(peer)) {
+            System.out.println("Control Channel received Delete Msg: " + msgString.substring(0, msgString.length() - 4));
+            FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
+            peer.getMetadata().deleteFile(msg.getFileId());
+            DeleteProtocol.sendDeletedMessage(peer, msg);
+        }
+    }
+
+    public void handleDeleted(String msgString){
+        Deleted msg = new Deleted(msgString);
+        if(!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()){
+            System.out.println("Control Channel received DELETED Msg: " + msgString.substring(0, msgString.length() - 4));
+            FileMetadata fileMetadata = peer.getMetadata().getHostingFileInfo().get(msg.getFileId());
+            fileMetadata.removeID(msg.getSenderId());
+            System.out.println("SIZE OF ALMOST DELETED FILES: " + peer.getMetadata().getAlmostDeletedFiles().size());
+            peer.getMetadata().writeMetadata();
+            if (fileMetadata.deletedAllChunksAllPeers()){
+                System.out.println("SUCCESSFULLY REMOVED ALL CHUNKS FROM ALL PEERS");
+                peer.getMetadata().deleteFileHosting(msg.getFileId(),peer);
+            }
+        }
+    }
+
+    public void handleStart(String msgString){
+        Starting msg = new Starting(msgString);
+        if(!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()){
+            System.out.println("Control Channel received STARTING Msg: " + msgString.substring(0, msgString.length() - 4));
+            //Nao tem file id ver naquela dos stored chunks
+            //TODO enviar apenas para peer msg.getPeerId()
+            List<FileMetadata> almostDeletedFiles = peer.getMetadata().getAlmostDeletedFiles();
+            System.out.println("Almost deleted files Size: " + almostDeletedFiles.size());
+            for (FileMetadata almostDeletedFile:  almostDeletedFiles) {
+                System.out.println("Sending delete message of file " + almostDeletedFile.getId());
+                DeleteProtocol.sendDeleteMessages(peer,almostDeletedFile.getId());
+            }
+        }
+        //FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
+        //peer.getMetadata().deleteFile(msg.getFileId());
+        //DeleteProtocol.sendDeletedMessage(peer,msg);
     }
 
     public void handleRestore(String msgString) {

@@ -1,5 +1,7 @@
 package peer.metadata;
 
+import peer.Peer;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +41,14 @@ public class Metadata implements Serializable {
         writeMetadata();
     }
 
+    public List<FileMetadata> getAlmostDeletedFiles(){
+        List<FileMetadata> almostDeletedFiles = new ArrayList<>();
+        for (FileMetadata fileMetadata: hostingFileInfo.values()) {
+            if (fileMetadata.isDeleted()) almostDeletedFiles.add(fileMetadata);
+        }
+        return  almostDeletedFiles;
+    }
+
     public void updateHostingInfo(FileMetadata hostingMetadata, Integer chunkNo, Integer peerId) throws IOException {
         hostingMetadata.addChunk(chunkNo, peerId);
         writeMetadata();
@@ -64,6 +74,10 @@ public class Metadata implements Serializable {
         hostingFileInfo.remove(fileId);
         storedChunksMetadata.deleteChunksFromFile(fileId);
         writeMetadata();
+    }
+    public void deleteFileHosting(String fileID,Peer peer){
+        FileMetadata fileMetadata = hostingFileInfo.get(fileID);
+        if (!peer.isVanillaVersion() && fileMetadata.deletedAllChunksAllPeers()) hostingFileInfo.remove(fileID);
     }
 
     /**
@@ -97,10 +111,16 @@ public class Metadata implements Serializable {
         return chunksCount == numOfChunks;
     }
 
-    private void writeMetadata() throws IOException {
-        ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(path));
-        os.writeObject(this);
-        os.close();
+    public void writeMetadata() {
+        ObjectOutputStream os;
+        try {
+            os = new ObjectOutputStream(new FileOutputStream(path));
+            os.writeObject(this);
+            os.close();
+        } catch (IOException e) {
+            System.out.println("Error writing metadata");
+            e.printStackTrace();
+        }
     }
 
     public Metadata readMetadata() {

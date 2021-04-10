@@ -25,11 +25,8 @@ public class StoredChunksMetadata implements Serializable {
         ChunkMetadata chunk;
 
         if (chunksInfo.containsKey(chunkId)) {
-            System.out.println("CONTAINS KEY");
             chunk = chunksInfo.get(chunkId);
         } else {
-            //TODO
-            System.out.println("DOES NOT CONTAIN KEY");
             chunk = new ChunkMetadata();
             chunksInfo.put(chunkId, chunk);
         }
@@ -71,11 +68,9 @@ public class StoredChunksMetadata implements Serializable {
         while (it.hasNext()) {
             String chunkId = it.next();
             if (chunkId.split("-")[0].equals(fileId)) {
-                System.out.println("got inside");
                 it.remove();
             }
         }
-        System.out.println("got out");
     }
 
     public Integer getStoredCount(String fileId, Integer chunkNo) {

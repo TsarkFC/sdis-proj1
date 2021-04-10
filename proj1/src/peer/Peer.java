@@ -47,6 +47,8 @@ public class Peer implements RemoteObject {
             registry.bind(remoteObjName, stub);
             System.err.println("Peer with name: " + remoteObjName + " ready");
             peer.createChannels();
+            StartProtocol startProtocol = new StartProtocol(peer);
+            startProtocol.sendStartingMessage();
 
         } catch (Exception e) {
             System.out.println("Error creating peer and connecting to RMI: " + e);
