@@ -30,7 +30,7 @@ public class FileHandler {
             File file = new File(path);
             if (file.exists() && file.canRead()) return file;
         }
-        System.out.println(path + " does not exist!");
+        System.out.println("[ERROR] " +path + " does not exist!");
         return null;
     }
 
@@ -49,7 +49,6 @@ public class FileHandler {
         for (byte c : encodedHash) {
             sb.append(String.format("%02X", c));
         }
-        System.out.println(sb.toString());
         return sb.toString();
     }
 
@@ -68,13 +67,13 @@ public class FileHandler {
     public static boolean deleteFile(String fileId, String peerDir) {
         String dirPath = getFilePath(peerDir, fileId);
         File folder = new File(dirPath);
-        if (!folder.exists()) System.out.println("Tried to delete directory that does not exist");
+        if (!folder.exists()) System.out.println("[DELETE] Tried to delete directory that does not exist");
         else {
             if (FileHandler.deleteDirectory(folder)) {
-                System.out.println("Deleted directory");
+                System.out.println("[DELETE] Deleted directory");
                 return true;
             } else {
-                System.out.println("Error deleting directory");
+                System.out.println("[DELETE] Error deleting directory");
             }
         }
         return false;
@@ -82,10 +81,10 @@ public class FileHandler {
 
     public static boolean deleteFile(File myObj) {
         if (myObj.delete()) {
-            System.out.println("Deleted the file: " + myObj.getName());
+            System.out.println("[DELETE] Deleted the file: " + myObj.getName());
             return true;
         } else {
-            System.out.println("Failed to delete the file.");
+            System.out.println("[DELETE] Failed to delete the file.");
             return false;
         }
     }
@@ -93,7 +92,7 @@ public class FileHandler {
     public static File[] getDirectoryFiles(String peerDir) {
         File folder = new File(peerDir);
         if (!folder.exists()) {
-            System.out.println("Peer folder does not exist");
+            System.out.println("[ERROR] Peer folder does not exist");
             return null;
         }
         return folder.listFiles();
@@ -131,7 +130,6 @@ public class FileHandler {
     public byte[] getChunkFileData() {
         try {
             FileInputStream inputStream = new FileInputStream(file);
-            System.out.println("File size: " + file.length());
             byte[] chunk = new byte[CHUNK_SIZE];
             int read = inputStream.read(chunk);
             return Arrays.copyOf(chunk, read);

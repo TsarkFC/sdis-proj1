@@ -32,6 +32,7 @@ public class RestoreChannel extends Channel{
         byte[] body = Arrays.copyOfRange(packetData, bodyStartPos, packet.getLength());
 
         String headerString = new String(header);
+        System.out.println("[RECEIVED MESSAGE MDR] " + headerString);
 
         if (peer.getArgs().getVersion() == 1.0) {
             Chunk msg = new Chunk(headerString, body);
@@ -57,7 +58,7 @@ public class RestoreChannel extends Channel{
         if (!peer.hasRestoreEntry(rcvdMsg.getFileId())) return;
 
         int portNumber = rcvdMsg.getPortNumber();
-        System.out.println("CLIENT PORT NUMBER: " + portNumber);
+        System.out.println("[TCP] Client port number: " + portNumber);
 
         try (Socket socket = new Socket("localhost", portNumber);
              BufferedInputStream in = new BufferedInputStream(socket.getInputStream())) {
@@ -65,7 +66,7 @@ public class RestoreChannel extends Channel{
             byte[] chunk = new byte[CHUNK_SIZE];
             int readTest = in.readNBytes(chunk, 0, CHUNK_SIZE);
             in.close();
-            System.out.println("READ FROM TCP: " + readTest);
+            System.out.println("[TCP] Read from TCP: " + readTest);
             socket.close();
 
             peer.addChunk(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), chunk);

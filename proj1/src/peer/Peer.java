@@ -78,7 +78,7 @@ public class Peer implements RemoteObject {
 
     @Override
     public String backup(File file, int repDegree) throws IOException {
-        System.out.println("Initiator peer received Backup");
+        System.out.println("[BACKUP] Initiator peer received Backup");
         this.protocol = new BackupProtocol(file, this, repDegree);
         this.protocol.initialize();
         return null;
@@ -86,7 +86,7 @@ public class Peer implements RemoteObject {
 
     @Override
     public String restore(String path) throws IOException {
-        System.out.println("Initiator peer received Restore");
+        System.out.println("[RESTORE] Initiator peer received Restore");
         this.protocol = new RestoreProtocol(path, this);
         this.protocol.initialize();
         return null;
@@ -94,7 +94,7 @@ public class Peer implements RemoteObject {
 
     @Override
     public String delete(String path) throws IOException, InterruptedException {
-        System.out.println("Initiator peer received Delete");
+        System.out.println("[DELETE] Initiator peer received Delete");
         this.protocol = new DeleteProtocol(path, this);
         this.protocol.initialize();
         return null;
@@ -102,12 +102,13 @@ public class Peer implements RemoteObject {
 
     @Override
     public String state() throws RemoteException {
+        System.out.println("[STATE] Initiator peer received Delete");
         return metadata.returnState();
     }
 
     @Override
     public String reclaim(double maxDiskSpace) throws IOException {
-        System.out.println("Initiator peer received Reclaim");
+        System.out.println("[RECLAIM] Initiator peer received Reclaim");
         this.protocol = new ReclaimProtocol(maxDiskSpace, this);
         this.protocol.initialize();
         return null;
@@ -175,15 +176,12 @@ public class Peer implements RemoteObject {
             return;
         }
         restore.put(chunkNo, chunk);
-
-        System.out.println("NUMBER OF CHUNKS: " + FileHandler.getNumberOfChunks(metadata.getFileSize(fileId)));
         if (restore.size() >= FileHandler.getNumberOfChunks(metadata.getFileSize(fileId))) {
             Path restoreFilePath = Paths.get(metadata.getFileMetadata(fileId).getPathname());
             String filename = getRestoreDir() + "/" + restoreFilePath.getFileName();
             FileHandler.restoreFile(filename, restore);
-
             activeRestores.remove(fileId);
-            System.out.println("[RESTORE] completed");
+            System.out.println("[RESTORE] Completed Restore");
         }
     }
 

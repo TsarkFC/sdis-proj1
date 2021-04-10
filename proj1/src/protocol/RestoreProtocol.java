@@ -38,6 +38,7 @@ public class RestoreProtocol extends Protocol {
 
     @Override
     public void initialize() {
+        System.out.println("[RESTORE] Initializing Restore protocol");
         List<byte[]> messages = new ArrayList<>();
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
@@ -62,7 +63,7 @@ public class RestoreProtocol extends Protocol {
 
     public static void handleGetChunkMsg(GetChunk rcvdMsg, Peer peer) {
         new ScheduledThreadPoolExecutor(1).
-                schedule(() -> sendChunk(rcvdMsg, peer), Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+                schedule(() -> sendChunk(rcvdMsg, peer), Utils.generateRandomDelay("[RESTORE] Send Chunk msg after "), TimeUnit.MILLISECONDS);
     }
 
     public static void sendChunk(GetChunk rcvdMsg, Peer peer) {

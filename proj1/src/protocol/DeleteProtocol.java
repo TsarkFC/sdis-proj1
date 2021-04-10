@@ -25,6 +25,7 @@ public class DeleteProtocol extends Protocol {
     // by chunks of the deleted file are deleted in spite of the loss of some messages.
     @Override
     public void initialize() {
+        System.out.println("[DELETE] Initializing Delete protocol");
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
 

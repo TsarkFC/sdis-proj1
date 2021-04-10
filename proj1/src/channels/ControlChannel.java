@@ -46,7 +46,7 @@ public class ControlChannel extends Channel {
     }
 
     public void handleBackup(String msgString) throws IOException {
-        System.out.println("Control Channel received Stored Msg: " + msgString.substring(0, msgString.length() - 4));
+        System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
         Stored msg = new Stored(msgString);
         peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
         //System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
@@ -55,7 +55,7 @@ public class ControlChannel extends Channel {
     public void handleDelete(String msgString) {
         Delete msg = new Delete(msgString);
         if(!msg.samePeerAndSender(peer)) {
-            System.out.println("Control Channel received Delete Msg: " + msgString.substring(0, msgString.length() - 4));
+            System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
             if(FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem())){
                 peer.getMetadata().deleteFile(msg.getFileId());
                 DeleteProtocol.sendDeletedMessage(peer, msg);
@@ -66,12 +66,12 @@ public class ControlChannel extends Channel {
     public void handleDeleted(String msgString){
         Deleted msg = new Deleted(msgString);
         if(!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()){
-            System.out.println("Control Channel received DELETED Msg: " + msgString.substring(0, msgString.length() - 4));
+            System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
             FileMetadata fileMetadata = peer.getMetadata().getFileMetadata(msg.getFileId());
             fileMetadata.removeID(msg.getSenderId());
             peer.getMetadata().writeMetadata();
             if (fileMetadata.deletedAllChunksAllPeers()){
-                System.out.println("Successfully removed all chunks from all peers of file " + msg.getFileId());
+                System.out.println("[DELETE] Successfully removed all chunks from all peers of file " + msg.getFileId());
                 peer.getMetadata().deleteFileHosting(msg.getFileId(),peer);
 
             }
@@ -81,10 +81,10 @@ public class ControlChannel extends Channel {
     public void handleStart(String msgString){
         Starting msg = new Starting(msgString);
         if(!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()){
-            System.out.println("Control Channel received STARTING Msg: " + msgString.substring(0, msgString.length() - 4));
+            System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
             List<FileMetadata> almostDeletedFiles = peer.getMetadata().getAlmostDeletedFiles();
             for (FileMetadata almostDeletedFile:  almostDeletedFiles) {
-                System.out.println("Sending delete message of file " + almostDeletedFile.getId());
+                System.out.println("[DELETE] Sending delete message of file " + almostDeletedFile.getId());
                 DeleteProtocol.sendDeleteMessages(peer,almostDeletedFile.getId());
             }
         }
@@ -92,7 +92,7 @@ public class ControlChannel extends Channel {
     }
 
     public void handleRestore(String msgString) {
-        System.out.println("Control Channel received Restore Msg: " + msgString.substring(0, msgString.length() - 4));
+        System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
         GetChunk msg = new GetChunk(msgString);
         peer.resetChunksReceived();
         RestoreProtocol.handleGetChunkMsg(msg, peer);
@@ -101,28 +101,29 @@ public class ControlChannel extends Channel {
     public void handleReclaim(String msgString) {
         Removed removed = new Removed(msgString);
         if(removed.samePeerAndSender(peer)) return;
-        System.out.println("Control Channel received Removed Msg: " + msgString.substring(0, msgString.length() - 4));
+        System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
 
-        //System.out.println(removed.getMsgType() + " " + removed.getFileId() + " " + removed.getChunkNo());
         //A peer that has a local copy of the chunk shall update its local count of this chunk
         //1- Check if chunk is stored
-        peer.getMetadata().printState();
         StoredChunksMetadata storageMetadata = peer.getMetadata().getStoredChunksMetadata();
         int peerId = peer.getArgs().getPeerId();
         if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
             //2- Update local count of its chunk
             ChunkMetadata chunkMetadata = storageMetadata.getChunk(removed.getFileId(), removed.getChunkNo());
             chunkMetadata.removePeer(removed.getSenderId());
-            peer.getMetadata().printState();
+            System.out.println("[RECLAIM]: Peer has Chunk" + chunkMetadata.getId() + " from "+  removed.getFileId()+" stored");
+            System.out.println("[RECLAIM]: Updated perceived degree of chunk to " +chunkMetadata.getPerceivedRepDgr());
+
 
             //If this count drops below the desired replication degree of that chunk, it shall initiate
             // the chunk backup subProtocol between 0 and 400 ms
             if(chunkMetadata.getPerceivedRepDgr() < chunkMetadata.getRepDgr()){
+                System.out.println("[RECLAIM]: Perceived Replication degree dropped below Replication Degree");
                 BackupProtocolInitiator backupProtocolInitiator = new BackupProtocolInitiator(removed,chunkMetadata,peer);
                 peer.getChannelCoordinator().setBackupInitiator(backupProtocolInitiator);
                 new ScheduledThreadPoolExecutor(1).schedule(backupProtocolInitiator,
-                        Utils.generateRandomDelay(), TimeUnit.MILLISECONDS);
+                        Utils.generateRandomDelay("[BACKUP] Starting backup of " + chunkMetadata.getId() + " after "), TimeUnit.MILLISECONDS);
             }
-        }
+        }else System.out.println("[RECLAIM]: Peer does not have Chunk stored");
     }
 }

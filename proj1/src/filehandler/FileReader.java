@@ -48,7 +48,6 @@ public class FileReader {
         readFileChannel.read(buffer, (long) chunkNo * CHUNK_SIZE, buffer, new CompletionHandler<>() {
             @Override
             public void completed(Integer result, ByteBuffer bufferRead) {
-                System.out.println("Number of bytes read: " + result);
                 buffer.rewind();
                 byte[] chunk = new byte[result];
                 buffer.get(chunk);
@@ -66,7 +65,6 @@ public class FileReader {
 
     public static byte[] getChunk(GetChunk message, String peerDir) {
         String chunkPath = FileHandler.getFilePath(peerDir, message) + message.getChunkNo();
-        System.out.println("PATH: " + chunkPath);
         Path path = Paths.get(chunkPath);
         if (!Files.exists(path)) {
             return null;

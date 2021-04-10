@@ -29,7 +29,6 @@ public class BackupProtocol extends Protocol {
     public BackupProtocol(File file, Peer peer, int repDgr) {
         super(file, peer);
         this.repDgr = repDgr;
-        System.out.println(file.getName());
     }
 
     public BackupProtocol(String path, Peer peer, int repDgr) {
@@ -40,6 +39,7 @@ public class BackupProtocol extends Protocol {
 
     @Override
     public void initialize()  {
+        System.out.println("[BACKUP] Initializing Backup protocol of file " + file.getName() + " with size: " + file.length()/1000.0 + "Kb");
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
         ConcurrentHashMap<Integer, byte[]> chunks = fileHandler.getFileChunks();
@@ -47,14 +47,14 @@ public class BackupProtocol extends Protocol {
         numOfChunks = chunks.size();
 
         if (peer.getMetadata().hasFile(fileId)) {
-            System.out.println("File already backed up, aborting...");
+            System.out.println("[BACKUP] File already backed up, aborting...");
             return;
         }
 
         // Updating a previously backed up file, delete previous one
         String previousFileId = peer.getMetadata().getFileIdFromPath(file.getPath());
         if (previousFileId != null) {
-            System.out.println("Running DELETE protocol on previous file version...");
+            System.out.println("[BACKUP] Running DELETE protocol on previous file version...");
 
             PeerArgs peerArgs = peer.getArgs();
             Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), previousFileId);
@@ -106,10 +106,6 @@ public class BackupProtocol extends Protocol {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 
-        if (peer.getMetadata().hasChunk(fileId, chunkNo)) {
-            System.out.println("[BACKUP] File already backed up, aborting...");
-            return;
-        }
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
         peer.getMetadata().addHostingEntry(fileMetadata);
 

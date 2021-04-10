@@ -29,14 +29,13 @@ public class BackupProtocolInitiator implements Runnable {
 
     public void run() {
         String path = FileHandler.getChunkPath(peer.getFileSystem(), removed.getFileId(), removed.getChunkNo());
-        System.out.println("Initiating backup protocol of path: " + path);
-        System.out.println();
+        System.out.println("[BACKUP] Initiating backup protocol of path: " + path);
         if (!receivedDuringReclaim(removed.getFileId(), removed.getChunkNo())) {
             BackupProtocol backupProtocol = new BackupProtocol(path, peer, chunkMetadata.getRepDgr());
             try {
                 backupProtocol.backupChunk(removed.getFileId(), removed.getChunkNo());
             } catch (IOException e) {
-                System.out.println("Exception initializing Backup protocol");
+                System.out.println("[BACKUP] Exception initializing Backup protocol");
                 e.printStackTrace();
             }
         }

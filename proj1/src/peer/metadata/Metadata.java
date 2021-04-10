@@ -89,7 +89,6 @@ public class Metadata implements Serializable {
     public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId) throws IOException {
         FileMetadata hostingMetadata = hostingFileInfo.get(fileId);
         if (hostingMetadata != null) {
-            System.out.println("HOSTING");
             updateHostingInfo(hostingMetadata, chunkNo, peerId);
         } else {
             storedChunksMetadata.updateChunkInfo(fileId, chunkNo, peerId);
@@ -100,7 +99,6 @@ public class Metadata implements Serializable {
     public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Double chunkSize, Integer peerId) throws IOException {
         int chunkSizeKb = (int) Math.round(chunkSize);
         storedChunksMetadata.updateChunkInfo(fileId, chunkNo, repDgr, chunkSizeKb, peerId);
-        System.out.println("AFTER SAVING REP DEGREE IS: " +storedChunksMetadata.getChunk(fileId,chunkNo).getRepDgr());
         writeMetadata();
     }
 
@@ -133,9 +131,8 @@ public class Metadata implements Serializable {
             is.close();
             return metadata;
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Error: " + e);
-            System.out.println("No data to read from peer");
-            System.out.println("Creating new one...");
+            System.out.println("[METADATA] No data to read from peer");
+            System.out.println("[METADATA] Creating new one...");
             return new Metadata(path);
         }
     }

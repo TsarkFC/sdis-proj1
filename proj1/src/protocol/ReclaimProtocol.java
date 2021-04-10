@@ -22,12 +22,13 @@ public class ReclaimProtocol extends Protocol {
 
     @Override
     public void initialize() {
-        System.out.println("Initializing reclaim");
+        System.out.println("[RECLAIM] Initializing Reclaim protocol");
+
         //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
         PeerArgs peerArgs = peer.getArgs();
 
         double currentStoredSize =  FileHandler.getDirectoryKbSize(peer.getFileSystem());
-        System.out.println(String.format("Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
+        System.out.println(String.format("[RECLAIM] Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
         if(currentStoredSize > maxDiskSpace){
             reclaimSpace(maxDiskSpace,currentStoredSize);
         }
@@ -36,26 +37,25 @@ public class ReclaimProtocol extends Protocol {
 
     public void reclaimSpace(double maxDiskSpace, double currentSize){
         List<byte[]> messages = new ArrayList<>();
-        System.out.println("Current size: " + currentSize + " Max Size: " + maxDiskSpace);
         File[] fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
         peer.getMetadata().setMaxSpace(maxDiskSpace);
         if (fileFolders != null) {
 
             //TODO primeiro percorrer aqueles com perceived degree > rep degree
-            System.out.println("Eliminating only chunks with perceived rep degree > rep degree");
+            System.out.println("[RECLAIM] Eliminating only chunks with Perceived Rep degree > Rep degree");
             for (File file : fileFolders) {
                 if (currentSize <= maxDiskSpace) break;
-                //if (storedChunksMetadata.getChunkId(fi))
                 currentSize = reclaimFileSpace(file,currentSize,messages,true);
             }
             fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
 
             //Eliminate every file until it has size < maxSize
             if(currentSize > maxDiskSpace){
-                System.out.println("Eliminating the ones with bigger rep degree than desired was not enough...");
-                System.out.println("Eliminating other files");
+                System.out.println("[RECLAIM] Eliminating the ones with bigger rep degree than desired was not enough...");
+                System.out.println("[RECLAIM] Eliminating other files");
                 for (File file : fileFolders) {
                     if (currentSize <= maxDiskSpace) break;
+                    System.out.println("[RECLAIM] Analysing file: " + file.getName());
                     currentSize = reclaimFileSpace(file,currentSize,messages,false);
                 }
             }
@@ -72,31 +72,22 @@ public class ReclaimProtocol extends Protocol {
 
     private double reclaimFileSpace(File fileId,double currentSize,List<byte[]> messages, boolean onlyBiggerPercDgr){
         StoredChunksMetadata storedChunksMetadata = peer.getMetadata().getStoredChunksMetadata();
-
-
-        //TODO por por replication degree em vez de por ordem alfabetica
         String name = fileId.getName();
         if(name != "metadata"){
             File[] chunks = FileHandler.getDirectoryFiles(fileId.getPath());
             if (chunks!= null){
-                System.out.println("\n\n\nFOR EACH CHUNK");
                 for (File chunkFile : chunks){
-                    System.out.println("FILE ID: " + fileId.getName());
-                    System.out.println("Chunk no: " + chunkFile.getName());
-
                     ChunkMetadata chunkMetadata = storedChunksMetadata.getChunk(fileId.getName(), Integer.valueOf(chunkFile.getName()));
-                    System.out.println("With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
-
                     if((onlyBiggerPercDgr && chunkMetadata.biggerThanDesiredRep()) || !onlyBiggerPercDgr ){
                             PeerArgs peerArgs = peer.getArgs();
                             double size = chunkFile.length() / 1000;
-                            System.out.println("Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
-                            System.out.println("With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
+                            System.out.println("[RECLAIM] Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
+                            System.out.println("          With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
                             if (FileHandler.deleteFile(chunkFile)) {
                                 Removed removedMsg = new Removed(peerArgs.getVersion(), peerArgs.getPeerId(), fileId.getName(), Integer.parseInt(chunkFile.getName()));
                                 messages.add(removedMsg.getBytes());
                                 currentSize -= size;
-                                System.out.println("Current Size = " + currentSize);
+                                System.out.println("[RECLAIM] Current Size = " + currentSize);
                                 if (currentSize <= maxDiskSpace) break;
                             }
                     }
