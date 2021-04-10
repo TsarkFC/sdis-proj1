@@ -51,6 +51,8 @@ public class Peer implements RemoteObject {
             registry.bind(remoteObjName, stub);
             System.err.println("Peer with name: " + remoteObjName + " ready");
             peer.createChannels();
+            StartProtocol startProtocol = new StartProtocol(peer);
+            startProtocol.sendStartingMessage();
 
         } catch (Exception e) {
             System.out.println("Error creating peer and connecting to RMI: " + e);
@@ -145,6 +147,9 @@ public class Peer implements RemoteObject {
 
     public void setChannelCoordinator(ChannelCoordinator channelCoordinator) {
         this.channelCoordinator = channelCoordinator;
+    }
+    public boolean isVanillaVersion() {
+        return peerArgs.getVersion() == 1.0;
     }
 
     public boolean hasReceivedChunk(String chunkId) {

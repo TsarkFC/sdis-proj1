@@ -65,17 +65,19 @@ public class FileHandler {
         return peerDir.concat("/" + fileId + "/" + chunkNo);
     }
 
-    public static void deleteFile(String fileId, String peerDir) {
+    public static boolean deleteFile(String fileId, String peerDir) {
         String dirPath = getFilePath(peerDir, fileId);
         File folder = new File(dirPath);
         if (!folder.exists()) System.out.println("Tried to delete directory that does not exist");
         else {
             if (FileHandler.deleteDirectory(folder)) {
                 System.out.println("Deleted directory");
+                return true;
             } else {
                 System.out.println("Error deleting directory");
             }
         }
+        return false;
     }
 
     public static boolean deleteFile(File myObj) {

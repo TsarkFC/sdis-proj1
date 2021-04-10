@@ -87,9 +87,11 @@ public class BackupChannel extends Channel {
         }
     }
 
-    private boolean alreadyReachedRepDgr(String fileId, int chunkNo, int repDgr) {
-        int stored = peer.getMetadata().getStoredChunksMetadata().getStoredCount(fileId, chunkNo);
-        System.out.println("REP DGR: " + repDgr + " PERCEIVED: " + stored);
-        return stored >= repDgr;
+    private boolean alreadyReachedRepDgr(String fileId,int chunkNo,int repDgr){
+        if (peer.isVanillaVersion()) return false;
+        int stored = peer.getMetadata().getStoredChunksMetadata().getStoredCount(fileId,chunkNo);
+        System.out.println("REP DGR: " + repDgr + " PERCEIVED =" + stored);
+        return (stored >= repDgr);
+
     }
 }

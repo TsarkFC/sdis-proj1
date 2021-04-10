@@ -1,5 +1,7 @@
 package messages;
 
+import peer.Peer;
+
 public abstract class Message {
     protected static final int VERSION_IDX = 0;
     protected static final int MSG_TYPE_IDX = 1;
@@ -27,7 +29,9 @@ public abstract class Message {
 
         this.version = Double.parseDouble(tokens[VERSION_IDX]);
         this.senderId = Integer.parseInt(tokens[SENDER_ID_IDX]);
-        this.fileId = tokens[FILE_ID_IDX];
+        if(getNumberArguments() >= 5){
+            this.fileId = tokens[FILE_ID_IDX];
+        }else this.fileId="";
     }
 
     public String getMsgString() {
@@ -96,6 +100,10 @@ public abstract class Message {
 
     public boolean samePeerAndSender(int peerId) {
         return senderId == peerId;
+    }
+
+    public boolean samePeerAndSender(Peer peer) {
+        return senderId.equals(peer.getArgs().getPeerId());
     }
 }
 

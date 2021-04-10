@@ -39,7 +39,7 @@ public class BackupProtocol extends Protocol {
 
 
     @Override
-    public void initialize() throws IOException {
+    public void initialize()  {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
         ConcurrentHashMap<Integer, byte[]> chunks = fileHandler.getFileChunks();
