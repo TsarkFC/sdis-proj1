@@ -92,7 +92,6 @@ public class Metadata implements Serializable {
             System.out.println("HOSTING");
             updateHostingInfo(hostingMetadata, chunkNo, peerId);
         } else {
-            System.out.println("UPDATING STORED");
             storedChunksMetadata.updateChunkInfo(fileId, chunkNo, peerId);
         }
         writeMetadata();
@@ -101,6 +100,7 @@ public class Metadata implements Serializable {
     public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Double chunkSize, Integer peerId) throws IOException {
         int chunkSizeKb = (int) Math.round(chunkSize);
         storedChunksMetadata.updateChunkInfo(fileId, chunkNo, repDgr, chunkSizeKb, peerId);
+        System.out.println("AFTER SAVING REP DEGREE IS: " +storedChunksMetadata.getChunk(fileId,chunkNo).getRepDgr());
         writeMetadata();
     }
 
@@ -203,8 +203,8 @@ public class Metadata implements Serializable {
         return path;
     }
 
-    public Map<String, FileMetadata> getHostingFileInfo() {
-        return hostingFileInfo;
+    public FileMetadata getFileMetadata(String fileId) {
+        return hostingFileInfo.get(fileId);
     }
 
     public StoredChunksMetadata getStoredChunksMetadata() {

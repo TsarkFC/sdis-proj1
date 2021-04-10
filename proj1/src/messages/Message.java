@@ -103,7 +103,7 @@ public abstract class Message {
     }
 
     public boolean samePeerAndSender(Peer peer) {
-        return senderId == peer.getPeerArgs().getPeerId();
+        return senderId.equals(peer.getArgs().getPeerId());
     }
 }
 

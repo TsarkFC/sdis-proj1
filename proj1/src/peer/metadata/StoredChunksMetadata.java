@@ -42,15 +42,17 @@ public class StoredChunksMetadata implements Serializable {
             Set<Integer> peerIds = new HashSet<>();
             peerIds.add(peerId);
             chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
+            System.out.println("REPLICATION DEGREE IN NOT CONTAINS IS: " + getChunk(fileId, chunkNo).getRepDgr());
         } else {
             ChunkMetadata chunkMetadata = chunksInfo.get(chunkId);
-            if (chunkId.equals("")) {
-                Set<Integer> peerIds = chunkMetadata.getPeerIds();
-                chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
-            } else {
-                ChunkMetadata chunk = chunksInfo.get(chunkId);
-                chunk.addPeer(peerId);
-            }
+            //Saving chunk after having received stored messages
+            Set<Integer> peerIds = chunkMetadata.getPeerIds();
+            chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
+            /*ChunkMetadata chunk = chunksInfo.get(chunkId);
+            System.out.println("CHUNKMETADATA STRING IS " + chunk.getString());
+            chunk.addPeer(peerId);
+            System.out.println("REPLICATION DEGREE IN CONTAINS IS: " + getChunk(fileId, chunkNo).getRepDgr());*/
+
         }
     }
 

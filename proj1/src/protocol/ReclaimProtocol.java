@@ -24,7 +24,7 @@ public class ReclaimProtocol extends Protocol {
     public void initialize() {
         System.out.println("Initializing reclaim");
         //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
-        PeerArgs peerArgs = peer.getPeerArgs();
+        PeerArgs peerArgs = peer.getArgs();
 
         double currentStoredSize =  FileHandler.getDirectoryKbSize(peer.getFileSystem());
         System.out.println(String.format("Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
@@ -60,7 +60,7 @@ public class ReclaimProtocol extends Protocol {
                 }
             }
 
-            PeerArgs peerArgs = peer.getPeerArgs();
+            PeerArgs peerArgs = peer.getArgs();
             ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
                     peerArgs.getAddressList().getMcAddr().getPort(), messages);
         }else{
@@ -83,9 +83,12 @@ public class ReclaimProtocol extends Protocol {
                     System.out.println("\n\n\nFOR EACH CHUNK");
                     System.out.println("FILE ID: " + fileId.getName());
                     System.out.println("Chunk no: " + chunkFile.getName());
+
                     ChunkMetadata chunkMetadata = storedChunksMetadata.getChunk(fileId.getName(), Integer.valueOf(chunkFile.getName()));
+                    System.out.println("With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
+
                     if((onlyBiggerPercDgr && chunkMetadata.biggerThanDesiredRep()) || !onlyBiggerPercDgr ){
-                            PeerArgs peerArgs = peer.getPeerArgs();
+                            PeerArgs peerArgs = peer.getArgs();
                             double size = chunkFile.length() / 1000;
                             System.out.println("Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
                             System.out.println("With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());

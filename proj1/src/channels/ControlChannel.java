@@ -67,7 +67,7 @@ public class ControlChannel extends Channel {
         Deleted msg = new Deleted(msgString);
         if(!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()){
             System.out.println("Control Channel received DELETED Msg: " + msgString.substring(0, msgString.length() - 4));
-            FileMetadata fileMetadata = peer.getMetadata().getHostingFileInfo().get(msg.getFileId());
+            FileMetadata fileMetadata = peer.getMetadata().getFileMetadata(msg.getFileId());
             fileMetadata.removeID(msg.getSenderId());
             peer.getMetadata().writeMetadata();
             if (fileMetadata.deletedAllChunksAllPeers()){
@@ -108,7 +108,7 @@ public class ControlChannel extends Channel {
         //1- Check if chunk is stored
         peer.getMetadata().printState();
         StoredChunksMetadata storageMetadata = peer.getMetadata().getStoredChunksMetadata();
-        int peerId = peer.getPeerArgs().getPeerId();
+        int peerId = peer.getArgs().getPeerId();
         if(storageMetadata.chunkIsStored(removed.getFileId(), removed.getChunkNo()) && !removed.samePeerAndSender(peerId)){
             //2- Update local count of its chunk
             ChunkMetadata chunkMetadata = storageMetadata.getChunk(removed.getFileId(), removed.getChunkNo());

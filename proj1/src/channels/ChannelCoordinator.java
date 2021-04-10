@@ -15,7 +15,7 @@ public class ChannelCoordinator {
 
     public ChannelCoordinator(Peer peer) {
         this.peer = peer;
-        AddressList addressList = peer.getPeerArgs().getAddressList();
+        AddressList addressList = peer.getArgs().getAddressList();
         this.createMDBChannel(addressList);
         this.createMCChannel(addressList);
         this.createMDRChannel(addressList);

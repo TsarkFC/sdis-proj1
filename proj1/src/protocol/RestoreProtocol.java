@@ -1,7 +1,9 @@
 package protocol;
 
 import messages.Chunk;
+import messages.ChunkEnhanced;
 import messages.GetChunk;
+import messages.MsgWithChunk;
 import peer.Peer;
 import peer.PeerArgs;
 import filehandler.FileHandler;
@@ -10,6 +12,10 @@ import utils.AddressList;
 import utils.ThreadHandler;
 import utils.Utils;
 
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -17,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static filehandler.FileHandler.CHUNK_SIZE;
 
 
 public class RestoreProtocol extends Protocol {
@@ -33,19 +41,16 @@ public class RestoreProtocol extends Protocol {
         List<byte[]> messages = new ArrayList<>();
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
-        PeerArgs peerArgs = peer.getPeerArgs();
+        PeerArgs peerArgs = peer.getArgs();
         peer.resetChunksReceived();
-        System.out.println("reseting...");
-        for (String s : peer.chunksReceived()) {
-            System.out.println(s);
-        }
 
         if (!metadata.hasFile(fileId)) {
-            System.out.println("Peer has not hosted BACKUP to file");
+            System.out.println("[RESTORE] Peer has not hosted BACKUP to file");
             return;
         }
+
+        peer.addRestoreEntry(fileId);
         chunksNo = FileHandler.getNumberOfChunks(metadata.getFileSize(fileId));
-        System.out.println("CHUNKno: " + chunksNo);
 
         for (int i = 0; i < chunksNo; i++) {
             GetChunk getChunk = new GetChunk(peerArgs.getVersion(), peerArgs.getPeerId(), fileId, i);
@@ -63,35 +68,60 @@ public class RestoreProtocol extends Protocol {
     public static void sendChunk(GetChunk rcvdMsg, Peer peer) {
         byte[] chunk = FileHandler.getChunk(rcvdMsg, peer.getFileSystem());
         if (chunk == null) {
+            System.out.println("");
             return;
         }
+
         List<byte[]> msgs = new ArrayList<>();
-        Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getPeerArgs().getPeerId(), rcvdMsg.getFileId(),
-                rcvdMsg.getChunkNo(), chunk);
-        msgs.add(msg.getBytes());
+        ServerSocket socket = startTcpServer();
+
+        if (peer.getArgs().getVersion() == 1.0) {
+            Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getArgs().getPeerId(), rcvdMsg.getFileId(),
+                    rcvdMsg.getChunkNo(), chunk);
+            msgs.add(msg.getBytes());
+        }
+        else {
+            if (socket == null) {
+                System.out.println("[RESTORE] could not start tcp server socket, aborting...");
+                return;
+            }
+            int portNumber = socket.getLocalPort();
+            ChunkEnhanced msg = new ChunkEnhanced(rcvdMsg.getVersion(), peer.getArgs().getPeerId(), rcvdMsg.getFileId(),
+                    rcvdMsg.getChunkNo(), portNumber);
+            msgs.add(msg.getBytes());
+        }
 
         String chunkId = rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo();
-        System.out.println("RECEIVED = " + peer.hasReceivedChunk(chunkId));
         if (peer.hasReceivedChunk(chunkId)) return;
 
-        AddressList addrList = peer.getPeerArgs().getAddressList();
+        AddressList addrList = peer.getArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
+
+        if (peer.getArgs().getVersion() != 1.0) handleRestoreTcp(socket, chunk);
     }
 
-    public void handleChunkMsg(Chunk rcvdMsg) {
-        if (complete) {
-            return;
+    private static ServerSocket startTcpServer() {
+        ServerSocket socket;
+        try {
+            socket = new ServerSocket(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-        chunksMap.put(rcvdMsg.getChunkNo(), rcvdMsg.getBody());
-
-        if (chunksMap.size() >= chunksNo) {
-            Path restoreFilePath = Paths.get(path);
-            String filename = peer.getRestoreDir() + "/" + restoreFilePath.getFileName();
-            FileHandler.restoreFile(filename, chunksMap);
-            complete = true;
-            System.out.println("[RESTORE] completed");
-        }
+        return socket;
     }
 
+    private static void handleRestoreTcp(ServerSocket socket, byte[] chunk) {
+        try {
+            Socket clientSocket = socket.accept();
+            BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
 
+            out.write(chunk);
+            out.close();
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

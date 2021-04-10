@@ -17,6 +17,7 @@ public class DeleteProtocol extends Protocol {
     public DeleteProtocol(String path, Peer peer) {
         super(path, peer);
     }
+
     //Send on the MC Channel
     //A file may be deleted, and it should delete all the chunks of that file
     //When the file is modified, it should also delete the old copy
@@ -24,7 +25,6 @@ public class DeleteProtocol extends Protocol {
     // by chunks of the deleted file are deleted in spite of the loss of some messages.
     @Override
     public void initialize() {
-
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
 
@@ -33,13 +33,14 @@ public class DeleteProtocol extends Protocol {
             System.out.println("Peer has not hosted BACKUP to file");
             return;
         }
-        peer.getMetadata().getHostingFileInfo().get(fileId).setDeleted(true);
-        if(peer.isVanillaVersion()) peer.getMetadata().deleteFile(fileId);
-        sendDeleteMessages(peer,fileId);
+        peer.getMetadata().getFileMetadata(fileId).setDeleted(true);
+        if (peer.isVanillaVersion()) peer.getMetadata().deleteFile(fileId);
+        sendDeleteMessages(peer, fileId);
     }
+
     //TODO maybe we should make this method not static
-    public static void sendDeleteMessages(Peer peer,String fileId){
-        PeerArgs peerArgs = peer.getPeerArgs();
+    public static void sendDeleteMessages(Peer peer, String fileId) {
+        PeerArgs peerArgs = peer.getArgs();
         List<byte[]> messages = new ArrayList<>();
         Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), fileId);
         messages.add(msg.getBytes());
@@ -47,11 +48,10 @@ public class DeleteProtocol extends Protocol {
                 peerArgs.getAddressList().getMcAddr().getPort(), messages);
     }
 
-    public static void sendDeletedMessage(Peer peer,Delete deleteMsg) {
-
-        AddressList addrList = peer.getPeerArgs().getAddressList();
-        if(!peer.isVanillaVersion()){
-            Deleted msg = new Deleted(deleteMsg.getVersion(),peer.getPeerArgs().getPeerId(), deleteMsg.getFileId());
+    public static void sendDeletedMessage(Peer peer, Delete deleteMsg) {
+        AddressList addrList = peer.getArgs().getAddressList();
+        if (!peer.isVanillaVersion()) {
+            Deleted msg = new Deleted(deleteMsg.getVersion(), peer.getArgs().getPeerId(), deleteMsg.getFileId());
             List<byte[]> msgs = new ArrayList<>();
             msgs.add(msg.getBytes());
             ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), msgs);
