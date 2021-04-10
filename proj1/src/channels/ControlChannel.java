@@ -82,10 +82,7 @@ public class ControlChannel extends Channel {
         Starting msg = new Starting(msgString);
         if(!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()){
             System.out.println("Control Channel received STARTING Msg: " + msgString.substring(0, msgString.length() - 4));
-            //Nao tem file id ver naquela dos stored chunks
-            //TODO enviar apenas para peer msg.getPeerId()
             List<FileMetadata> almostDeletedFiles = peer.getMetadata().getAlmostDeletedFiles();
-            System.out.println("Almost deleted files Size: " + almostDeletedFiles.size());
             for (FileMetadata almostDeletedFile:  almostDeletedFiles) {
                 System.out.println("Sending delete message of file " + almostDeletedFile.getId());
                 DeleteProtocol.sendDeleteMessages(peer,almostDeletedFile.getId());
@@ -102,8 +99,10 @@ public class ControlChannel extends Channel {
     }
 
     public void handleReclaim(String msgString) {
-        System.out.println("Control Channel received Removed Msg: " + msgString.substring(0, msgString.length() - 4));
         Removed removed = new Removed(msgString);
+        if(removed.samePeerAndSender(peer)) return;
+        System.out.println("Control Channel received Removed Msg: " + msgString.substring(0, msgString.length() - 4));
+
         //System.out.println(removed.getMsgType() + " " + removed.getFileId() + " " + removed.getChunkNo());
         //A peer that has a local copy of the chunk shall update its local count of this chunk
         //1- Check if chunk is stored

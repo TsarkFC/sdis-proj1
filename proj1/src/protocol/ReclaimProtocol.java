@@ -45,6 +45,7 @@ public class ReclaimProtocol extends Protocol {
             for (File file : fileFolders) {
                 if (currentSize <= maxDiskSpace) break;
                 //if (storedChunksMetadata.getChunkId(fi))
+                System.out.println("Elimnating only chunks with perceived rep degree > rep degree");
                 currentSize = reclaimFileSpace(file,currentSize,messages,true);
             }
             fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
@@ -87,6 +88,7 @@ public class ReclaimProtocol extends Protocol {
                             PeerArgs peerArgs = peer.getPeerArgs();
                             double size = chunkFile.length() / 1000;
                             System.out.println("Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
+                            System.out.println("With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
                             if (FileHandler.deleteFile(chunkFile)) {
                                 Removed removedMsg = new Removed(peerArgs.getVersion(), peerArgs.getPeerId(), fileId.getName(), Integer.parseInt(chunkFile.getName()));
                                 messages.add(removedMsg.getBytes());
