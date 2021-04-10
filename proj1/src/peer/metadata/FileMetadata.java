@@ -2,17 +2,20 @@ package peer.metadata;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileMetadata implements Serializable {
     private final String pathname;
     private final String id;
     private final int repDgr;
-    private Map<Integer, List<Integer>> chunksData = new HashMap<>();
+    private final int size;
+    private ConcurrentHashMap<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
 
-    public FileMetadata(String pathname, String id, int repDgr) {
+    public FileMetadata(String pathname, String id, int repDgr, int size) {
         this.pathname = pathname;
         this.id = id;
         this.repDgr = repDgr;
+        this.size = size;
     }
 
     public String getPathname() {
@@ -27,16 +30,20 @@ public class FileMetadata implements Serializable {
         return repDgr;
     }
 
-    public Map<Integer, List<Integer>> getChunksData() {
+    public Map<Integer, Set<Integer>> getChunksData() {
         return chunksData;
     }
 
+    public int getSize() {
+        return size;
+    }
+
     public void addChunk(Integer chunkId, Integer peerId) {
-        List<Integer> peersIds = chunksData.get(chunkId);
+        Set<Integer> peersIds = chunksData.get(chunkId);
         if (peersIds != null) {
             peersIds.add(peerId);
         } else {
-            peersIds = new ArrayList<>();
+            peersIds = new HashSet<>();
             peersIds.add(peerId);
             chunksData.put(chunkId, peersIds);
         }

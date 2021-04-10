@@ -25,6 +25,8 @@ public class RestoreChannel extends Channel{
 
         String headerString = new String(header);
         Chunk msg = new Chunk(headerString, body);
+        String chunkId = msg.getFileId() + "-" + msg.getChunkNo();
+        peer.addChunkReceived(chunkId);
 
         RestoreProtocol restoreProtocol = (RestoreProtocol) peer.getProtocol();
         restoreProtocol.handleChunkMsg(msg);

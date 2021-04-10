@@ -36,10 +36,6 @@ public class PeerArgs {
         return accessPoint;
     }
 
-    public List<MulticastAddress> getAddrs() {
-        return new ArrayList<MulticastAddress>();
-    }
-
     public AddressList getAddressList() {
         return addressList;
     }

@@ -1,27 +1,27 @@
 package peer.metadata;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChunkMetadata implements Serializable {
     private int sizeKb;
     private String id;
     private int repDgr;
-    private List<Integer> peerIds;
+    private Set<Integer> peerIds;
 
-    public ChunkMetadata(int sizeKb, String id, int repDgr, List<Integer> peerIds) {
+    public ChunkMetadata(int sizeKb, String id, int repDgr, Set<Integer> peerIds) {
         this.sizeKb = sizeKb;
         this.id = id;
         this.repDgr = repDgr;
         this.peerIds = peerIds;
     }
 
-    public ChunkMetadata(){
+    public ChunkMetadata() {
         sizeKb = 0;
         id = "";
         repDgr = 0;
-        peerIds = new ArrayList<>();
+        peerIds = new HashSet<>();
     }
 
     public String getString() {
@@ -43,9 +43,12 @@ public class ChunkMetadata implements Serializable {
     public int getPerceivedRepDgr() {
         return peerIds.size();
     }
-    public List<Integer> getPeerIds() { return peerIds;    }
 
-    public boolean biggerThanDesiredRep(){
+    public Set<Integer> getPeerIds() {
+        return peerIds;
+    }
+
+    public boolean biggerThanDesiredRep() {
         return getPerceivedRepDgr() > getRepDgr();
     }
 
@@ -54,10 +57,7 @@ public class ChunkMetadata implements Serializable {
             peerIds.add(peerId);
     }
 
-    public void removePeer(Integer peerId){
-        if (peerIds.contains(peerId)){
-            peerIds.remove(peerId);
-        }
+    public void removePeer(Integer peerId) {
+        peerIds.remove(peerId);
     }
-
 }

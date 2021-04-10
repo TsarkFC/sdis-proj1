@@ -1,12 +1,11 @@
 package protocol;
 
-import messages.Delete;
 import messages.Removed;
 import peer.Peer;
 import peer.PeerArgs;
 import peer.metadata.ChunkMetadata;
 import peer.metadata.StoredChunksMetadata;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.ThreadHandler;
 
 import java.io.File;
@@ -27,7 +26,7 @@ public class ReclaimProtocol extends Protocol {
         //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
         PeerArgs peerArgs = peer.getPeerArgs();
 
-        double currentStoredSize =  FileHandler.getFolderKbSize(peer.getFileSystem());
+        double currentStoredSize =  FileHandler.getDirectoryKbSize(peer.getFileSystem());
         System.out.println(String.format("Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
         if(currentStoredSize > maxDiskSpace){
             reclaimSpace(maxDiskSpace,currentStoredSize);
@@ -38,8 +37,8 @@ public class ReclaimProtocol extends Protocol {
     public void reclaimSpace(double maxDiskSpace, double currentSize){
         List<byte[]> messages = new ArrayList<>();
         System.out.println("Current size: " + currentSize + " Max Size: " + maxDiskSpace);
-        File[] fileFolders = FileHandler.getFolderFiles(peer.getFileSystem());
-        peer.getPeerMetadata().setMaxSpace(maxDiskSpace);
+        File[] fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
+        peer.getMetadata().setMaxSpace(maxDiskSpace);
         if (fileFolders != null) {
 
             //TODO primeiro percorrer aqueles com perceived degree > rep degree
@@ -48,7 +47,7 @@ public class ReclaimProtocol extends Protocol {
                 //if (storedChunksMetadata.getChunkId(fi))
                 currentSize = reclaimFileSpace(file,currentSize,messages,true);
             }
-            fileFolders = FileHandler.getFolderFiles(peer.getFileSystem());
+            fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
 
             //Eliminate every file until it has size < maxSize
             if(currentSize > maxDiskSpace){
@@ -71,13 +70,13 @@ public class ReclaimProtocol extends Protocol {
 
 
     private double reclaimFileSpace(File fileId,double currentSize,List<byte[]> messages, boolean onlyBiggerPercDgr){
-        StoredChunksMetadata storedChunksMetadata = peer.getPeerMetadata().getStoredChunksMetadata();
+        StoredChunksMetadata storedChunksMetadata = peer.getMetadata().getStoredChunksMetadata();
 
 
         //TODO por por replication degree em vez de por ordem alfabetica
         String name = fileId.getName();
         if(name != "metadata"){
-            File[] chunks = FileHandler.getFolderFiles(fileId.getPath());
+            File[] chunks = FileHandler.getDirectoryFiles(fileId.getPath());
             if (chunks!= null){
                 for (File chunkFile : chunks){
                     System.out.println("\n\n\nFOR EACH CHUNK");

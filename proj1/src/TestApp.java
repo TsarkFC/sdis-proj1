@@ -1,12 +1,9 @@
 import peer.RemoteObject;
-import utils.FileHandler;
+import filehandler.FileHandler;
 import utils.SubProtocol;
 
 import java.io.*;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -33,8 +30,7 @@ public class TestApp {
         if (!testApp.parseArguments(args)) return;
         testApp.connectRmi();
         if (testApp.path != null) {
-            File file = FileHandler.getFile(testApp.path);
-            if (file != null) testApp.processRequest(testApp.subProtocol, file);
+            testApp.processRequest(testApp.subProtocol, testApp.path);
         } else testApp.processRequest(testApp.subProtocol);
     }
 
@@ -109,14 +105,15 @@ public class TestApp {
         }
     }
 
-    private void processRequest(SubProtocol protocol, File file) throws IOException, InterruptedException {
+    private void processRequest(SubProtocol protocol, String path) throws IOException, InterruptedException {
+        File file = FileHandler.getFile(path);
         String result = "";
         switch (protocol) {
             case STATE -> result = stub.state();
             case BACKUP -> result = stub.backup(file, replicationDegree);
-            case DELETE -> result = stub.delete(file);
+            case DELETE -> result = stub.delete(path);
             case RECLAIM -> result = stub.reclaim(diskSpace);
-            case RESTORE -> result = stub.restore(file);
+            case RESTORE -> result = stub.restore(path);
         }
         System.out.println(result);
     }
