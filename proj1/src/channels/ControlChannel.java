@@ -52,13 +52,14 @@ public class ControlChannel extends Channel {
         //System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
     }
 
-    public void handleDelete(String msgString) throws IOException {
+    public void handleDelete(String msgString) {
         Delete msg = new Delete(msgString);
         if(!msg.samePeerAndSender(peer)) {
             System.out.println("Control Channel received Delete Msg: " + msgString.substring(0, msgString.length() - 4));
-            FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
-            peer.getMetadata().deleteFile(msg.getFileId());
-            DeleteProtocol.sendDeletedMessage(peer, msg);
+            if(FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem())){
+                peer.getMetadata().deleteFile(msg.getFileId());
+                DeleteProtocol.sendDeletedMessage(peer, msg);
+            }
         }
     }
 
@@ -68,11 +69,11 @@ public class ControlChannel extends Channel {
             System.out.println("Control Channel received DELETED Msg: " + msgString.substring(0, msgString.length() - 4));
             FileMetadata fileMetadata = peer.getMetadata().getHostingFileInfo().get(msg.getFileId());
             fileMetadata.removeID(msg.getSenderId());
-            System.out.println("SIZE OF ALMOST DELETED FILES: " + peer.getMetadata().getAlmostDeletedFiles().size());
             peer.getMetadata().writeMetadata();
             if (fileMetadata.deletedAllChunksAllPeers()){
-                System.out.println("SUCCESSFULLY REMOVED ALL CHUNKS FROM ALL PEERS");
+                System.out.println("Successfully removed all chunks from all peers of file " + msg.getFileId());
                 peer.getMetadata().deleteFileHosting(msg.getFileId(),peer);
+
             }
         }
     }
@@ -90,9 +91,7 @@ public class ControlChannel extends Channel {
                 DeleteProtocol.sendDeleteMessages(peer,almostDeletedFile.getId());
             }
         }
-        //FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
-        //peer.getMetadata().deleteFile(msg.getFileId());
-        //DeleteProtocol.sendDeletedMessage(peer,msg);
+
     }
 
     public void handleRestore(String msgString) {

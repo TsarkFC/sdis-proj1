@@ -34,6 +34,7 @@ public class DeleteProtocol extends Protocol {
             return;
         }
         peer.getMetadata().getHostingFileInfo().get(fileId).setDeleted(true);
+        if(peer.isVanillaVersion()) peer.getMetadata().deleteFile(fileId);
         sendDeleteMessages(peer,fileId);
     }
     //TODO maybe we should make this method not static
