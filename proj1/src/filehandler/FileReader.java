@@ -82,10 +82,8 @@ public class FileReader {
         }
 
         Future<Integer> result = readFileChannel.read(buffer, 0);
-        while(!result.isDone()) {
-            System.out.println("Getting chunk to restore... ");
-            System.out.println("Do some other processing");
-        }
+        while(!result.isDone());
+
         int chunkSize;
         try {
             chunkSize = result.get();

@@ -86,9 +86,9 @@ public class Metadata implements Serializable {
     }
 
     public boolean verifyRepDgr(String fileId, Integer repDgr, Integer numOfChunks) {
-        Map<Integer, List<Integer>> chunkData = hostingFileInfo.get(fileId).getChunksData();
+        Map<Integer, Set<Integer>> chunkData = hostingFileInfo.get(fileId).getChunksData();
         int chunksCount = 0;
-        for (Map.Entry<Integer, List<Integer>> entry : chunkData.entrySet()) {
+        for (Map.Entry<Integer, Set<Integer>> entry : chunkData.entrySet()) {
             chunksCount++;
             if (entry.getValue().size() < repDgr) return false;
         }
@@ -119,20 +119,21 @@ public class Metadata implements Serializable {
         StringBuilder state = new StringBuilder();
 
         // hosting data
+        state.append("[Hosting]\n");
         for (String fileId : hostingFileInfo.keySet()) {
             FileMetadata fileMetadata = hostingFileInfo.get(fileId);
-            state.append("[Hosting]\n");
-            state.append(String.format("Pathname: %s\nID: %s\nReplication Degree: %d\n",
+            state.append(String.format("[Pathname: %s]\nID: %s\nReplication Degree: %d\n",
                     fileMetadata.getPathname(), fileMetadata.getId(), fileMetadata.getRepDgr()));
             state.append("[Chunks]\n");
-            for (Map.Entry<Integer, List<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
+            for (Map.Entry<Integer, Set<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
                 state.append("[").append(entry.getKey()).append("]");
                 state.append(" Perceived replication degree = ").append(entry.getValue().size()).append("\n");
             }
+            state.append("\n");
         }
 
-        state.append("\n\n[STORED]\n");
         // stored chunks data
+        state.append("\n\n[STORED]\n");
         state.append(storedChunksMetadata.returnData());
 
         return state.toString();

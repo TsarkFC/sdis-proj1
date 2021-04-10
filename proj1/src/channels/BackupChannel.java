@@ -62,6 +62,7 @@ public class BackupChannel extends Channel {
         if (!alreadyReachedRepDgr(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg())) {
             System.out.println("Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo());
             System.out.println("\tFrom " + rcvdMsg.getSenderId());
+
             //TODO confirmar que este prevent reclaim deve ser aqui dentro e nao antes
             preventReclaim(rcvdMsg);
             FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());

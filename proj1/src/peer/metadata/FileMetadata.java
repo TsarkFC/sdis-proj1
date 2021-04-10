@@ -9,7 +9,7 @@ public class FileMetadata implements Serializable {
     private final String id;
     private final int repDgr;
     private final int size;
-    private ConcurrentHashMap<Integer, List<Integer>> chunksData = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
 
     public FileMetadata(String pathname, String id, int repDgr, int size) {
         this.pathname = pathname;
@@ -30,7 +30,7 @@ public class FileMetadata implements Serializable {
         return repDgr;
     }
 
-    public Map<Integer, List<Integer>> getChunksData() {
+    public Map<Integer, Set<Integer>> getChunksData() {
         return chunksData;
     }
 
@@ -39,11 +39,11 @@ public class FileMetadata implements Serializable {
     }
 
     public void addChunk(Integer chunkId, Integer peerId) {
-        List<Integer> peersIds = chunksData.get(chunkId);
+        Set<Integer> peersIds = chunksData.get(chunkId);
         if (peersIds != null) {
             peersIds.add(peerId);
         } else {
-            peersIds = new ArrayList<>();
+            peersIds = new HashSet<>();
             peersIds.add(peerId);
             chunksData.put(chunkId, peersIds);
         }

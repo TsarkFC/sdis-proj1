@@ -40,28 +40,28 @@ public class ControlChannel extends Channel {
     }
 
     public void handleBackup(String msgString) throws IOException {
-        System.out.println("Control Channel received Stored Msg: " + msgString);
+        System.out.println("Control Channel received Stored Msg: " + msgString.substring(0, msgString.length() - 4));
         Stored msg = new Stored(msgString);
         peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
-        System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
+        //System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
     }
 
     public void handleDelete(String msgString) throws IOException {
-        System.out.println("Control Channel received Delete Msg: " + msgString);
+        System.out.println("Control Channel received Delete Msg: " + msgString.substring(0, msgString.length() - 4));
         Delete msg = new Delete(msgString);
         FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem());
         peer.getMetadata().deleteFile(msg.getFileId());
     }
 
     public void handleRestore(String msgString) {
-        System.out.println("Control Channel received Restore Msg: " + msgString);
+        System.out.println("Control Channel received Restore Msg: " + msgString.substring(0, msgString.length() - 4));
         GetChunk msg = new GetChunk(msgString);
         peer.resetChunksReceived();
         RestoreProtocol.handleGetChunkMsg(msg, peer);
     }
 
     public void handleReclaim(String msgString) {
-        System.out.println("Control Channel received Removed Msg: " + msgString);
+        System.out.println("Control Channel received Removed Msg: " + msgString.substring(0, msgString.length() - 4));
         Removed removed = new Removed(msgString);
         //System.out.println(removed.getMsgType() + " " + removed.getFileId() + " " + removed.getChunkNo());
         //A peer that has a local copy of the chunk shall update its local count of this chunk

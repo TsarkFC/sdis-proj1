@@ -63,9 +63,9 @@ public class BackupProtocol extends Protocol {
             msgs.add(msg.getBytes());
             ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
                     peerArgs.getAddressList().getMcAddr().getPort(), msgs);
-        }
 
-        System.out.println("Deleted previous file");
+            System.out.println("[BACKUP] Received new version of file. Deleted previous one!");
+        }
 
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
         peer.getMetadata().addHostingEntry(fileMetadata);
@@ -85,21 +85,21 @@ public class BackupProtocol extends Protocol {
             ThreadHandler.startMulticastThread(peer.getPeerArgs().getAddressList().getMdbAddr().getAddress(),
                     peer.getPeerArgs().getAddressList().getMdbAddr().getPort(), messages);
             executor.schedule(this::verify, timeWait, TimeUnit.SECONDS);
-            System.out.println("Sent message, waiting " + timeWait + " seconds...");
+            System.out.println("[BACKUP] Sent message, waiting " + timeWait + " seconds...");
         } else {
-            System.out.println("Reached resending limit of PUTCHUNK messages!");
-            System.out.println("ERROR: Failed to  Back up file...");
+            System.out.println("[BACKUP] Reached resending limit of PUTCHUNK messages!");
+            System.out.println("[FAILED] Failed to back up file...");
         }
     }
 
     private void verify() {
         if (!peer.getMetadata().verifyRepDgr(fileId, repDgr, numOfChunks)) {
-            System.out.println("Did not get expected replication degree after " + timeWait + " seconds. Resending...");
-            execute();
+            System.out.println("[BACKUP] Did not get expected replication degree after " + timeWait + " seconds. Resending...");
             reps++;
             timeWait *= 2;
+            execute();
         } else {
-            System.out.println("Got expected replication degree!");
+            System.out.println("[BACKUP] Got expected replication degree!");
         }
     }
 
@@ -108,7 +108,7 @@ public class BackupProtocol extends Protocol {
         FileHandler fileHandler = new FileHandler(file);
 
         if (peer.getMetadata().hasChunk(fileId, chunkNo)) {
-            System.out.println("File already backed up, aborting...");
+            System.out.println("[BACKUP] File already backed up, aborting...");
             return;
         }
         FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());

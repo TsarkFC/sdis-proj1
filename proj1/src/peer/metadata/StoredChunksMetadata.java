@@ -40,13 +40,13 @@ public class StoredChunksMetadata implements Serializable {
     public void updateChunkInfo(String fileId, Integer chunkNo, Integer repDgr, Integer chunkSize, Integer peerId) {
         String chunkId = getChunkId(fileId, chunkNo);
         if (!chunksInfo.containsKey(chunkId)) {
-            List<Integer> peerIds = new ArrayList<>();
+            Set<Integer> peerIds = new HashSet<>();
             peerIds.add(peerId);
             chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
         } else {
             ChunkMetadata chunkMetadata = chunksInfo.get(chunkId);
             if (chunkId.equals("")) {
-                List<Integer> peerIds = chunkMetadata.getPeerIds();
+                Set<Integer> peerIds = chunkMetadata.getPeerIds();
                 chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
             } else {
                 ChunkMetadata chunk = chunksInfo.get(chunkId);
