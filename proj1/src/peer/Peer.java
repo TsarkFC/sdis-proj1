@@ -102,7 +102,7 @@ public class Peer implements RemoteObject {
 
     @Override
     public String state() throws RemoteException {
-        System.out.println("[STATE] Initiator peer received Delete");
+        System.out.println("[STATE] Initiator peer received State");
         return metadata.returnState();
     }
 

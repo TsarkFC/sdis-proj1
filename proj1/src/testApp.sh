@@ -11,7 +11,7 @@ cd build
 ../../scripts/test.sh access0 STATE
 
 #Big image
-#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+#../../scripts/test.sh access1 BACKUP ../files/bigimage.jpg 3
 #../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
 #../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
 
