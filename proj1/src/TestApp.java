@@ -119,23 +119,49 @@ public class TestApp {
 
     private void processRequest(SubProtocol protocol, String path) throws IOException, InterruptedException {
         File file = FileHandler.getFile(path);
-        String result = "";
         switch (protocol) {
-            case STATE -> result = stub.state();
-            case BACKUP -> result = stub.backup(file, replicationDegree);
-            case DELETE -> result = stub.delete(path);
-            case RECLAIM -> result = stub.reclaim(diskSpace);
-            case RESTORE -> result = stub.restore(path);
+            case BACKUP:{
+                System.out.println("Initiating Backup Backup");
+                stub.backup(file, replicationDegree);
+                break;
+
+            }
+            case DELETE:{
+                System.out.println("Initiating Backup Backup");
+                stub.delete(path);
+                break;
+
+            }
+            case RESTORE:{
+                System.out.println("Initiating Backup Restore");
+                stub.restore(path);
+                break;
+
+            }
+            default:{
+                System.out.println("File was null");
+                break;
+            }
         }
-        System.out.println(result);
     }
 
     private void processRequest(SubProtocol protocol) throws IOException {
         String result = "";
         switch (protocol) {
-            case RECLAIM -> result = stub.reclaim(diskSpace);
-            case STATE -> result = stub.state();
-            default -> System.out.println("File was null");
+            case RECLAIM:{
+                System.out.println("Initiating Backup Reclaim");
+                stub.reclaim(diskSpace);
+                break;
+            }
+            case STATE:{
+                System.out.println("Initiating Backup State");
+                result = stub.state();
+                break;
+            }
+            default:{
+                System.out.println("Error processing request");
+                break;
+            }
         }
         System.out.println(result);
     }

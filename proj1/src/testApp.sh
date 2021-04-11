@@ -2,7 +2,7 @@
 #you should use as access point the name of the remote object providing the "testing" service.
 export CLASSPATH=
 cd build
-#../../scripts/test.sh access0 BACKUP ../files/321.txt 3
+../../scripts/test.sh access0 BACKUP ../files/321.txt 3
 #../../scripts/test.sh access0 BACKUP ../files/file.txt 2
 #../../scripts/test.sh access0 BACKUP ../files/file.txt 3
 #../../scripts/test.sh access1 BACKUP ../files/file.txt 3
@@ -18,5 +18,5 @@ cd build
 #../../scripts/test.sh access0 BACKUP ../files/bigtextfile.txt 3
 #../../scripts/test.sh access0 RESTORE ../files/bigtextfile.txt
 
-../../scripts/test.sh access0 STATE
+#../../scripts/test.sh access0 STATE
 #../../scripts/test.sh access1 STATE
