@@ -30,7 +30,7 @@ import static filehandler.FileHandler.CHUNK_SIZE;
 public class RestoreProtocol extends Protocol {
     private final ConcurrentHashMap<Integer, byte[]> chunksMap = new ConcurrentHashMap<>();
     private int chunksNo;
-    private boolean complete = false;
+    private final boolean complete = false;
 
     public RestoreProtocol(String path, Peer peer) {
         super(path, peer);
@@ -69,7 +69,7 @@ public class RestoreProtocol extends Protocol {
     public static void sendChunk(GetChunk rcvdMsg, Peer peer) {
         byte[] chunk = FileHandler.getChunk(rcvdMsg, peer.getFileSystem());
         if (chunk == null) {
-            System.out.println("");
+            System.out.println();
             return;
         }
 

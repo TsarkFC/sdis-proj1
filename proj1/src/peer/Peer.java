@@ -30,7 +30,7 @@ public class Peer implements RemoteObject {
     private String filesDir;
 
     private List<String> chunksReceived = new ArrayList<>();
-    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, byte[]>> activeRestores = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, byte[]>> activeRestores = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         if (args.length != 9) {

@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ChunkMetadata implements Serializable {
-    private int sizeKb;
-    private String id;
-    private int repDgr;
-    private Set<Integer> peerIds;
+    private final int sizeKb;
+    private final String id;
+    private final int repDgr;
+    private final Set<Integer> peerIds;
 
     public ChunkMetadata(int sizeKb, String id, int repDgr, Set<Integer> peerIds) {
         this.sizeKb = sizeKb;
@@ -53,8 +53,7 @@ public class ChunkMetadata implements Serializable {
     }
 
     public void addPeer(Integer peerId) {
-        if (!peerIds.contains(peerId))
-            peerIds.add(peerId);
+        peerIds.add(peerId);
     }
 
     public void removePeer(Integer peerId) {

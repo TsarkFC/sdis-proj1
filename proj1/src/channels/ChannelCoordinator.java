@@ -7,11 +7,11 @@ import utils.AddressList;
 import java.util.concurrent.*;
 
 public class ChannelCoordinator {
-    private boolean mcReceiving = true;
+    private final boolean mcReceiving = true;
     private ScheduledThreadPoolExecutor executor;
     private final Peer peer;
     private BackupProtocolInitiator backupInitiator;
-    private ConcurrentHashMap<String, Integer> receivedStoredMsg = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> receivedStoredMsg = new ConcurrentHashMap<>();
 
     public ChannelCoordinator(Peer peer) {
         this.peer = peer;

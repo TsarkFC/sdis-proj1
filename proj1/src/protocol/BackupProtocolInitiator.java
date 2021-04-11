@@ -11,8 +11,8 @@ import java.util.Set;
 
 public class BackupProtocolInitiator implements Runnable {
     Removed removed;
-    private ChunkMetadata chunkMetadata;
-    private Peer peer;
+    private final ChunkMetadata chunkMetadata;
+    private final Peer peer;
     /**
      * If during this delay, a peer receives a PUTCHUNK message for the same file chunk,
      * this map only has the fileId-chunkNo received before the reclaim initiated the protocol

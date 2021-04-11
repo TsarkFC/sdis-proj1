@@ -8,7 +8,7 @@ cd build
 #../../scripts/test.sh access0 DELETE ../files/321.txt
 #../../scripts/test.sh access0 RESTORE ../files/321.txt
 #../../scripts/test.sh access1 RECLAIM 70
-#../../scripts/test.sh access0 STATE
+../../scripts/test.sh access0 STATE
 
 #Big image
 #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
@@ -39,9 +39,11 @@ cd build
 #Run backup with 3 peers
 #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
 #Run reclaim with 4 peers
-../../scripts/test.sh access1 RECLAIM 70
+#../../scripts/test.sh access1 RECLAIM 70
 #It should backup the other chunks in 2
 
 #Test RECLAIM 0
 #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
-#../../scripts/test.sh access1 RECLAIM 70
+#../../scripts/test.sh access1 RECLAIM 0
+#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
+#../../scripts/test.sh access0 RECLAIM 0

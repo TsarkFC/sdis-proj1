@@ -16,7 +16,7 @@ public class FileMetadata implements Serializable {
     /**
      * Maps chunk no to peer Ids that store the chunk
      */
-    private Map<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
+    private final Map<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
 
     public FileMetadata(String pathname, String id, int repDgr, int size) {
         this.pathname = pathname;
@@ -59,9 +59,7 @@ public class FileMetadata implements Serializable {
     public void removeID(int peersId){
         for (Set<Integer> peerIds : chunksData.values()){
             if(peerIds != null){
-                if (peerIds.contains(peersId)){
-                    peerIds.remove(peersId);
-                }
+                peerIds.remove(peersId);
             }
         }
     }

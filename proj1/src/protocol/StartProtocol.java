@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StartProtocol {
-    private Peer peer;
+    private final Peer peer;
 
     public StartProtocol(Peer peer) {
         this.peer = peer;

@@ -58,11 +58,6 @@ public class Metadata implements Serializable {
         return hostingFileInfo.size() > 0 && hostingFileInfo.containsKey(fileId);
     }
 
-    public boolean hasChunk(String fileId, int chunkNo) {
-        String chunkID = storedChunksMetadata.getChunkId(fileId, chunkNo);
-        return storedChunksMetadata.getChunksInfo().containsKey(chunkID);
-    }
-
     public String getFileIdFromPath(String pathName) {
         for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
             if (entry.getValue().getPathname().equals(pathName)) return entry.getKey();
@@ -137,6 +132,7 @@ public class Metadata implements Serializable {
         }
     }
 
+
     public String returnState() {
         StringBuilder state = new StringBuilder();
 
@@ -163,10 +159,6 @@ public class Metadata implements Serializable {
 
     public void setMaxSpace(double maxSpace) {
         this.maxSpace = maxSpace;
-    }
-
-    public double getMaxSpace() {
-        return maxSpace;
     }
 
     public boolean hasSpace(double newFileSizeKb) {
