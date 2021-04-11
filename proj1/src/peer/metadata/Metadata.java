@@ -134,7 +134,8 @@ public class Metadata implements Serializable {
 
     public String returnState(){
         StringBuilder state = new StringBuilder();
-        state.append("\n******************* State Metadata *******************\n");
+        state.append("\n********************************************************************************\n");
+        state.append("******************************** State Metadata ********************************\n");
         // hosting data
         state.append("* Hosting:\n");
         for (String fileId : hostingFileInfo.keySet()) {
@@ -153,7 +154,11 @@ public class Metadata implements Serializable {
 
         // stored chunks data
         state.append("* Stored:\n");
-        state.append(storedChunksMetadata.returnData("   "));
+        state.append(storedChunksMetadata.returnData());
+
+        state.append("\n********************************************************************************\n");
+        state.append("********************************************************************************\n");
+
 
         return state.toString();
     }
@@ -164,6 +169,8 @@ public class Metadata implements Serializable {
 
         // hosting data
         state.append("[Hosting]\n");
+        state.append(hostingFileInfo.keySet().size());
+
         for (String fileId : hostingFileInfo.keySet()) {
             FileMetadata fileMetadata = hostingFileInfo.get(fileId);
             state.append(String.format("[Pathname: %s]\nID: %s\nReplication Degree: %d\n",
@@ -178,9 +185,11 @@ public class Metadata implements Serializable {
 
         // stored chunks data
         state.append("\n\n[STORED]\n");
+        state.append(storedChunksMetadata.returnData());
 
         return state.toString();
     }
+
 
     public void setMaxSpace(double maxSpace) {
         this.maxSpace = maxSpace;
