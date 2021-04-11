@@ -17,6 +17,10 @@ public class StoredChunksMetadata implements Serializable {
         return fileId + "-" + chunkNo;
     }
 
+    public String[] getFileChunkIds(String chunkId){
+        return chunkId.split("-");
+    }
+
     /**
      * Updating when received STORED messages
      */
@@ -97,9 +101,40 @@ public class StoredChunksMetadata implements Serializable {
         return chunksInfo.getOrDefault(chunkId, null);
     }
 
-    public String returnData() {
+    /*public String returnData1(String tabs) {
         StringBuilder state = new StringBuilder();
 
+        for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
+            ChunkMetadata chunkMetadata = entry.getValue();
+            String[] fileChunkIds = getFileChunkIds(entry.getKey());
+            state.append(tabs +"* File ID: ").append(fileChunkIds[0]).append("\n");
+            state.append(tabs +"* Chunk Id: ").append(fileChunkIds[1]).append("\n");
+            state.append(tabs +"* Stored chunk ").append(entry.getKey()).append("]\n");
+            state.append(String.format("Size (kb): %d\nReplication Degree: %d\nPerceived replication Degree: %d\n",
+                    chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
+        }
+        return state.toString();
+    }*/
+
+    public String returnData() {
+        String tabs = "   ";
+        StringBuilder state = new StringBuilder();
+        int chunkNum = 0;
+        for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
+            state.append(tabs +"Chunk  " + chunkNum + "\n");
+            chunkNum++;
+            ChunkMetadata chunkMetadata = entry.getValue();
+            String[] fileChunkIds = getFileChunkIds(entry.getKey());
+            state.append(tabs +"  * File ID: ").append(fileChunkIds[0]).append("\n");
+            state.append(tabs +"  * Chunk Id: ").append(fileChunkIds[1]).append("\n");
+            state.append(String.format("%s  * Size (kb): %d\n%s  * Replication Degree: %d\n%s  * Perceived replication Degree: %d\n",tabs,
+                    chunkMetadata.getSizeKb(),tabs, chunkMetadata.getRepDgr(),tabs, chunkMetadata.getPerceivedRepDgr()));
+        }
+        return state.toString();
+    }
+
+    /*public String returnData() {
+        StringBuilder state = new StringBuilder();
         for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
             ChunkMetadata chunkMetadata = entry.getValue();
             state.append("[Stored chunk ").append(entry.getKey()).append("]\n");
@@ -107,7 +142,8 @@ public class StoredChunksMetadata implements Serializable {
                     chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
         }
         return state.toString();
-    }
+    }*/
+
 
     public int getStoredSize() {
         int size = 0;

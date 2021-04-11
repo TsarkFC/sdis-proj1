@@ -42,7 +42,6 @@ public class FileWriter {
     }
 
     public static void restoreFile(String path, ConcurrentHashMap<Integer, byte[]> content) {
-        System.out.println("RESTORING...");
         Path filePath = Paths.get(path);
         AsynchronousFileChannel writeFileChannel;
         try {

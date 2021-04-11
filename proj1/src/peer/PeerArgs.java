@@ -44,7 +44,7 @@ public class PeerArgs {
         return metadataPath;
     }
 
-    public PeerArgs(String[] args) {
+    public PeerArgs(String[] args) throws NumberFormatException{
         version = args[VERSION];
         peerId = Integer.parseInt(args[PEER_ID]);
         accessPoint = args[ACCESS_POINT];
@@ -54,4 +54,5 @@ public class PeerArgs {
         addressList = new AddressList(mcAddr, mdbAddr, mdrAddr);
         metadataPath = "../filesystem/" + peerId + "/metadata";
     }
+
 }

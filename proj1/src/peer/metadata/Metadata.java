@@ -58,11 +58,6 @@ public class Metadata implements Serializable {
         return hostingFileInfo.size() > 0 && hostingFileInfo.containsKey(fileId);
     }
 
-    public boolean hasChunk(String fileId, int chunkNo) {
-        String chunkID = storedChunksMetadata.getChunkId(fileId, chunkNo);
-        return storedChunksMetadata.getChunksInfo().containsKey(chunkID);
-    }
-
     public String getFileIdFromPath(String pathName) {
         for (Map.Entry<String, FileMetadata> entry : hostingFileInfo.entrySet()) {
             if (entry.getValue().getPathname().equals(pathName)) return entry.getKey();
@@ -87,7 +82,7 @@ public class Metadata implements Serializable {
     /**
      * Updating information on stored chunks data
      */
-    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId) throws IOException {
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId)  {
         FileMetadata hostingMetadata = hostingFileInfo.get(fileId);
         if (hostingMetadata != null) {
             updateHostingInfo(hostingMetadata, chunkNo, peerId);
@@ -138,11 +133,45 @@ public class Metadata implements Serializable {
         }
     }
 
-    public String returnState() {
+    public String returnState(){
+        StringBuilder state = new StringBuilder();
+        state.append("\n********************************************************************************\n");
+        state.append("******************************** State Metadata ********************************\n");
+        // hosting data
+        state.append("* Hosting:\n");
+        for (String fileId : hostingFileInfo.keySet()) {
+            state.append("   * File ID: " + fileId+ "\n");
+
+            FileMetadata fileMetadata = hostingFileInfo.get(fileId);
+            state.append(String.format("\t* Pathname: %s\n\t* Desired Replication Degree: %d\n",
+                    fileMetadata.getPathname(), fileMetadata.getRepDgr()));
+            state.append("\t* Hosting Chunks:\n");
+            for (Map.Entry<Integer, Set<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
+                state.append("\t     [").append(entry.getKey()).append("]");
+                state.append(" Perceived replication degree = ").append(entry.getValue().size()).append("\n");
+            }
+            state.append("\n");
+        }
+
+        // stored chunks data
+        state.append("* Stored:\n");
+        state.append(storedChunksMetadata.returnData());
+
+        state.append("\n********************************************************************************\n");
+        state.append("********************************************************************************\n");
+
+
+        return state.toString();
+    }
+
+
+    public String returnState1() {
         StringBuilder state = new StringBuilder();
 
         // hosting data
         state.append("[Hosting]\n");
+        state.append(hostingFileInfo.keySet().size());
+
         for (String fileId : hostingFileInfo.keySet()) {
             FileMetadata fileMetadata = hostingFileInfo.get(fileId);
             state.append(String.format("[Pathname: %s]\nID: %s\nReplication Degree: %d\n",
@@ -162,12 +191,10 @@ public class Metadata implements Serializable {
         return state.toString();
     }
 
+
     public void setMaxSpace(double maxSpace) {
         this.maxSpace = maxSpace;
-    }
-
-    public double getMaxSpace() {
-        return maxSpace;
+        writeMetadata();
     }
 
     public boolean hasSpace(double newFileSizeKb) {

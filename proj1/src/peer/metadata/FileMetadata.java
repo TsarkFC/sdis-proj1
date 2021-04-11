@@ -14,7 +14,7 @@ public class FileMetadata implements Serializable {
     /**
      * Maps chunk no to peer Ids that store the chunk
      */
-    private Map<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
+    private final Map<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
 
     public FileMetadata(String pathname, String id, int repDgr, int size) {
         this.pathname = pathname;

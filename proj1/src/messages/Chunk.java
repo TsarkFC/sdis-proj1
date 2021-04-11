@@ -3,7 +3,7 @@ package messages;
 // <Version> CHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF><Body>
 
 public class Chunk extends MsgWithChunk {
-    private byte[] body;
+    private final byte[] body;
 
     public Chunk(Double version, Integer senderId, String fileId, Integer chunkNo, byte[] body) {
         super(version, senderId, fileId, chunkNo);

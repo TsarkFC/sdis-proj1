@@ -1,8 +1,8 @@
 package messages;
 
 public class ChunkEnhanced extends MsgWithChunk {
-    private int portNumber;
-    private static int PORTNUM_IDX = 5;
+    private final int portNumber;
+    private static final int PORTNUM_IDX = 5;
 
     public ChunkEnhanced(Double version, Integer senderId, String fileId, Integer chunkNo, int portNumber) {
         super(version, senderId, fileId, chunkNo);
