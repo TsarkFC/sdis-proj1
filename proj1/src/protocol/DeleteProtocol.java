@@ -4,7 +4,6 @@ import messages.Delete;
 import messages.Deleted;
 import peer.Peer;
 import peer.PeerArgs;
-import peer.metadata.FileMetadata;
 import peer.metadata.Metadata;
 import utils.AddressList;
 import utils.ThreadHandler;

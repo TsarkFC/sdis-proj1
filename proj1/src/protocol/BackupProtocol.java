@@ -54,8 +54,6 @@ public class BackupProtocol extends Protocol {
         // Updating a previously backed up file, delete previous one
         String previousFileId = peer.getMetadata().getFileIdFromPath(file.getPath());
         if (previousFileId != null) {
-            System.out.println("[BACKUP] Running DELETE protocol on previous file version...");
-
             PeerArgs peerArgs = peer.getArgs();
             Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), previousFileId);
             List<byte[]> msgs = new ArrayList<>();

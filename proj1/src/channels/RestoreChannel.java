@@ -1,18 +1,14 @@
 package channels;
 
-import filehandler.FileHandler;
 import messages.Chunk;
 import messages.ChunkEnhanced;
 import peer.Peer;
-import protocol.RestoreProtocol;
 import utils.AddressList;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Socket;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static filehandler.FileHandler.CHUNK_SIZE;
@@ -64,12 +60,13 @@ public class RestoreChannel extends Channel{
              BufferedInputStream in = new BufferedInputStream(socket.getInputStream())) {
 
             byte[] chunk = new byte[CHUNK_SIZE];
-            int readTest = in.readNBytes(chunk, 0, CHUNK_SIZE);
+            int bytesRead = in.readNBytes(chunk, 0, CHUNK_SIZE);
+            byte[] cleanChunk = Arrays.copyOf(chunk, bytesRead);
             in.close();
-            System.out.println("[TCP] Read from TCP: " + readTest);
+            System.out.println("[TCP] Read from TCP: " + bytesRead);
             socket.close();
 
-            peer.addChunk(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), chunk);
+            peer.addChunk(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), cleanChunk);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -30,6 +30,7 @@ public class Peer implements RemoteObject {
     private String filesDir;
 
     private List<String> chunksReceived = new ArrayList<>();
+
     private ConcurrentHashMap<String, ConcurrentHashMap<Integer, byte[]>> activeRestores = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
@@ -149,6 +150,7 @@ public class Peer implements RemoteObject {
     public void setChannelCoordinator(ChannelCoordinator channelCoordinator) {
         this.channelCoordinator = channelCoordinator;
     }
+
     public boolean isVanillaVersion() {
         return peerArgs.getVersion() == 1.0;
     }
@@ -172,15 +174,17 @@ public class Peer implements RemoteObject {
     public void addChunk(String fileId, Integer chunkNo, byte[] chunk) {
         ConcurrentHashMap<Integer, byte[]> restore = activeRestores.get(fileId);
         if (restore == null) {
-            System.out.println("[RESTORE] could not find file entry in restore data!");
+            System.out.println("[RESTORE] Restore complete, discarding...");
             return;
         }
         restore.put(chunkNo, chunk);
         if (restore.size() >= FileHandler.getNumberOfChunks(metadata.getFileSize(fileId))) {
             Path restoreFilePath = Paths.get(metadata.getFileMetadata(fileId).getPathname());
             String filename = getRestoreDir() + "/" + restoreFilePath.getFileName();
-            FileHandler.restoreFile(filename, restore);
+            if (!hasRestoreEntry(fileId)) return;
+            ConcurrentHashMap<Integer, byte[]> copy = new ConcurrentHashMap<>(restore);
             activeRestores.remove(fileId);
+            FileHandler.restoreFile(filename, copy);
             System.out.println("[RESTORE] Completed Restore");
         }
     }

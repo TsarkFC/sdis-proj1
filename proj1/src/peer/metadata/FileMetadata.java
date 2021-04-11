@@ -1,7 +1,5 @@
 package peer.metadata;
 
-import messages.Delete;
-
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,36 +54,34 @@ public class FileMetadata implements Serializable {
         }
     }
 
-    public void removeID(int peersId){
-        for (Set<Integer> peerIds : chunksData.values()){
-            if(peerIds != null){
-                if (peerIds.contains(peersId)){
-                    peerIds.remove(peersId);
-                }
+    public void removeID(int peersId) {
+        for (Set<Integer> peerIds : chunksData.values()) {
+            if (peerIds != null) {
+                peerIds.remove(peersId);
             }
         }
     }
 
-    public boolean peerHasChunk(int peerId){
-        for (Set<Integer> peerIds : chunksData.values()){
-            if(peerIds.contains(peerId)) return true;
+    public boolean peerHasChunk(int peerId) {
+        for (Set<Integer> peerIds : chunksData.values()) {
+            if (peerIds.contains(peerId)) return true;
         }
         return false;
     }
 
-    public boolean deletedAllChunksAllPeers(){
-        for (Set<Integer> peerIds : chunksData.values()){
-            if(peerIds.size()!=0) return false;
+    public boolean deletedAllChunksAllPeers() {
+        for (Set<Integer> peerIds : chunksData.values()) {
+            if (peerIds.size() != 0) return false;
         }
         return true;
     }
 
-    public int getNumberPeersStoreChunk(int chunkId){
+    public int getNumberPeersStoreChunk(int chunkId) {
         Set<Integer> peersIds = chunksData.get(chunkId);
-        if (peersIds != null){
+        if (peersIds != null) {
             peersIds.remove(chunkId);
             return peersIds.size();
-        }else return -1;
+        } else return -1;
     }
 
     public boolean isDeleted() {

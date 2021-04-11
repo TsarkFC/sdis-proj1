@@ -1,36 +1,30 @@
 package protocol;
 
+import filehandler.FileHandler;
 import messages.Chunk;
 import messages.ChunkEnhanced;
 import messages.GetChunk;
-import messages.MsgWithChunk;
 import peer.Peer;
 import peer.PeerArgs;
-import filehandler.FileHandler;
 import peer.metadata.Metadata;
 import utils.AddressList;
 import utils.ThreadHandler;
 import utils.Utils;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static filehandler.FileHandler.CHUNK_SIZE;
-
-
 public class RestoreProtocol extends Protocol {
-    private final ConcurrentHashMap<Integer, byte[]> chunksMap = new ConcurrentHashMap<>();
-    private int chunksNo;
-    private boolean complete = false;
+    int repsLimit = 5;
+    int timeWait = 1;
+    int reps = 1;
+    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     public RestoreProtocol(String path, Peer peer) {
         super(path, peer);
@@ -51,14 +45,34 @@ public class RestoreProtocol extends Protocol {
         }
 
         peer.addRestoreEntry(fileId);
-        chunksNo = FileHandler.getNumberOfChunks(metadata.getFileSize(fileId));
+        int chunksNo = FileHandler.getNumberOfChunks(metadata.getFileSize(fileId));
 
         for (int i = 0; i < chunksNo; i++) {
             GetChunk getChunk = new GetChunk(peerArgs.getVersion(), peerArgs.getPeerId(), fileId, i);
             messages.add(getChunk.getBytes());
         }
-        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
-                peerArgs.getAddressList().getMcAddr().getPort(), messages);
+
+        execute(messages, fileId);
+    }
+
+    private void execute(List<byte[]> messages, String fileId) {
+        if (reps <= repsLimit) {
+            AddressList addrList = peer.getArgs().getAddressList();
+            ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), messages);
+            executor.schedule(() -> verify(messages, fileId), timeWait, TimeUnit.SECONDS);
+            System.out.println("[RESTORE] Sent message, waiting " + timeWait + " seconds...");
+        } else {
+            System.out.println("[RESTORE] Reached resending limit of PUTCHUNK messages!");
+        }
+    }
+
+    private void verify(List<byte[]> messages, String fileId) {
+        if (peer.hasRestoreEntry(fileId)) {
+            System.out.println("[RESTORE] Did not complete after " + timeWait + " seconds. Resending...");
+            reps++;
+            timeWait *= 2;
+            execute(messages, fileId);
+        }
     }
 
     public static void handleGetChunkMsg(GetChunk rcvdMsg, Peer peer) {
@@ -80,8 +94,7 @@ public class RestoreProtocol extends Protocol {
             Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getArgs().getPeerId(), rcvdMsg.getFileId(),
                     rcvdMsg.getChunkNo(), chunk);
             msgs.add(msg.getBytes());
-        }
-        else {
+        } else {
             if (socket == null) {
                 System.out.println("[RESTORE] could not start tcp server socket, aborting...");
                 return;
