@@ -40,7 +40,9 @@ public class Peer implements RemoteObject {
         try {
             // Peer creation
             Peer peer = new Peer();
-            peer.peerArgs = new PeerArgs(args);
+            //peer.peerArgs = new PeerArgs(args);
+            peer.peerArgs = peer.createPeerArgs(args);
+            if(peer.peerArgs==null) return;
             peer.startFileSystem();
             peer.createMetadata();
 
@@ -56,6 +58,16 @@ public class Peer implements RemoteObject {
 
         } catch (Exception e) {
             System.out.println("Error creating peer and connecting to RMI: " + e);
+        }
+    }
+
+    public PeerArgs createPeerArgs(String[] args){
+        try {
+            return new PeerArgs(args);
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing peer arguments");
+            System.out.println("Expected Integer and found String");
+            return null;
         }
     }
 

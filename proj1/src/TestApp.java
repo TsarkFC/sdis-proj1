@@ -4,6 +4,7 @@ import utils.SubProtocol;
 
 import java.io.*;
 
+import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -25,13 +26,22 @@ public class TestApp {
 
     private RemoteObject stub;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         TestApp testApp = new TestApp();
         if (!testApp.parseArguments(args)) return;
-        testApp.connectRmi();
-        if (testApp.path != null) {
-            testApp.processRequest(testApp.subProtocol, testApp.path);
-        } else testApp.processRequest(testApp.subProtocol);
+        if(!testApp.connectRmi()) return;
+
+        try {
+            if (testApp.path != null) {
+                testApp.processRequest(testApp.subProtocol, testApp.path);
+            } else testApp.processRequest(testApp.subProtocol);
+        } catch (IOException e) {
+            System.out.println("Error: Failed to process Client Request");
+        } catch (InterruptedException e) {
+            System.out.println("Error: Failed to process Client Request");
+        }
+
+
     }
 
     private boolean parseArguments(String[] args) {
@@ -94,15 +104,17 @@ public class TestApp {
         return true;
     }
 
-    private void connectRmi() {
+    private boolean connectRmi() {
         try {
             Registry registry = LocateRegistry.getRegistry("localhost");
             this.stub = (RemoteObject) registry.lookup(this.peerAp);
             System.out.println("Connected!");
+            return true;
         } catch (Exception e) {
-            System.err.println("TestApp exception: " + e);
-            e.printStackTrace();
+            System.err.println("Error connecting to RMI: " + e.getMessage());
+            //e.printStackTrace();
         }
+        return false;
     }
 
     private void processRequest(SubProtocol protocol, String path) throws IOException, InterruptedException {
