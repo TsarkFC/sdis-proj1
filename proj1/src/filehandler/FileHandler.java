@@ -42,7 +42,7 @@ public class FileHandler {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        String id = file.getName() + file.lastModified() + file.length();
+        String id = file.getPath() + file.lastModified() + file.length();
         byte[] encodedHash = digest.digest(id.getBytes(StandardCharsets.UTF_8));
 
         StringBuilder sb = new StringBuilder();

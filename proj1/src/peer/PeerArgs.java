@@ -3,9 +3,6 @@ package peer;
 import utils.AddressList;
 import utils.MulticastAddress;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PeerArgs {
     public static final Integer VERSION = 0;
     public static final Integer PEER_ID = 1;
@@ -18,11 +15,11 @@ public class PeerArgs {
     public static final Integer MDR_PORT = 8;
 
     //java Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
-    String version;
-    Integer peerId;
-    String accessPoint;
-    AddressList addressList;
-    String metadataPath;
+    final String version;
+    final Integer peerId;
+    final String accessPoint;
+    final AddressList addressList;
+    final String metadataPath;
 
     public Double getVersion() {
         return Double.parseDouble(version);

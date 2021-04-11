@@ -4,7 +4,7 @@ package messages;
 public abstract class MsgWithChunk extends Message {
 
     final int CHUNK_NO_IDX = 4;
-    protected Integer chunkNo;
+    protected final Integer chunkNo;
 
     public MsgWithChunk(Double version, Integer senderId, String fileId, Integer chunkNo) {
         super(version, senderId, fileId);

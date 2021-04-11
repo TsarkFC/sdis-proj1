@@ -27,7 +27,7 @@ public class GetChunkHandler {
     private void sendChunk(GetChunk rcvdMsg, Peer peer) {
         byte[] chunk = FileHandler.getChunk(rcvdMsg, peer.getFileSystem());
         if (chunk == null) {
-            System.out.println("");
+            System.out.println();
             return;
         }
 

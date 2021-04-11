@@ -3,16 +3,15 @@ package protocol;
 import messages.handlers.DeleteHandler;
 import peer.Peer;
 import peer.metadata.Metadata;
-import utils.ThreadHandler;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class DeleteProtocol extends Protocol {
-    int repsLimit = 3;
+    final int repsLimit = 3;
     int reps = 1;
-    int timeWait = 1;
-    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    final int timeWait = 1;
+    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     public DeleteProtocol(String path, Peer peer) {
         super(path, peer);

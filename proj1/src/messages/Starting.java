@@ -1,6 +1,6 @@
 package messages;
 
-// <Version> REMOVED <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
+// <Version> STARTING <CRLF><CRLF>
 public class Starting extends Message {
 
     public Starting(Double version, Integer senderId) {

@@ -4,7 +4,6 @@ import utils.SubProtocol;
 
 import java.io.*;
 
-import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 

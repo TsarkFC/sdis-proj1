@@ -55,17 +55,12 @@ public class BackupChannel extends Channel {
     }
 
     private void saveStateMetadata(PutChunk rcvdMsg) {
-        try {
-            peer.getMetadata().updateStoredInfo(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg(),
-                    rcvdMsg.getBody().length / 1000.0, peer.getArgs().getPeerId());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        peer.getMetadata().updateStoredInfo(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg(),
+                rcvdMsg.getBody().length / 1000.0, peer.getArgs().getPeerId());
     }
 
     public void saveChunk(PutChunk rcvdMsg) {
         System.out.println("[BACKUP] Backing up file " + rcvdMsg.getFileId() + "-" + rcvdMsg.getChunkNo() + "from " + rcvdMsg.getSenderId());
-        //TODO confirmar que este prevent reclaim deve ser aqui dentro e nao antes
         preventReclaim(rcvdMsg);
         FileHandler.saveChunk(rcvdMsg, peer.getFileSystem());
         saveStateMetadata(rcvdMsg);

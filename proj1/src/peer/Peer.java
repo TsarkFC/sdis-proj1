@@ -62,7 +62,7 @@ public class Peer implements RemoteObject {
     }
 
     @Override
-    public void delete(String path) throws IOException, InterruptedException {
+    public void delete(String path) throws IOException {
         System.out.println("[DELETE] Initiator peer received Delete");
         this.protocol = new DeleteProtocol(path, this);
         this.protocol.initialize();

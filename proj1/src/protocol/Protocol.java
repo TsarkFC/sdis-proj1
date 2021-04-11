@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class Protocol {
-    protected File file;
-    protected Peer peer;
+    protected final File file;
+    protected final Peer peer;
     protected String path;
 
     public Protocol(File file, Peer peer) {
@@ -22,5 +22,5 @@ public abstract class Protocol {
         this.peer = peer;
     }
 
-    public abstract void initialize() throws IOException;
+    public abstract void initialize();
 }

@@ -12,11 +12,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Channel implements Runnable {
-    protected AddressList addrList;
+    protected final AddressList addrList;
     protected MulticastAddress currentAddr;
-    protected Peer peer;
-    protected int numOfThreads = 20;
-    protected ScheduledThreadPoolExecutor executor;
+    protected final Peer peer;
+    protected final int numOfThreads = 20;
+    protected final ScheduledThreadPoolExecutor executor;
     private final double MAX_SIZE = Math.pow(2, 16);
 
     public AddressList getAddrList() {

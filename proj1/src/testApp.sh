@@ -40,7 +40,7 @@ cd build
 #Test reclaim and following backup
 #TODO Se ele for o unico que tem o ficheiro, o que e suposto acontecer?
 #Run backup with 3 peers
-#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
+../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
 #Run reclaim with 4 peers
 #../../scripts/test.sh access1 RECLAIM 70
 #It should backup the other chunks in 2

@@ -14,7 +14,6 @@ import java.util.List;
 
 public class ReclaimProtocol extends Protocol {
     private final Double maxDiskSpace;
-    //TODO Talvez este null de merda, mas sera que vale a pena?
     public ReclaimProtocol(Double maxDiskSpace, Peer peer) {
         super((File) null, peer);
         this.maxDiskSpace = maxDiskSpace;
@@ -23,8 +22,6 @@ public class ReclaimProtocol extends Protocol {
     @Override
     public void initialize() {
         System.out.println("[RECLAIM] Initializing Reclaim protocol");
-
-        //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
         PeerArgs peerArgs = peer.getArgs();
         peer.getMetadata().setMaxSpace(maxDiskSpace);
         double currentStoredSize =  FileHandler.getDirectoryKbSize(peer.getFileSystem());
@@ -77,7 +74,7 @@ public class ReclaimProtocol extends Protocol {
                     ChunkMetadata chunkMetadata = storedChunksMetadata.getChunk(fileId.getName(), Integer.valueOf(chunkFile.getName()));
                     if(!onlyBiggerPercDgr || chunkMetadata.biggerThanDesiredRep()){
                             PeerArgs peerArgs = peer.getArgs();
-                            double size = chunkFile.length() / 1000;
+                            double size = chunkFile.length() / 1000.0;
                             System.out.println("[RECLAIM] Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
                             System.out.println("          With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
                             if (FileHandler.deleteFile(chunkFile)) {
