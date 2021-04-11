@@ -200,6 +200,9 @@ public class Metadata implements Serializable {
     public boolean hasSpace(double newFileSizeKb) {
         int storedSize = storedChunksMetadata.getStoredSize();
         double finalSpace = storedSize + newFileSizeKb;
+
+        System.out.println("STORED SIZE: " + storedSize);
+        System.out.println("WOTH MEW FILE: " +finalSpace);
         if (maxSpace == -1) return true;
         return maxSpace > finalSpace;
     }

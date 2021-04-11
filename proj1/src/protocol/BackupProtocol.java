@@ -104,8 +104,8 @@ public class BackupProtocol extends Protocol {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 
-        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
-        peer.getMetadata().addHostingEntry(fileMetadata);
+        //FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
+        //peer.getMetadata().addHostingEntry(fileMetadata);
 
         PutChunk backupMsg = new PutChunk(peer.getArgs().getVersion(), peer.getArgs().getPeerId(), fileId,
                 chunkNo, repDgr, fileHandler.getChunkFileData());

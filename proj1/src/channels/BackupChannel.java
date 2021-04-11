@@ -26,6 +26,11 @@ public class BackupChannel extends Channel {
 
     @Override
     public void handle(DatagramPacket packet) {
+
+
+        System.out.println("IN THE BACKUP CHANNEL");
+        peer.getMetadata().printState();
+
         byte[] packetData = packet.getData();
         int bodyStartPos = getBodyStartPos(packetData);
         byte[] header = Arrays.copyOfRange(packetData, 0, bodyStartPos - 4);
@@ -45,6 +50,9 @@ public class BackupChannel extends Channel {
             new ScheduledThreadPoolExecutor(1).schedule(() -> sendStored(rcvdMsg),
                     Utils.generateRandomDelay(delayMsg), TimeUnit.MILLISECONDS);
         }
+
+        System.out.println("IN THE END CHANNEL");
+        peer.getMetadata().printState();
     }
 
     private boolean shouldSaveFile(PutChunk rcvdMsg) {

@@ -65,29 +65,34 @@ public class ReclaimProtocol extends Protocol {
 
     private double reclaimFileSpace(File fileId,double currentSize,List<byte[]> messages, boolean onlyBiggerPercDgr){
         StoredChunksMetadata storedChunksMetadata = peer.getMetadata().getStoredChunksMetadata();
-        String name = fileId.getName();
-        if(!name.equals("metadata") && !name.equals("restored")){
-            System.out.println("[RECLAIM] Analysing file: " + name);
+        String fileName = fileId.getName();
+        if(!fileName.equals("metadata") && !fileName.equals("restored")){
+            System.out.println("[RECLAIM] Analysing file: " + fileName);
             File[] chunks = FileHandler.getDirectoryFiles(fileId.getPath());
             if (chunks!= null){
                 for (File chunkFile : chunks){
                     ChunkMetadata chunkMetadata = storedChunksMetadata.getChunk(fileId.getName(), Integer.valueOf(chunkFile.getName()));
                     if(!onlyBiggerPercDgr || chunkMetadata.biggerThanDesiredRep()){
                             PeerArgs peerArgs = peer.getArgs();
+                            int chunkNo = Integer.parseInt(chunkFile.getName());
                             double size = chunkFile.length() / 1000.0;
                             System.out.println("[RECLAIM] Eliminating chunk: " + chunkFile.getPath() + " size: " + size);
                             System.out.println("          With perceived dgr = " + chunkMetadata.getPerceivedRepDgr() + " and rep = "+chunkMetadata.getRepDgr());
                             if (FileHandler.deleteFile(chunkFile)) {
+                                peer.getMetadata().getStoredChunksMetadata().deleteChunk(fileName,chunkNo);
+                                peer.getMetadata().writeMetadata();
                                 Removed removedMsg = new Removed(peerArgs.getVersion(), peerArgs.getPeerId(), fileId.getName(), Integer.parseInt(chunkFile.getName()));
                                 messages.add(removedMsg.getBytes());
                                 currentSize -= size;
                                 System.out.println("[RECLAIM] Current Size = " + currentSize);
+                                peer.getMetadata().printState();
                                 if (currentSize <= maxDiskSpace) break;
                             }
                     }
                 }
             }
         }
+
         return currentSize;
     }
 

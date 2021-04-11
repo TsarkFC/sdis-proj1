@@ -56,6 +56,7 @@ public class StoredChunksMetadata implements Serializable {
 
     public void deleteChunk(String fileId, Integer chunkNo) {
         String chunkId = fileId + "-" + chunkNo;
+        System.out.println("DELETONG CHUNK METADATA OF: " + chunkId);
         if (!chunksInfo.containsKey(chunkId)) {
             System.out.println("Cannot delete Chunk from Metadata");
         } else {
