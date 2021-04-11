@@ -119,21 +119,22 @@ public class TestApp {
 
     private void processRequest(SubProtocol protocol, String path) throws IOException, InterruptedException {
         File file = FileHandler.getFile(path);
+        if(file==null) return;
         switch (protocol) {
             case BACKUP:{
-                System.out.println("Initiating Backup Backup");
+                System.out.println("Initiating Backup Protocol");
                 stub.backup(file, replicationDegree);
                 break;
 
             }
             case DELETE:{
-                System.out.println("Initiating Backup Backup");
+                System.out.println("Initiating Delete Protocol");
                 stub.delete(path);
                 break;
 
             }
             case RESTORE:{
-                System.out.println("Initiating Backup Restore");
+                System.out.println("Initiating Restore Protocol");
                 stub.restore(path);
                 break;
 
@@ -149,12 +150,12 @@ public class TestApp {
         String result = "";
         switch (protocol) {
             case RECLAIM:{
-                System.out.println("Initiating Backup Reclaim");
+                System.out.println("Initiating Reclaim Protocol");
                 stub.reclaim(diskSpace);
                 break;
             }
             case STATE:{
-                System.out.println("Initiating Backup State");
+                System.out.println("Initiating State Protocol");
                 result = stub.state();
                 break;
             }

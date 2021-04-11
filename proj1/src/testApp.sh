@@ -12,9 +12,9 @@ cd build
 #../../scripts/test.sh access1 RECLAIM 70
 #../../scripts/test.sh access2 RECLAIM 0
 
-../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
 #../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
-#../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
+../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
 
 #../../scripts/test.sh access0 BACKUP ../files/bigtextfile.txt 3
 #../../scripts/test.sh access0 RESTORE ../files/bigtextfile.txt
