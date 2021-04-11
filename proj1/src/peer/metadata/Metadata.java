@@ -41,12 +41,12 @@ public class Metadata implements Serializable {
         writeMetadata();
     }
 
-    public List<FileMetadata> getAlmostDeletedFiles(){
+    public List<FileMetadata> getAlmostDeletedFiles() {
         List<FileMetadata> almostDeletedFiles = new ArrayList<>();
-        for (FileMetadata fileMetadata: hostingFileInfo.values()) {
+        for (FileMetadata fileMetadata : hostingFileInfo.values()) {
             if (fileMetadata.isDeleted()) almostDeletedFiles.add(fileMetadata);
         }
-        return  almostDeletedFiles;
+        return almostDeletedFiles;
     }
 
     public void updateHostingInfo(FileMetadata hostingMetadata, Integer chunkNo, Integer peerId) {
@@ -70,12 +70,13 @@ public class Metadata implements Serializable {
         return null;
     }
 
-    public void deleteFile(String fileId)  {
+    public void deleteFile(String fileId) {
         hostingFileInfo.remove(fileId);
         storedChunksMetadata.deleteChunksFromFile(fileId);
         writeMetadata();
     }
-    public void deleteFileHosting(String fileID,Peer peer){
+
+    public void deleteFileHosting(String fileID, Peer peer) {
         FileMetadata fileMetadata = hostingFileInfo.get(fileID);
         if (!peer.isVanillaVersion() && fileMetadata.deletedAllChunksAllPeers()) {
             hostingFileInfo.remove(fileID);

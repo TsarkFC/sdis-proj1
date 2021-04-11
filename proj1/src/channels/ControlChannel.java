@@ -1,6 +1,7 @@
 package channels;
 
 import messages.*;
+import messages.handlers.DeleteHandler;
 import messages.handlers.GetChunkHandler;
 import peer.Peer;
 import peer.metadata.ChunkMetadata;
@@ -49,7 +50,6 @@ public class ControlChannel extends Channel {
         System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
         Stored msg = new Stored(msgString);
         peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
-        //System.out.println("PERCEIVED CONTROL CHANNEL: " +peer.getMetadata().getStoredChunksMetadata().getStoredCount(msg.getFileId(), msg.getChunkNo()));
     }
 
     public void handleDelete(String msgString) {
@@ -58,7 +58,7 @@ public class ControlChannel extends Channel {
             System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
             if (FileHandler.deleteFile(msg.getFileId(), peer.getFileSystem())) {
                 peer.getMetadata().deleteFile(msg.getFileId());
-                DeleteProtocol.sendDeletedMessage(peer, msg);
+                new DeleteHandler().sendDeletedMessage(peer, msg);
             }
         }
     }
@@ -84,7 +84,7 @@ public class ControlChannel extends Channel {
             List<FileMetadata> almostDeletedFiles = peer.getMetadata().getAlmostDeletedFiles();
             for (FileMetadata almostDeletedFile : almostDeletedFiles) {
                 System.out.println("[DELETE] Sending delete message of file " + almostDeletedFile.getId());
-                DeleteProtocol.sendDeleteMessages(peer, almostDeletedFile.getId());
+                new DeleteHandler().sendDeleteMessages(peer, almostDeletedFile.getId());
             }
         }
     }

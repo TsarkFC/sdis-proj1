@@ -1,17 +1,18 @@
 package protocol;
 
-import messages.Delete;
-import messages.Deleted;
+import messages.handlers.DeleteHandler;
 import peer.Peer;
-import peer.PeerArgs;
 import peer.metadata.Metadata;
-import utils.AddressList;
 import utils.ThreadHandler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class DeleteProtocol extends Protocol {
+    int repsLimit = 3;
+    int reps = 1;
+    int timeWait = 1;
+    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     public DeleteProtocol(String path, Peer peer) {
         super(path, peer);
@@ -23,34 +24,24 @@ public class DeleteProtocol extends Protocol {
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
 
-        //TODO O que é isto?
         if (!metadata.hasFile(fileId)) {
             System.out.println("Peer has not hosted BACKUP to file");
             return;
         }
         peer.getMetadata().getFileMetadata(fileId).setDeleted(true);
         if (peer.isVanillaVersion()) peer.getMetadata().deleteFile(fileId);
-        sendDeleteMessages(peer, fileId);
+
+        execute(fileId);
     }
 
-    //TODO maybe we should make this method not static
-    public static void sendDeleteMessages(Peer peer, String fileId) {
-        PeerArgs peerArgs = peer.getArgs();
-        List<byte[]> messages = new ArrayList<>();
-        Delete msg = new Delete(peerArgs.getVersion(), peerArgs.getPeerId(), fileId);
-        messages.add(msg.getBytes());
-        ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
-                peerArgs.getAddressList().getMcAddr().getPort(), messages);
-    }
-
-    public static void sendDeletedMessage(Peer peer, Delete deleteMsg) {
-        AddressList addrList = peer.getArgs().getAddressList();
-        if (!peer.isVanillaVersion()) {
-            Deleted msg = new Deleted(deleteMsg.getVersion(), peer.getArgs().getPeerId(), deleteMsg.getFileId());
-            List<byte[]> msgs = new ArrayList<>();
-            msgs.add(msg.getBytes());
-            ThreadHandler.startMulticastThread(addrList.getMcAddr().getAddress(), addrList.getMcAddr().getPort(), msgs);
+    private void execute(String fileId) {
+        if (reps <= repsLimit) {
+            new DeleteHandler().sendDeleteMessages(peer, fileId);
+            executor.schedule(() -> {
+                reps++;
+                execute(fileId);
+            }, timeWait, TimeUnit.SECONDS);
+            System.out.println("[DELETE] Sent message, waiting " + timeWait + " seconds...");
         }
     }
-
 }
