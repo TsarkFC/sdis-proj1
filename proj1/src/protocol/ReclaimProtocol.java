@@ -26,7 +26,7 @@ public class ReclaimProtocol extends Protocol {
 
         //TODO O Reclaim quem é que elimina o espaço, é o initiator peer?
         PeerArgs peerArgs = peer.getArgs();
-
+        peer.getMetadata().setMaxSpace(maxDiskSpace);
         double currentStoredSize =  FileHandler.getDirectoryKbSize(peer.getFileSystem());
         System.out.println(String.format("[RECLAIM] Peer %d has %f Kb allocated and a max size of %f",peerArgs.getPeerId(),currentStoredSize,maxDiskSpace));
         if(currentStoredSize > maxDiskSpace){
@@ -38,7 +38,6 @@ public class ReclaimProtocol extends Protocol {
     public void reclaimSpace(double maxDiskSpace, double currentSize){
         List<byte[]> messages = new ArrayList<>();
         File[] fileFolders = FileHandler.getDirectoryFiles(peer.getFileSystem());
-        peer.getMetadata().setMaxSpace(maxDiskSpace);
         if (fileFolders != null) {
 
             System.out.println("[RECLAIM] Eliminating only chunks with Perceived Rep degree > Rep degree");

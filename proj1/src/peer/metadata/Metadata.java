@@ -81,7 +81,7 @@ public class Metadata implements Serializable {
     /**
      * Updating information on stored chunks data
      */
-    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId) throws IOException {
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId)  {
         FileMetadata hostingMetadata = hostingFileInfo.get(fileId);
         if (hostingMetadata != null) {
             updateHostingInfo(hostingMetadata, chunkNo, peerId);
@@ -193,6 +193,7 @@ public class Metadata implements Serializable {
 
     public void setMaxSpace(double maxSpace) {
         this.maxSpace = maxSpace;
+        writeMetadata();
     }
 
     public boolean hasSpace(double newFileSizeKb) {
