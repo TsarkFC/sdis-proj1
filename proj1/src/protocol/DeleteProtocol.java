@@ -17,11 +17,6 @@ public class DeleteProtocol extends Protocol {
         super(path, peer);
     }
 
-    //Send on the MC Channel
-    //A file may be deleted, and it should delete all the chunks of that file
-    //When the file is modified, it should also delete the old copy
-    //An implementation may send this message as many times as it is deemed necessary to ensure that all space used
-    // by chunks of the deleted file are deleted in spite of the loss of some messages.
     @Override
     public void initialize() {
         System.out.println("[DELETE] Initializing Delete protocol");

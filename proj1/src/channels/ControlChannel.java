@@ -1,6 +1,7 @@
 package channels;
 
 import messages.*;
+import messages.handlers.GetChunkHandler;
 import peer.Peer;
 import peer.metadata.ChunkMetadata;
 import peer.metadata.FileMetadata;
@@ -72,7 +73,6 @@ public class ControlChannel extends Channel {
             if (fileMetadata.deletedAllChunksAllPeers()) {
                 System.out.println("[DELETE] Successfully removed all chunks from all peers of file " + msg.getFileId());
                 peer.getMetadata().deleteFileHosting(msg.getFileId(), peer);
-
             }
         }
     }
@@ -93,7 +93,7 @@ public class ControlChannel extends Channel {
         System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
         GetChunk msg = new GetChunk(msgString);
         peer.resetChunksReceived();
-        RestoreProtocol.handleGetChunkMsg(msg, peer);
+        new GetChunkHandler().handleGetChunkMsg(msg, peer);
     }
 
     public void handleReclaim(String msgString) {
