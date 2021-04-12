@@ -139,7 +139,7 @@ public class TestApp {
 
             }
             default:{
-                System.out.println("File was null");
+                System.out.println("[ERROR] File was null");
                 break;
             }
         }

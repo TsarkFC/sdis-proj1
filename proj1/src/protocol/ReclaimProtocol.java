@@ -57,7 +57,7 @@ public class ReclaimProtocol extends Protocol {
             ThreadHandler.startMulticastThread(peerArgs.getAddressList().getMcAddr().getAddress(),
                     peerArgs.getAddressList().getMcAddr().getPort(), messages);
         }else{
-            System.out.println("The peer does not have any stored files");
+            System.out.println("[RECLAIM] The peer does not have any stored files");
         }
     }
 
@@ -86,7 +86,6 @@ public class ReclaimProtocol extends Protocol {
                                 messages.add(removedMsg.getBytes());
                                 currentSize -= size;
                                 System.out.println("[RECLAIM] Current Size = " + currentSize);
-                                System.out.println(peer.getMetadata().returnState());
                                 if (currentSize <= maxDiskSpace) break;
                             }
                     }
