@@ -74,6 +74,7 @@ public class Metadata implements Serializable {
 
     public void deleteFileHosting(String fileID, Peer peer) {
         FileMetadata fileMetadata = hostingFileInfo.get(fileID);
+        if(fileMetadata == null) return;
         if (!peer.isVanillaVersion() && fileMetadata.deletedAllChunksAllPeers()) {
             hostingFileInfo.remove(fileID);
             writeMetadata();

@@ -66,6 +66,7 @@ public class ControlChannel extends Channel {
         if (!msg.samePeerAndSender(peer) && !peer.isVanillaVersion()) {
             System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
             FileMetadata fileMetadata = peer.getMetadata().getFileMetadata(msg.getFileId());
+            if(fileMetadata == null) return;
             fileMetadata.removeID(msg.getSenderId());
             peer.getMetadata().writeMetadata();
             if (fileMetadata.deletedAllChunksAllPeers()) {

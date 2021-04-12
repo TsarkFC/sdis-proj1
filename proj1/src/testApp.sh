@@ -79,9 +79,9 @@ cd build
 #../../scripts/test.sh access0 BACKUP ../files/321.txt 9
 #Run Delete with 2 peers - python3 run_peers.py 2 1.1 yes
 #../../scripts/test.sh access0 DELETE ../files/321.txt
-../../scripts/test.sh access0 STATE
-#Start 10 peers and see if deletes the remaining files
 #../../scripts/test.sh access0 STATE
+#Start 10 peers and see if deletes the remaining files
+#../../scripts/test.sh access2 STATE
 
 
 
