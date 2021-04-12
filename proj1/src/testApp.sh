@@ -51,8 +51,14 @@ cd build
   #It should backup the other chunks in 3
   #Verify if peer 2 is NOT hosting anything
   #../../scripts/test.sh access2 STATE
-  #Verify if peer 1 is NOT storing anything
+  #Verify if peer 1 is NOT storing the 3 chunks
   ../../scripts/test.sh access1 STATE
+
+#Testar se todos os peers, mm que nao guardem o chunk nao estao a guardar no stored
+#O backup enhanced nao esta a guardar os chunks que nao sao suposto
+#O reclaim normal nao guarda no 1 os outros stored
+
+#O problema é o backup protocol initiator com enhanced
 
 
 

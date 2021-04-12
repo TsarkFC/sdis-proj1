@@ -1,5 +1,7 @@
 package peer.metadata;
 
+import peer.Peer;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,17 +26,22 @@ public class StoredChunksMetadata implements Serializable {
     /**
      * Updating when received STORED messages
      */
-    public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId) {
+    public void updateChunkInfo(String fileId, Integer chunkNo, Integer peerId, Peer peer) {
         String chunkId = getChunkId(fileId, chunkNo);
         ChunkMetadata chunk;
 
         if (chunksInfo.containsKey(chunkId)) {
             chunk = chunksInfo.get(chunkId);
+            chunk.addPeer(peerId);
         } else {
-            chunk = new ChunkMetadata();
-            chunksInfo.put(chunkId, chunk);
+            if(!peer.isVanillaVersion()){
+                chunk = new ChunkMetadata();
+                chunksInfo.put(chunkId, chunk);
+                chunk.addPeer(peerId);
+
+            }
+
         }
-        chunk.addPeer(peerId);
     }
 
     /**
@@ -56,11 +63,19 @@ public class StoredChunksMetadata implements Serializable {
 
     public void deleteChunk(String fileId, Integer chunkNo) {
         String chunkId = fileId + "-" + chunkNo;
-        System.out.println("DELETONG CHUNK METADATA OF: " + chunkId);
+
         if (!chunksInfo.containsKey(chunkId)) {
-            System.out.println("Cannot delete Chunk from Metadata");
+            System.out.println("[DELETE] Cannot delete Chunk from Metadata");
         } else {
+            System.out.println("DELETING CHUNK BECAUSE OF RECLAIM" +  chunkId);
             chunksInfo.remove(chunkId);
+        }
+    }
+    public void deleteChunksSize0(String fileId) {
+        for (String ckId : chunksInfo.keySet()) {
+            if(chunksInfo.get(ckId).getSizeKb() == 0){
+                chunksInfo.remove(ckId);
+            }
         }
     }
 

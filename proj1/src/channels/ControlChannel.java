@@ -47,7 +47,7 @@ public class ControlChannel extends Channel {
     public void handleBackup(String msgString) {
         System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
         Stored msg = new Stored(msgString);
-        peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());
+        peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId(),peer);
     }
 
     public void handleDelete(String msgString) {
