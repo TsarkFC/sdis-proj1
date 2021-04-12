@@ -27,11 +27,6 @@ public class BackupChannel extends Channel {
     @Override
     public void handle(DatagramPacket packet) {
 
-
-        System.out.println("IN THE BACKUP CHANNEL");
-        System.out.println(peer.getMetadata().returnState());
-
-
         byte[] packetData = packet.getData();
         int bodyStartPos = getBodyStartPos(packetData);
         byte[] header = Arrays.copyOfRange(packetData, 0, bodyStartPos - 4);
@@ -40,7 +35,6 @@ public class BackupChannel extends Channel {
         String rcvd = new String(header, 0, header.length);
         System.out.println("[RECEIVED MESSAGE MDB] " + rcvd);
         PutChunk rcvdMsg = new PutChunk(rcvd, body);
-
 
         if (shouldSaveFile(rcvdMsg)) {
             String delayMsg;

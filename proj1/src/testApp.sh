@@ -17,6 +17,11 @@ cd build
 #../../scripts/test.sh access0 STATE
 #../../scripts/test.sh access1 STATE
 #../../scripts/test.sh access0 DELETE ../files/5mb.jpg
+#../../scripts/test.sh access0 BACKUP ../files/1mb.jpeg 3
+#../../scripts/test.sh access0 RESTORE ../files/1mb.jpeg
+#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+#../../scripts/test.sh access1 RECLAIM 0
+#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
 
 ################# TEST MANY SAME TIME BACKUP ###################
 #Run all backups at same time
@@ -51,11 +56,17 @@ cd build
   #It should backup the other chunks in 3
   #Verify if peer 2 is NOT hosting anything
   #../../scripts/test.sh access2 STATE
+  #Verify if peer 1 is NOT storing anything
+  #../../scripts/test.sh access1 STATE
   #Verify if peer 1 is NOT storing the 3 chunks
   #../../scripts/test.sh access1 STATE
 
 
-
+#state after reclaim and backup
+#../../scripts/test.sh access1 RECLAIM 0
+#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+#../../scripts/test.sh access0 STATE
+#../../scripts/test.sh access1 STATE
 
 ################# TEST ENHANCEMENT BACKUP ###################
 # Run backup with 10 peers version 1.1
@@ -68,7 +79,9 @@ cd build
 #../../scripts/test.sh access0 BACKUP ../files/321.txt 9
 #Run Delete with 2 peers - python3 run_peers.py 2 1.1 yes
 #../../scripts/test.sh access0 DELETE ../files/321.txt
+../../scripts/test.sh access0 STATE
 #Start 10 peers and see if deletes the remaining files
+#../../scripts/test.sh access0 STATE
 
 
 

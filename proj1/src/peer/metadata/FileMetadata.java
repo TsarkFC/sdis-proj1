@@ -3,6 +3,7 @@ package peer.metadata;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class FileMetadata implements Serializable {
     private final String pathname;
@@ -14,7 +15,7 @@ public class FileMetadata implements Serializable {
     /**
      * Maps chunk no to peer Ids that store the chunk
      */
-    private final Map<Integer, Set<Integer>> chunksData = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, ConcurrentSkipListSet<Integer>> chunksData = new ConcurrentHashMap<>();
 
     public FileMetadata(String pathname, String id, int repDgr, int size) {
         this.pathname = pathname;
@@ -35,7 +36,7 @@ public class FileMetadata implements Serializable {
         return repDgr;
     }
 
-    public Map<Integer, Set<Integer>> getChunksData() {
+    public ConcurrentHashMap<Integer, ConcurrentSkipListSet<Integer>> getChunksData() {
         return chunksData;
     }
 
@@ -44,44 +45,29 @@ public class FileMetadata implements Serializable {
     }
 
     public void addChunk(Integer chunkId, Integer peerId) {
-        Set<Integer> peersIds = chunksData.get(chunkId);
+        ConcurrentSkipListSet<Integer> peersIds = chunksData.get(chunkId);
         if (peersIds != null) {
             peersIds.add(peerId);
         } else {
-            peersIds = new HashSet<>();
+            peersIds = new ConcurrentSkipListSet<>();
             peersIds.add(peerId);
             chunksData.put(chunkId, peersIds);
         }
     }
 
     public void removeID(int peersId) {
-        for (Set<Integer> peerIds : chunksData.values()) {
+        for (ConcurrentSkipListSet<Integer> peerIds : chunksData.values()) {
             if (peerIds != null) {
                 peerIds.remove(peersId);
             }
         }
     }
 
-    public boolean peerHasChunk(int peerId) {
-        for (Set<Integer> peerIds : chunksData.values()) {
-            if (peerIds.contains(peerId)) return true;
-        }
-        return false;
-    }
-
     public boolean deletedAllChunksAllPeers() {
-        for (Set<Integer> peerIds : chunksData.values()) {
+        for (ConcurrentSkipListSet<Integer> peerIds : chunksData.values()) {
             if (peerIds.size() != 0) return false;
         }
         return true;
-    }
-
-    public int getNumberPeersStoreChunk(int chunkId) {
-        Set<Integer> peersIds = chunksData.get(chunkId);
-        if (peersIds != null) {
-            peersIds.remove(chunkId);
-            return peersIds.size();
-        } else return -1;
     }
 
     public boolean isDeleted() {

@@ -1,16 +1,15 @@
 package peer.metadata;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ChunkMetadata implements Serializable {
     private final int sizeKb;
     private final String id;
     private final int repDgr;
-    private final Set<Integer> peerIds;
+    private final ConcurrentSkipListSet<Integer> peerIds;
 
-    public ChunkMetadata(int sizeKb, String id, int repDgr, Set<Integer> peerIds) {
+    public ChunkMetadata(int sizeKb, String id, int repDgr, ConcurrentSkipListSet<Integer> peerIds) {
         this.sizeKb = sizeKb;
         this.id = id;
         this.repDgr = repDgr;
@@ -21,7 +20,7 @@ public class ChunkMetadata implements Serializable {
         sizeKb = 0;
         id = "";
         repDgr = 0;
-        peerIds = new HashSet<>();
+        peerIds = new ConcurrentSkipListSet<>();
     }
 
     public String getString() {
@@ -44,7 +43,7 @@ public class ChunkMetadata implements Serializable {
         return peerIds.size();
     }
 
-    public Set<Integer> getPeerIds() {
+    public ConcurrentSkipListSet<Integer> getPeerIds() {
         return peerIds;
     }
 

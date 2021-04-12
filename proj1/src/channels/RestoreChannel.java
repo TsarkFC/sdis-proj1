@@ -32,6 +32,8 @@ public class RestoreChannel extends Channel{
 
         if (peer.getArgs().getVersion() == 1.0) {
             Chunk msg = new Chunk(headerString, body);
+            if (msg.getVersion() > 1.0) return;
+
             String chunkId = msg.getFileId() + "-" + msg.getChunkNo();
             peer.addChunkReceived(chunkId);
             handleChunkMsg(msg);
@@ -40,7 +42,13 @@ public class RestoreChannel extends Channel{
             ChunkEnhanced msg = new ChunkEnhanced(headerString, body);
             String chunkId = msg.getFileId() + "-" + msg.getChunkNo();
             peer.addChunkReceived(chunkId);
-            handleChunkEnhancedMsg(msg);
+
+            if (msg.getVersion() != 1.0) {
+                handleChunkEnhancedMsg(msg);
+            }
+            else
+                handleChunkMsg(new Chunk(headerString, body));
+
         }
     }
 

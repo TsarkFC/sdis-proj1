@@ -5,6 +5,7 @@ import peer.Peer;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class StoredChunksMetadata implements Serializable {
 
@@ -56,13 +57,13 @@ public class StoredChunksMetadata implements Serializable {
     public void updateChunkInfo(String fileId, Integer chunkNo, Integer repDgr, Integer chunkSize, Integer peerId) {
         String chunkId = getChunkId(fileId, chunkNo);
         if (!chunksInfo.containsKey(chunkId)) {
-            Set<Integer> peerIds = new HashSet<>();
+            ConcurrentSkipListSet<Integer> peerIds = new ConcurrentSkipListSet<>();
             peerIds.add(peerId);
             chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
         } else {
             ChunkMetadata chunkMetadata = chunksInfo.get(chunkId);
             //Saving chunk after having received stored messages
-            Set<Integer> peerIds = chunkMetadata.getPeerIds();
+            ConcurrentSkipListSet<Integer> peerIds = chunkMetadata.getPeerIds();
             chunksInfo.put(chunkId, new ChunkMetadata(chunkSize, chunkId, repDgr, peerIds));
         }
     }
