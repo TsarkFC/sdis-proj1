@@ -26,12 +26,12 @@ public class ControlChannel extends Channel {
     }
 
     @Override
-    public void handle(DatagramPacket packet) throws IOException {
+    public void handle(DatagramPacket packet) {
         String rcvd = new String(packet.getData(), 0, packet.getLength());
         parseMsg(rcvd);
     }
 
-    public void parseMsg(String msgString) throws IOException {
+    public void parseMsg(String msgString) {
         String msgType = Message.getTypeStatic(msgString);
         switch (msgType) {
             case "STORED" -> handleBackup(msgString);

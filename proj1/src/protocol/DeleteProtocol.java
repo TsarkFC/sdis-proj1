@@ -23,7 +23,7 @@ public class DeleteProtocol extends Protocol {
         Metadata metadata = peer.getMetadata();
         String fileId = metadata.getFileIdFromPath(path);
 
-        if (!metadata.hasFile(fileId)) {
+        if (fileId == null) {
             System.out.println("[ERROR] Peer has not hosted BACKUP to file");
             return;
         }

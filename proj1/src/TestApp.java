@@ -86,6 +86,10 @@ public class TestApp {
                     return false;
                 }
                 diskSpace = Double.parseDouble(args[this.DISK_SPACE_IDX]);
+                if ((int) diskSpace < -1) {
+                    System.out.println("Usage: <peer_ap> RECLAIM <path_name> (disk space cannot be smaller that -1)");
+                    return false;
+                }
                 break;
             }
             case STATE: {

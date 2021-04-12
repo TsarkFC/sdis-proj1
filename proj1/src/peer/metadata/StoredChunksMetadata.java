@@ -20,7 +20,7 @@ public class StoredChunksMetadata implements Serializable {
      * if it has it should not create new chunkMetadatas in stored messages
      * String key identifies the chunk (<fileId>-<chunkNo>)
      */
-    final Set<String> alreadySavedChunk = new HashSet<>();
+    final ConcurrentSkipListSet<String> alreadySavedChunk = new ConcurrentSkipListSet<>();
 
     public String getChunkId(String fileId, Integer chunkNo) {
         return fileId + "-" + chunkNo;
@@ -47,7 +47,6 @@ public class StoredChunksMetadata implements Serializable {
                 chunk.addPeer(peerId);
 
             }
-
         }
     }
 
@@ -123,12 +122,12 @@ public class StoredChunksMetadata implements Serializable {
         StringBuilder state = new StringBuilder();
         int chunkNum = 0;
         for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
-            state.append(tabs +"Chunk  " + chunkNum + "\n");
+            state.append(tabs).append("Chunk  ").append(chunkNum).append("\n");
             chunkNum++;
             ChunkMetadata chunkMetadata = entry.getValue();
             String[] fileChunkIds = getFileChunkIds(entry.getKey());
-            state.append(tabs +"  * File ID: ").append(fileChunkIds[0]).append("\n");
-            state.append(tabs +"  * Chunk Id: ").append(fileChunkIds[1]).append("\n");
+            state.append(tabs).append("  * File ID: ").append(fileChunkIds[0]).append("\n");
+            state.append(tabs).append("  * Chunk Id: ").append(fileChunkIds[1]).append("\n");
             state.append(String.format("%s  * Size (kb): %d\n%s  * Replication Degree: %d\n%s  * Perceived replication Degree: %d\n",tabs,
                     chunkMetadata.getSizeKb(),tabs, chunkMetadata.getRepDgr(),tabs, chunkMetadata.getPerceivedRepDgr()));
         }
@@ -142,10 +141,6 @@ public class StoredChunksMetadata implements Serializable {
             size += chunkMetadata.getSizeKb();
         }
         return size;
-    }
-
-    public Map<String, ChunkMetadata> getChunksInfo() {
-        return chunksInfo;
     }
 
     public void receivedPutChunk(String fileId,int chunkNo,Peer peer){

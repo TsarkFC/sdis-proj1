@@ -74,6 +74,7 @@ public class GetChunkHandler {
             BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
 
             out.write(chunk);
+            System.out.println("[TCP] Sent chunk!");
             out.close();
             socket.close();
 

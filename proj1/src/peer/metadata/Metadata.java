@@ -56,6 +56,8 @@ public class Metadata implements Serializable {
     }
 
     public boolean hasFile(String fileId) {
+        System.out.println("Size: " + hostingFileInfo.size());
+        System.out.println("file id: " + fileId);
         return hostingFileInfo.size() > 0 && hostingFileInfo.containsKey(fileId);
     }
 
@@ -160,40 +162,19 @@ public class Metadata implements Serializable {
         state.append("* Stored:\n");
         state.append(storedChunksMetadata.returnData());
 
+        // storage capacity
+        state.append("* Maximum storage capacity: ");
+        state.append(maxSpace);
+
+        state.append("\n* Current occupied space: ");
+        state.append(storedChunksMetadata.getStoredSize()).append(" kb");
+
         state.append("\n********************************************************************************\n");
         state.append("********************************************************************************\n");
 
 
         return state.toString();
     }
-
-
-    public String returnState1() {
-        StringBuilder state = new StringBuilder();
-
-        // hosting data
-        state.append("[Hosting]\n");
-        state.append(hostingFileInfo.keySet().size());
-
-        for (String fileId : hostingFileInfo.keySet()) {
-            FileMetadata fileMetadata = hostingFileInfo.get(fileId);
-            state.append(String.format("[Pathname: %s]\nID: %s\nReplication Degree: %d\n",
-                    fileMetadata.getPathname(), fileMetadata.getId(), fileMetadata.getRepDgr()));
-            state.append("[Chunks]\n");
-            for (Map.Entry<Integer, ConcurrentSkipListSet<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
-                state.append("[").append(entry.getKey()).append("]");
-                state.append(" Perceived replication degree = ").append(entry.getValue().size()).append("\n");
-            }
-            state.append("\n");
-        }
-
-        // stored chunks data
-        state.append("\n\n[STORED]\n");
-        state.append(storedChunksMetadata.returnData());
-
-        return state.toString();
-    }
-
 
     public void setMaxSpace(double maxSpace) {
         this.maxSpace = maxSpace;
@@ -208,26 +189,6 @@ public class Metadata implements Serializable {
         System.out.println("WOTH MEW FILE: " +finalSpace);
         if (maxSpace == -1) return true;
         return maxSpace > finalSpace;
-    }
-
-    public void printState() {
-        System.out.println("\n********************************************");
-        System.out.println("************* State Metadata  **************");
-        System.out.println("Max space: " + maxSpace);
-        for (String fileId : hostingFileInfo.keySet()) {
-            FileMetadata fileMeta = hostingFileInfo.get(fileId);
-            System.out.println("File:");
-            System.out.println(String.format("\tPathname: %s\n\tID: %s\n\tReplication Degree: %d\n",
-                    fileMeta.getPathname(), fileMeta.getId(), fileMeta.getRepDgr()));
-        }
-        System.out.println("\tSaved Chunks:");
-        for (ChunkMetadata chunkMetadata : storedChunksMetadata.getChunksInfo().values()) {
-            System.out.println("\t\tID: " + chunkMetadata.getId());
-            System.out.println("\t\tSize: " + chunkMetadata.getSizeKb());
-            System.out.println("\t\tDesired Rep: " + chunkMetadata.getRepDgr());
-            System.out.println("\t\tPerceived Rep: " + chunkMetadata.getPerceivedRepDgr());
-            System.out.println();
-        }
     }
 
     public String getPath() {
