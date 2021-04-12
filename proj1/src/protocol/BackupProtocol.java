@@ -84,8 +84,7 @@ public class BackupProtocol extends Protocol {
             executor.schedule(this::verify, timeWait, TimeUnit.SECONDS);
             System.out.println("[BACKUP] Sent message, waiting " + timeWait + " seconds...");
         } else {
-            System.out.println("[BACKUP] Reached resending limit of PUTCHUNK messages!");
-            System.out.println("[FAILED] Failed to back up file...");
+            System.out.println("[BACKUP] Reached reached limit of PUTCHUNK messages!");
         }
     }
 

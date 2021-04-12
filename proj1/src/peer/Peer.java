@@ -14,9 +14,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 //java peer.Peer <protocol_version> <peer_id> <service_access_point> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>
 public class Peer implements RemoteObject {
@@ -29,7 +28,7 @@ public class Peer implements RemoteObject {
     private String restoreDir;
     private String filesDir;
 
-    private List<String> chunksReceived = new ArrayList<>();
+    private ConcurrentSkipListSet<String> chunksReceived = new ConcurrentSkipListSet<>();
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, byte[]>> activeRestores = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
@@ -122,7 +121,7 @@ public class Peer implements RemoteObject {
     }
 
     public void resetChunksReceived() {
-        this.chunksReceived = new ArrayList<>();
+        this.chunksReceived = new ConcurrentSkipListSet<>();
     }
 
     public void addRestoreEntry(String fileId) {

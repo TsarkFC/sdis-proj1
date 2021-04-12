@@ -37,12 +37,11 @@ public class RestoreChannel extends Channel{
             handleChunkMsg(msg);
         }
         else {
-            ChunkEnhanced msg = new ChunkEnhanced(headerString);
+            ChunkEnhanced msg = new ChunkEnhanced(headerString, body);
             String chunkId = msg.getFileId() + "-" + msg.getChunkNo();
             peer.addChunkReceived(chunkId);
             handleChunkEnhancedMsg(msg);
         }
-
     }
 
     public void handleChunkMsg(Chunk rcvdMsg) {

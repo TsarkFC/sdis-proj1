@@ -2,16 +2,15 @@ package messages;
 
 public class ChunkEnhanced extends MsgWithChunk {
     private final int portNumber;
-    private static final int PORTNUM_IDX = 5;
 
     public ChunkEnhanced(Double version, Integer senderId, String fileId, Integer chunkNo, int portNumber) {
         super(version, senderId, fileId, chunkNo);
         this.portNumber = portNumber;
     }
 
-    public ChunkEnhanced(String header) {
+    public ChunkEnhanced(String header, byte[] body) {
         super(header);
-        this.portNumber = Integer.parseInt(tokens[PORTNUM_IDX]);
+        this.portNumber = Integer.parseInt(new String(body));
     }
 
     @Override
@@ -32,9 +31,9 @@ public class ChunkEnhanced extends MsgWithChunk {
     @Override
     public byte[] getBytes() {
         //<Version> <MessageType> <SenderId> <FileId> <ChunkNo> <PortNumber> <CRLF>
-        String header = String.format("%s %s %d %s %d %d", this.version, getMsgType(), this.senderId,
-                this.fileId, this.chunkNo, this.portNumber);
-        return addCRLF(header.getBytes());
+        String header = String.format("%s %s %d %s %d", this.version, getMsgType(), this.senderId,
+                this.fileId, this.chunkNo);
+        return addBody(header.getBytes(), String.valueOf(this.portNumber).getBytes());
     }
 
     public int getPortNumber() {

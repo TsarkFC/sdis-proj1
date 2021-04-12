@@ -40,7 +40,6 @@ public class BackupProtocolInitiator implements Runnable {
             }
         }
         peer.getChannelCoordinator().setBackupInitiator(null);
-
     }
 
     public void setReceivedPutChunk(String fileId, int chunkNo) {

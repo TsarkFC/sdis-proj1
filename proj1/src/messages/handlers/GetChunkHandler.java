@@ -21,24 +21,22 @@ import java.util.concurrent.TimeUnit;
 public class GetChunkHandler {
     public void handleGetChunkMsg(GetChunk rcvdMsg, Peer peer) {
         new ScheduledThreadPoolExecutor(1).
-                schedule(() -> sendChunk(rcvdMsg, peer), Utils.generateRandomDelay("[RESTORE] Send Chunk msg after "), TimeUnit.MILLISECONDS);
+                schedule(() -> getAndSendChunk(rcvdMsg, peer), Utils.generateRandomDelay("[RESTORE] Send Chunk msg after "), TimeUnit.MILLISECONDS);
     }
 
-    private void sendChunk(GetChunk rcvdMsg, Peer peer) {
+    private void getAndSendChunk(GetChunk rcvdMsg, Peer peer) {
         byte[] chunk = FileHandler.getChunk(rcvdMsg, peer.getFileSystem());
-        if (chunk == null) {
-            System.out.println("");
-            return;
-        }
+        if (chunk == null) return;
 
         List<byte[]> msgs = new ArrayList<>();
-        ServerSocket socket = startTcpServer();
+        ServerSocket socket = null;
 
         if (peer.getArgs().getVersion() == 1.0) {
             Chunk msg = new Chunk(rcvdMsg.getVersion(), peer.getArgs().getPeerId(), rcvdMsg.getFileId(),
                     rcvdMsg.getChunkNo(), chunk);
             msgs.add(msg.getBytes());
         } else {
+            socket = startTcpServer();
             if (socket == null) {
                 System.out.println("[RESTORE] could not start tcp server socket, aborting...");
                 return;
@@ -55,6 +53,7 @@ public class GetChunkHandler {
         AddressList addrList = peer.getArgs().getAddressList();
         ThreadHandler.startMulticastThread(addrList.getMdrAddr().getAddress(), addrList.getMdrAddr().getPort(), msgs);
 
+        if (socket == null) return;
         if (peer.getArgs().getVersion() != 1.0) handleRestoreTcp(socket, chunk);
     }
 

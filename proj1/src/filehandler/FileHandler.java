@@ -117,7 +117,7 @@ public class FileHandler {
         return length;
     }
 
-    static boolean deleteDirectory(File directoryToBeDeleted) {
+    private static boolean deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();
         if (allContents != null) {
             for (File file : allContents) {
@@ -125,18 +125,6 @@ public class FileHandler {
             }
         }
         return directoryToBeDeleted.delete();
-    }
-
-    public byte[] getChunkFileData() {
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            byte[] chunk = new byte[CHUNK_SIZE];
-            int read = inputStream.read(chunk);
-            return Arrays.copyOf(chunk, read);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static int getNumberOfChunks(int size) {
@@ -159,5 +147,17 @@ public class FileHandler {
 
     public static void restoreFile(String path, ConcurrentHashMap<Integer, byte[]> content) {
         FileWriter.restoreFile(path, content);
+    }
+
+    public byte[] getChunkFileData() {
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            byte[] chunk = new byte[CHUNK_SIZE];
+            int read = inputStream.read(chunk);
+            return Arrays.copyOf(chunk, read);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

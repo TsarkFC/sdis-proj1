@@ -140,7 +140,7 @@ public class Metadata implements Serializable {
         // hosting data
         state.append("* Hosting:\n");
         for (String fileId : hostingFileInfo.keySet()) {
-            state.append("   * File ID: " + fileId+ "\n");
+            state.append("   * File ID: ").append(fileId).append("\n");
 
             FileMetadata fileMetadata = hostingFileInfo.get(fileId);
             state.append(String.format("\t* Pathname: %s\n\t* Desired Replication Degree: %d\n",

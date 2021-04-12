@@ -7,11 +7,8 @@ import utils.AddressList;
 import java.util.concurrent.*;
 
 public class ChannelCoordinator {
-    private final boolean mcReceiving = true;
-    private ScheduledThreadPoolExecutor executor;
     private final Peer peer;
     private BackupProtocolInitiator backupInitiator;
-    private final ConcurrentHashMap<String, Integer> receivedStoredMsg = new ConcurrentHashMap<>();
 
     public ChannelCoordinator(Peer peer) {
         this.peer = peer;
@@ -49,6 +46,4 @@ public class ChannelCoordinator {
     public void setBackupInitiator(BackupProtocolInitiator backupInitiator) {
         this.backupInitiator = backupInitiator;
     }
-
-
 }
