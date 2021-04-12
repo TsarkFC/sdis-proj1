@@ -9,7 +9,7 @@ Group members:
 
 All the commands are to be executed in the terminal.
 
-##Running the peer:
+## Running the peer:
 ### Using the python script:
 - This python script was used during the development of the project since it facilitates many steps:
     - Is able to run many peers at a time, by only specifying the wanted number.
@@ -36,7 +36,7 @@ All the commands are to be executed in the terminal.
     - Run peer - ../../scripts/peer.sh <version> <peer_id> <svc_access_point> <mc_addr> <mc_port> <mdb_addr> <mdb_port> <mdr_addr> <mdr_port>
     from the src/build/ directory
 
-##Running the client:
+## Running the client:
 
 ### Using test.sh available in proj1/scripts:
 - Is supposed to be run on src/build/
