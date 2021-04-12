@@ -5,6 +5,7 @@ import peer.Peer;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Metadata implements Serializable {
 
@@ -99,9 +100,9 @@ public class Metadata implements Serializable {
     }
 
     public boolean verifyRepDgr(String fileId, Integer repDgr, Integer numOfChunks) {
-        Map<Integer, Set<Integer>> chunkData = hostingFileInfo.get(fileId).getChunksData();
+        ConcurrentHashMap<Integer, ConcurrentSkipListSet<Integer>> chunkData = hostingFileInfo.get(fileId).getChunksData();
         int chunksCount = 0;
-        for (Map.Entry<Integer, Set<Integer>> entry : chunkData.entrySet()) {
+        for (Map.Entry<Integer, ConcurrentSkipListSet<Integer>> entry : chunkData.entrySet()) {
             chunksCount++;
             if (entry.getValue().size() < repDgr) return false;
         }
@@ -146,7 +147,7 @@ public class Metadata implements Serializable {
             state.append(String.format("\t* Pathname: %s\n\t* Desired Replication Degree: %d\n",
                     fileMetadata.getPathname(), fileMetadata.getRepDgr()));
             state.append("\t* Hosting Chunks:\n");
-            for (Map.Entry<Integer, Set<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
+            for (Map.Entry<Integer, ConcurrentSkipListSet<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
                 state.append("\t     [").append(entry.getKey()).append("]");
                 state.append(" Perceived replication degree = ").append(entry.getValue().size()).append("\n");
             }
@@ -177,7 +178,7 @@ public class Metadata implements Serializable {
             state.append(String.format("[Pathname: %s]\nID: %s\nReplication Degree: %d\n",
                     fileMetadata.getPathname(), fileMetadata.getId(), fileMetadata.getRepDgr()));
             state.append("[Chunks]\n");
-            for (Map.Entry<Integer, Set<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
+            for (Map.Entry<Integer, ConcurrentSkipListSet<Integer>> entry : fileMetadata.getChunksData().entrySet()) {
                 state.append("[").append(entry.getKey()).append("]");
                 state.append(" Perceived replication degree = ").append(entry.getValue().size()).append("\n");
             }

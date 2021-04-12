@@ -17,6 +17,11 @@ cd build
 #../../scripts/test.sh access0 STATE
 #../../scripts/test.sh access1 STATE
 #../../scripts/test.sh access0 DELETE ../files/5mb.jpg
+#../../scripts/test.sh access0 BACKUP ../files/1mb.jpeg 3
+#../../scripts/test.sh access0 RESTORE ../files/1mb.jpeg
+#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+#../../scripts/test.sh access1 RECLAIM 0
+#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
 
 ################# TEST MANY SAME TIME BACKUP ###################
 #Run all backups at same time
@@ -52,9 +57,13 @@ cd build
   #Verify if peer 2 is NOT hosting anything
   #../../scripts/test.sh access2 STATE
   #Verify if peer 1 is NOT storing anything
-  ../../scripts/test.sh access1 STATE
+  #../../scripts/test.sh access1 STATE
 
-
+#state after reclaim and backup
+../../scripts/test.sh access1 RECLAIM 0
+../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+../../scripts/test.sh access0 STATE
+../../scripts/test.sh access1 STATE
 
 ################# TEST ENHANCEMENT BACKUP ###################
 # Run backup with 10 peers version 1.1

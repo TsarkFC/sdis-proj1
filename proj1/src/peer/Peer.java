@@ -198,6 +198,4 @@ public class Peer implements RemoteObject {
             System.out.println("Error creating peer and connecting to RMI: " + e);
         }
     }
-
-
 }

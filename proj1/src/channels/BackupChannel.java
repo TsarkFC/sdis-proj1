@@ -29,7 +29,7 @@ public class BackupChannel extends Channel {
 
 
         System.out.println("IN THE BACKUP CHANNEL");
-        peer.getMetadata().printState();
+        //peer.getMetadata().printState();
 
         byte[] packetData = packet.getData();
         int bodyStartPos = getBodyStartPos(packetData);
@@ -39,7 +39,6 @@ public class BackupChannel extends Channel {
         String rcvd = new String(header, 0, header.length);
         System.out.println("[RECEIVED MESSAGE MDB] " + rcvd);
         PutChunk rcvdMsg = new PutChunk(rcvd, body);
-
 
         if (shouldSaveFile(rcvdMsg)) {
             String delayMsg;
@@ -52,7 +51,7 @@ public class BackupChannel extends Channel {
         }
 
         System.out.println("IN THE END CHANNEL");
-        peer.getMetadata().printState();
+        //peer.getMetadata().printState();
     }
 
     private boolean shouldSaveFile(PutChunk rcvdMsg) {
