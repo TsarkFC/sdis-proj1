@@ -56,8 +56,6 @@ public class Metadata implements Serializable {
     }
 
     public boolean hasFile(String fileId) {
-        System.out.println("Size: " + hostingFileInfo.size());
-        System.out.println("file id: " + fileId);
         return hostingFileInfo.size() > 0 && hostingFileInfo.containsKey(fileId);
     }
 
