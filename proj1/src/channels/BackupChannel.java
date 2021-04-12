@@ -45,10 +45,11 @@ public class BackupChannel extends Channel {
             new ScheduledThreadPoolExecutor(1).schedule(() -> sendStored(rcvdMsg),
                     Utils.generateRandomDelay(delayMsg), TimeUnit.MILLISECONDS);
         }else {
-            peer.getMetadata().getStoredChunksMetadata().deleteChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo());
-            peer.getMetadata().getStoredChunksMetadata().receivedPutChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo(),peer);
-            peer.getMetadata().writeMetadata();
-
+            if(!peer.isVanillaVersion()){
+                peer.getMetadata().getStoredChunksMetadata().deleteChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo());
+                peer.getMetadata().getStoredChunksMetadata().receivedPutChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo(),peer);
+                peer.getMetadata().writeMetadata();
+            }
         }
 
     }

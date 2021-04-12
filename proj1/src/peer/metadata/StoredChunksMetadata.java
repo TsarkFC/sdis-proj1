@@ -73,16 +73,8 @@ public class StoredChunksMetadata implements Serializable {
         if (!chunksInfo.containsKey(chunkId)) {
             System.out.println("[DELETE] Cannot delete Chunk from Metadata");
         } else {
-            System.out.println("DELETING CHUNK BECAUSE OF RECLAIM" +  chunkId);
             chunksInfo.remove(chunkId);
 
-        }
-    }
-    public void deleteChunksSize0(String fileId) {
-        for (String ckId : chunksInfo.keySet()) {
-            if(chunksInfo.get(ckId).getSizeKb() == 0){
-                chunksInfo.remove(ckId);
-            }
         }
     }
 

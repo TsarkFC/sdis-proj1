@@ -2,13 +2,15 @@
 #you should use as access point the name of the remote object providing the "testing" service.
 export CLASSPATH=
 cd build
+
+
 ################# Simple ###############################
 #../../scripts/test.sh access0 BACKUP ../files/321.txt 3
 #../../scripts/test.sh access0 RESTORE ../files/321.txt
 #../../scripts/test.sh access1 RECLAIM 70
+#../../scripts/test.sh access0 DELETE ../files/321.txt
 #../../scripts/test.sh access0 STATE
 #../../scripts/test.sh access1 STATE
-#../../scripts/test.sh access0 DELETE ../files/321.txt
 
 #81 chunk Image TODO ver se nos da feup tb corre bem
 #../../scripts/test.sh access0 BACKUP ../files/5mb.jpg 3
@@ -23,12 +25,16 @@ cd build
 #../../scripts/test.sh access1 RECLAIM 0
 #../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
 
+
+
 ################# TEST MANY SAME TIME BACKUP ###################
 #Run all backups at same time
 #../../scripts/test.sh access0 BACKUP ../files/file.txt 1
 #../../scripts/test.sh access0 BACKUP ../files/321.txt 1
 #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 1
 #../../scripts/test.sh access0 BACKUP ../files/5mb.jpg 1
+#../../scripts/test.sh access1 STATE
+
 
 #../../scripts/test.sh access0 RESTORE ../files/file.txt
 #../../scripts/test.sh access0 RESTORE ../files/321.txt
@@ -56,9 +62,7 @@ cd build
   #It should backup the other chunks in 3
   #Verify if peer 2 is NOT hosting anything
   #../../scripts/test.sh access2 STATE
-  #Verify if peer 1 is NOT storing anything
-  #../../scripts/test.sh access1 STATE
-  #Verify if peer 1 is NOT storing the 3 chunks
+  #Verify if peer 1 is only storing one file
   #../../scripts/test.sh access1 STATE
 
 
@@ -68,9 +72,10 @@ cd build
 #../../scripts/test.sh access0 STATE
 #../../scripts/test.sh access1 STATE
 
+
 ################# TEST ENHANCEMENT BACKUP ###################
-# Run backup with 10 peers version 1.1
-#../../scripts/test.sh access0 BACKUP ../files/file.txt 4
+# Run backup with 100 peers version 1.1
+#../../scripts/test.sh access0 BACKUP ../files/file.txt 1
 #../../scripts/test.sh access0 RESTORE ../files/file.txt
 
 
@@ -85,9 +90,4 @@ cd build
 
 
 
-#Test RECLAIM 0
-#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
-#../../scripts/test.sh access1 RECLAIM 0
-#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
-#../../scripts/test.sh access0 RECLAIM 0
 
