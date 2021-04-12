@@ -29,7 +29,8 @@ public class BackupChannel extends Channel {
 
 
         System.out.println("IN THE BACKUP CHANNEL");
-        peer.getMetadata().printState();
+        System.out.println(peer.getMetadata().returnState());
+
 
         byte[] packetData = packet.getData();
         int bodyStartPos = getBodyStartPos(packetData);
@@ -49,10 +50,13 @@ public class BackupChannel extends Channel {
             } else delayMsg = "[BACKUP] Initiate Backup after: ";
             new ScheduledThreadPoolExecutor(1).schedule(() -> sendStored(rcvdMsg),
                     Utils.generateRandomDelay(delayMsg), TimeUnit.MILLISECONDS);
+        }else {
+            peer.getMetadata().getStoredChunksMetadata().deleteChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo());
+            peer.getMetadata().getStoredChunksMetadata().receivedPutChunk(rcvdMsg.getFileId(),rcvdMsg.getChunkNo(),peer);
+            peer.getMetadata().writeMetadata();
+
         }
 
-        System.out.println("IN THE END CHANNEL");
-        peer.getMetadata().printState();
     }
 
     private boolean shouldSaveFile(PutChunk rcvdMsg) {

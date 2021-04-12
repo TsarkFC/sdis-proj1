@@ -14,6 +14,12 @@ public class StoredChunksMetadata implements Serializable {
      * ChunkMetadata contains all chunk necessary information
      */
     final ConcurrentHashMap<String, ChunkMetadata> chunksInfo = new ConcurrentHashMap<>();
+    /**
+     * Has information if the peer already received putchunk of that chunk
+     * if it has it should not create new chunkMetadatas in stored messages
+     * String key identifies the chunk (<fileId>-<chunkNo>)
+     */
+    final Set<String> alreadySavedChunk = new HashSet<>();
 
     public String getChunkId(String fileId, Integer chunkNo) {
         return fileId + "-" + chunkNo;
@@ -34,7 +40,7 @@ public class StoredChunksMetadata implements Serializable {
             chunk = chunksInfo.get(chunkId);
             chunk.addPeer(peerId);
         } else {
-            if(!peer.isVanillaVersion()){
+            if(!peer.isVanillaVersion() && !alreadyReceivedPutChunk(fileId,chunkNo,peer)){
                 chunk = new ChunkMetadata();
                 chunksInfo.put(chunkId, chunk);
                 chunk.addPeer(peerId);
@@ -63,12 +69,12 @@ public class StoredChunksMetadata implements Serializable {
 
     public void deleteChunk(String fileId, Integer chunkNo) {
         String chunkId = fileId + "-" + chunkNo;
-
         if (!chunksInfo.containsKey(chunkId)) {
             System.out.println("[DELETE] Cannot delete Chunk from Metadata");
         } else {
             System.out.println("DELETING CHUNK BECAUSE OF RECLAIM" +  chunkId);
             chunksInfo.remove(chunkId);
+
         }
     }
     public void deleteChunksSize0(String fileId) {
@@ -83,7 +89,9 @@ public class StoredChunksMetadata implements Serializable {
         Iterator<String> it = chunksInfo.keySet().iterator();
         while (it.hasNext()) {
             String chunkId = it.next();
-            if (chunkId.split("-")[0].equals(fileId)) {
+            String[] fileChunk = chunkId.split("-");
+            if (fileChunk[0].equals(fileId)) {
+                deleteReceivedChunk(fileId, Integer.parseInt(fileChunk[1]));
                 it.remove();
             }
         }
@@ -145,5 +153,25 @@ public class StoredChunksMetadata implements Serializable {
 
     public Map<String, ChunkMetadata> getChunksInfo() {
         return chunksInfo;
+    }
+
+    public void receivedPutChunk(String fileId,int chunkNo,Peer peer){
+        if(!peer.isVanillaVersion()){
+            String chunkId = getChunkId(fileId,chunkNo);
+            alreadySavedChunk.add(chunkId);
+        }
+    }
+
+    public void deleteReceivedChunk(String fileId,int chunkNo){
+        String chunkId = getChunkId(fileId,chunkNo);
+        alreadySavedChunk.remove(chunkId);
+    }
+
+    public boolean alreadyReceivedPutChunk(String fileId,int chunkNo,Peer peer){
+        if (!peer.isVanillaVersion()){
+            String chunkId = getChunkId(fileId,chunkNo);
+            return alreadySavedChunk.contains(chunkId);
+        }
+        return true;
     }
 }
