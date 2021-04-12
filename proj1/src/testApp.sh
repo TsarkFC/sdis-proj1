@@ -58,12 +58,20 @@ cd build
   #../../scripts/test.sh access2 STATE
   #Verify if peer 1 is NOT storing anything
   #../../scripts/test.sh access1 STATE
+  #Verify if peer 1 is NOT storing the 3 chunks
+  ../../scripts/test.sh access1 STATE
+
+#Testar se todos os peers, mm que nao guardem o chunk nao estao a guardar no stored
+#O backup enhanced nao esta a guardar os chunks que nao sao suposto
+#O reclaim normal nao guarda no 1 os outros stored
+
+#O problema é o backup protocol initiator com enhanced
 
 #state after reclaim and backup
-../../scripts/test.sh access1 RECLAIM 0
-../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
-../../scripts/test.sh access0 STATE
-../../scripts/test.sh access1 STATE
+#../../scripts/test.sh access1 RECLAIM 0
+#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 3
+#../../scripts/test.sh access0 STATE
+#../../scripts/test.sh access1 STATE
 
 ################# TEST ENHANCEMENT BACKUP ###################
 # Run backup with 10 peers version 1.1

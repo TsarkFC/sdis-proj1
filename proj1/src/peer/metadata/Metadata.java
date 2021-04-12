@@ -83,12 +83,13 @@ public class Metadata implements Serializable {
     /**
      * Updating information on stored chunks data
      */
-    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId)  {
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer peerId,Peer peer)  {
         FileMetadata hostingMetadata = hostingFileInfo.get(fileId);
         if (hostingMetadata != null) {
             updateHostingInfo(hostingMetadata, chunkNo, peerId);
         } else {
-            storedChunksMetadata.updateChunkInfo(fileId, chunkNo, peerId);
+
+            storedChunksMetadata.updateChunkInfo(fileId, chunkNo, peerId,peer);
         }
         writeMetadata();
     }

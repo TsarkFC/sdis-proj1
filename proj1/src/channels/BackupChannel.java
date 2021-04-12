@@ -77,11 +77,16 @@ public class BackupChannel extends Channel {
         if (!alreadyReachedRepDgr(rcvdMsg.getFileId(), rcvdMsg.getChunkNo(), rcvdMsg.getReplicationDeg())) {
             Stored confMsg = new Stored(rcvdMsg.getVersion(), peer.getArgs().getPeerId(), rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
             sendStoredMsg(confMsg.getBytes());
-            if (!peer.isVanillaVersion()) saveChunk(rcvdMsg);
-
+            if (!peer.isVanillaVersion()){
+                //peer.getMetadata().getStoredChunksMetadata().deleteChunksSize0(rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
+                saveChunk(rcvdMsg);
+            }
 
         } else {
             System.out.println("[BACKUP] Not backing up because reached perceived rep degree");
+            if(!peer.isVanillaVersion()){
+                peer.getMetadata().getStoredChunksMetadata().deleteChunk(rcvdMsg.getFileId(), rcvdMsg.getChunkNo());
+            }
         }
     }
 
