@@ -4,23 +4,62 @@ export CLASSPATH=
 cd build
 ################# Simple ###############################
 #../../scripts/test.sh access0 BACKUP ../files/321.txt 3
-../../scripts/test.sh access0 RESTORE ../files/321.txt
-#../../scripts/test.sh access0 BACKUP ../files/file.txt 2
-#../../scripts/test.sh access0 DELETE ../files/321.txt
 #../../scripts/test.sh access0 RESTORE ../files/321.txt
 #../../scripts/test.sh access1 RECLAIM 70
+#../../scripts/test.sh access0 STATE
 #../../scripts/test.sh access1 STATE
+#../../scripts/test.sh access0 DELETE ../files/321.txt
 
-#Big image
-#../../scripts/test.sh access1 BACKUP ../files/bigimage.jpg 3
-#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
-#../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
+#81 chunk Image TODO ver se nos da feup tb corre bem
 #../../scripts/test.sh access0 BACKUP ../files/5mb.jpg 3
 #../../scripts/test.sh access0 RESTORE ../files/5mb.jpg
+#../../scripts/test.sh access1 RECLAIM 70
+#../../scripts/test.sh access0 STATE
+#../../scripts/test.sh access1 STATE
+#../../scripts/test.sh access0 DELETE ../files/5mb.jpg
 
-#Big text file
-#../../scripts/test.sh access0 BACKUP ../files/bigtextfile.txt 3
-#../../scripts/test.sh access0 RESTORE ../files/bigtextfile.txt
+################# TEST MANY SAME TIME BACKUP ###################
+#Run all backups at same time
+#../../scripts/test.sh access0 BACKUP ../files/file.txt 1
+#../../scripts/test.sh access0 BACKUP ../files/321.txt 1
+#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 1
+#../../scripts/test.sh access0 BACKUP ../files/5mb.jpg 1
+
+#../../scripts/test.sh access0 RESTORE ../files/file.txt
+#../../scripts/test.sh access0 RESTORE ../files/321.txt
+#../../scripts/test.sh access0 RESTORE ../files/bigimage.jpg
+#../../scripts/test.sh access0 RESTORE ../files/5mb.jpg
+
+#../../scripts/test.sh access0 DELETE ../files/file.txt
+#../../scripts/test.sh access0 DELETE ../files/321.txt
+#../../scripts/test.sh access0 DELETE ../files/bigimage.jpg
+#../../scripts/test.sh access0 DELETE ../files/5mb.jpg
+
+################# TEST RECLAIM ###################
+#Backup and following reclaim
+  #Run with 4 peers, so the perceived rep degree is 3
+  #../../scripts/test.sh access0 BACKUP ../files/file.txt 4
+  #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
+  #../../scripts/test.sh access1 RECLAIM 70
+  # It should delete the image and keep the file since RepDgrImg(4) > PercDgrImg (3) > RepDgrFile(2)
+
+#Test reclaim and following backup
+  #Run backup with 3 peers
+  #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
+  #Run reclaim with 4 peers
+  #../../scripts/test.sh access1 RECLAIM 70
+  #It should backup the other chunks in 3
+  #Verify if peer 2 is NOT hosting anything
+  #../../scripts/test.sh access2 STATE
+  #Verify if peer 1 is NOT storing anything
+  ../../scripts/test.sh access1 STATE
+
+
+
+################# TEST ENHANCEMENT BACKUP ###################
+# Run backup with 10 peers version 1.1
+#../../scripts/test.sh access0 BACKUP ../files/file.txt 4
+#../../scripts/test.sh access0 RESTORE ../files/file.txt
 
 
 ################# TEST ENHANCEMENT DELETE ###################
@@ -30,22 +69,7 @@ cd build
 #../../scripts/test.sh access0 DELETE ../files/321.txt
 #Start 10 peers and see if deletes the remaining files
 
-################# TEST RECLAIM ###################
-#Run with 4 peers, so the perceived rep degree is 3
-#../../scripts/test.sh access0 BACKUP ../files/file.txt 4
-#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
-#../../scripts/test.sh access1 RECLAIM 70
-# It should delete the image and keep the file
 
-#Test reclaim and following backup
-#TODO Se ele for o unico que tem o ficheiro, o que e suposto acontecer?
-#Run backup with 3 peers
-#../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2
-#Run reclaim with 4 peers
-#../../scripts/test.sh access1 RECLAIM 70
-#It should backup the other chunks in 2
-#../../scripts/test.sh access1 STATE
-#Verify if peer 1 is NOT hosting anything
 
 #Test RECLAIM 0
 #../../scripts/test.sh access0 BACKUP ../files/bigimage.jpg 2

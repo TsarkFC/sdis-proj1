@@ -11,7 +11,7 @@ public class StoredChunksMetadata implements Serializable {
      * String key identifies the chunk (<fileId>-<chunkNo>)
      * ChunkMetadata contains all chunk necessary information
      */
-    ConcurrentHashMap<String, ChunkMetadata> chunksInfo = new ConcurrentHashMap<>();
+    final ConcurrentHashMap<String, ChunkMetadata> chunksInfo = new ConcurrentHashMap<>();
 
     public String getChunkId(String fileId, Integer chunkNo) {
         return fileId + "-" + chunkNo;
@@ -56,6 +56,7 @@ public class StoredChunksMetadata implements Serializable {
 
     public void deleteChunk(String fileId, Integer chunkNo) {
         String chunkId = fileId + "-" + chunkNo;
+        System.out.println("DELETONG CHUNK METADATA OF: " + chunkId);
         if (!chunksInfo.containsKey(chunkId)) {
             System.out.println("Cannot delete Chunk from Metadata");
         } else {
@@ -101,21 +102,6 @@ public class StoredChunksMetadata implements Serializable {
         return chunksInfo.getOrDefault(chunkId, null);
     }
 
-    /*public String returnData1(String tabs) {
-        StringBuilder state = new StringBuilder();
-
-        for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
-            ChunkMetadata chunkMetadata = entry.getValue();
-            String[] fileChunkIds = getFileChunkIds(entry.getKey());
-            state.append(tabs +"* File ID: ").append(fileChunkIds[0]).append("\n");
-            state.append(tabs +"* Chunk Id: ").append(fileChunkIds[1]).append("\n");
-            state.append(tabs +"* Stored chunk ").append(entry.getKey()).append("]\n");
-            state.append(String.format("Size (kb): %d\nReplication Degree: %d\nPerceived replication Degree: %d\n",
-                    chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
-        }
-        return state.toString();
-    }*/
-
     public String returnData() {
         String tabs = "   ";
         StringBuilder state = new StringBuilder();
@@ -132,17 +118,6 @@ public class StoredChunksMetadata implements Serializable {
         }
         return state.toString();
     }
-
-    /*public String returnData() {
-        StringBuilder state = new StringBuilder();
-        for (Map.Entry<String, ChunkMetadata> entry : chunksInfo.entrySet()) {
-            ChunkMetadata chunkMetadata = entry.getValue();
-            state.append("[Stored chunk ").append(entry.getKey()).append("]\n");
-            state.append(String.format("Size (kb): %d\nReplication Degree: %d\nPerceived replication Degree: %d\n",
-                    chunkMetadata.getSizeKb(), chunkMetadata.getRepDgr(), chunkMetadata.getPerceivedRepDgr()));
-        }
-        return state.toString();
-    }*/
 
 
     public int getStoredSize() {

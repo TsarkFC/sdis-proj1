@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
 
 public class BackupProtocol extends Protocol {
     final int repDgr;
-    int repsLimit = 5;
+    final int repsLimit = 5;
     List<byte[]> messages;
-    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     int numOfChunks = 0;
     int timeWait = 1;
     int reps = 1;
@@ -99,12 +99,12 @@ public class BackupProtocol extends Protocol {
         }
     }
 
-    public void backupChunk(String fileId, int chunkNo) throws IOException {
+    public void backupChunk(String fileId, int chunkNo) {
         messages = new ArrayList<>();
         FileHandler fileHandler = new FileHandler(file);
 
-        FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
-        peer.getMetadata().addHostingEntry(fileMetadata);
+        //FileMetadata fileMetadata = new FileMetadata(file.getPath(), fileId, repDgr, (int) file.length());
+        //peer.getMetadata().addHostingEntry(fileMetadata);
 
         PutChunk backupMsg = new PutChunk(peer.getArgs().getVersion(), peer.getArgs().getPeerId(), fileId,
                 chunkNo, repDgr, fileHandler.getChunkFileData());

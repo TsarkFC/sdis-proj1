@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Channel implements Runnable {
-    protected AddressList addrList;
+    protected final AddressList addrList;
     protected MulticastAddress currentAddr;
     protected Peer peer;
     protected int numOfThreads = 20;

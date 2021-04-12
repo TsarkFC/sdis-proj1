@@ -1,9 +1,9 @@
 package utils;
 
 public class AddressList {
-    MulticastAddress mcAddr;
-    MulticastAddress mdbAddr;
-    MulticastAddress mdrAddr;
+    final MulticastAddress mcAddr;
+    final MulticastAddress mdbAddr;
+    final MulticastAddress mdrAddr;
 
     public MulticastAddress getMcAddr() { return mcAddr; }
     public MulticastAddress getMdbAddr() { return mdbAddr; }

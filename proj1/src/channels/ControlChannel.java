@@ -8,8 +8,6 @@ import peer.metadata.ChunkMetadata;
 import peer.metadata.FileMetadata;
 import peer.metadata.StoredChunksMetadata;
 import protocol.BackupProtocolInitiator;
-import protocol.DeleteProtocol;
-import protocol.RestoreProtocol;
 import utils.AddressList;
 import filehandler.FileHandler;
 import utils.Utils;
@@ -46,7 +44,7 @@ public class ControlChannel extends Channel {
         }
     }
 
-    public void handleBackup(String msgString) throws IOException {
+    public void handleBackup(String msgString) {
         System.out.println("[RECEIVED MESSAGE MC]: " + msgString.substring(0, msgString.length() - 4));
         Stored msg = new Stored(msgString);
         peer.getMetadata().updateStoredInfo(msg.getFileId(), msg.getChunkNo(), msg.getSenderId());

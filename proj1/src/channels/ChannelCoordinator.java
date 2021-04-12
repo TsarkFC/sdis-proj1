@@ -18,25 +18,22 @@ public class ChannelCoordinator {
         this.createMDRChannel(addressList);
     }
 
-    public BackupChannel createMDBChannel(AddressList addressList) {
+    public void createMDBChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         BackupChannel backupChannel = new BackupChannel(addressList, peer);
         executor.schedule(backupChannel, 0, TimeUnit.SECONDS);
-        return backupChannel;
     }
 
-    public ControlChannel createMCChannel(AddressList addressList) {
+    public void createMCChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         ControlChannel controlChannel = new ControlChannel(addressList, peer);
         executor.schedule(controlChannel, 0, TimeUnit.SECONDS);
-        return controlChannel;
     }
 
-    public RestoreChannel createMDRChannel(AddressList addressList) {
+    public void createMDRChannel(AddressList addressList) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         RestoreChannel restoreChannel = new RestoreChannel(addressList, peer);
         executor.schedule(restoreChannel, 0, TimeUnit.SECONDS);
-        return restoreChannel;
     }
 
     public BackupProtocolInitiator getBackupInitiator() {

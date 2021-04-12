@@ -21,7 +21,7 @@ public class Metadata implements Serializable {
     /**
      * Path where metadata will be saved
      */
-    String path;
+    final String path;
 
     /**
      * Max space the peer can store
@@ -92,7 +92,7 @@ public class Metadata implements Serializable {
         writeMetadata();
     }
 
-    public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Double chunkSize, Integer peerId) throws IOException {
+    public void updateStoredInfo(String fileId, Integer chunkNo, Integer repDgr, Double chunkSize, Integer peerId) {
         int chunkSizeKb = (int) Math.round(chunkSize);
         storedChunksMetadata.updateChunkInfo(fileId, chunkNo, repDgr, chunkSizeKb, peerId);
         writeMetadata();
@@ -200,6 +200,9 @@ public class Metadata implements Serializable {
     public boolean hasSpace(double newFileSizeKb) {
         int storedSize = storedChunksMetadata.getStoredSize();
         double finalSpace = storedSize + newFileSizeKb;
+
+        System.out.println("STORED SIZE: " + storedSize);
+        System.out.println("WOTH MEW FILE: " +finalSpace);
         if (maxSpace == -1) return true;
         return maxSpace > finalSpace;
     }

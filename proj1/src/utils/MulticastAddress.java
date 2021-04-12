@@ -9,8 +9,8 @@ public class MulticastAddress {
         return port;
     }
 
-    String address;
-    Integer port;
+    final String address;
+    final Integer port;
 
     public MulticastAddress(String address, Integer port) {
         this.address = address;

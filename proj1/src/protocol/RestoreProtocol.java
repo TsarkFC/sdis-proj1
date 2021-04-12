@@ -14,10 +14,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class RestoreProtocol extends Protocol {
-    int repsLimit = 5;
+    final int repsLimit = 5;
     int timeWait = 1;
     int reps = 1;
-    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     public RestoreProtocol(String path, Peer peer) {
         super(path, peer);
